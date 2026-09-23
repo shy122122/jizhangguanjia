@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-low": "#f2f3ff", "on-secondary-fixed-variant": "#004e61", "on-surface-variant": "#3d4947", "on-secondary-container": "#006077", "tertiary-container": "#e21e49", "on-primary-container": "#f4fffc", "primary-fixed-dim": "#6bd8cb", "on-surface": "#131b2e", "tertiary-fixed-dim": "#ffb3b6", "surface-bright": "#faf8ff", "primary-container": "#008378", "outline-variant": "#bcc9c6", "surface-tint": "#006a61", "tertiary-fixed": "#ffdada", "secondary": "#006780", "on-error-container": "#93000a", "secondary-fixed": "#b7eaff", "inverse-on-surface": "#eef0ff", "primary-fixed": "#89f5e7", "inverse-primary": "#6bd8cb", "on-background": "#131b2e", "background": "#faf8ff", "surface-container": "#eaedff", "inverse-surface": "#283044", "error-container": "#ffdad6", "secondary-fixed-dim": "#6cd3f7", "error": "#ba1a1a", "on-primary": "#ffffff", "on-secondary": "#ffffff", "on-secondary-fixed": "#001f28", "secondary-container": "#76dcff", "on-primary-fixed": "#00201d", "on-tertiary-container": "#fffbff", "surface-container-lowest": "#ffffff", "surface-dim": "#d2d9f4", "on-error": "#ffffff", "on-tertiary": "#ffffff", "surface-container-highest": "#dae2fd", "on-tertiary-fixed-variant": "#920028", "surface-container-high": "#e2e7ff", "surface-variant": "#dae2fd", "outline": "#6d7a77", "on-tertiary-fixed": "#40000c", "surface": "#faf8ff", "tertiary": "#ba0035", "primary": "#00685f", "on-primary-fixed-variant": "#005049" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin-md": "1.5rem", "margin": "1rem", "space-md": "1rem", "gutter": "1rem", "space-xl": "2rem", "margin-lg": "2rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "gutter-lg": "1.5rem" }, "fontFamily": { "numeric-data": ["Manrope"], "label-md": ["Manrope"], "body-lg": ["Manrope"], "display-lg-mobile": ["Manrope"], "headline-lg": ["Manrope"], "headline-sm": ["Manrope"], "body-sm": ["Manrope"], "headline-lg-mobile": ["Manrope"], "display-lg": ["Manrope"], "numeric-hero": ["Manrope"], "body-md": ["Manrope"], "headline-md": ["Manrope"], "label-lg": ["Manrope"], "label-sm": ["Manrope"] }, "fontSize": { "numeric-data": ["1.125rem", { "lineHeight": "1.5rem", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-md": ["0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.02em", "fontWeight": "600" }], "body-lg": ["1rem", { "lineHeight": "1.5rem", "fontWeight": "400" }], "display-lg-mobile": ["2.25rem", { "lineHeight": "2.75rem", "letterSpacing": "-0.025em", "fontWeight": "700" }], "headline-lg": ["2rem", { "lineHeight": "2.5rem", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-sm": ["1.125rem", { "lineHeight": "1.5rem", "fontWeight": "600" }], "body-sm": ["0.75rem", { "lineHeight": "1rem", "fontWeight": "400" }], "headline-lg-mobile": ["1.5rem", { "lineHeight": "2rem", "letterSpacing": "-0.015em", "fontWeight": "700" }], "display-lg": ["3rem", { "lineHeight": "3.5rem", "letterSpacing": "-0.03em", "fontWeight": "700" }], "numeric-hero": ["2.25rem", { "lineHeight": "2.5rem", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-md": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "400" }], "headline-md": ["1.25rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-lg": ["0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "0.01em", "fontWeight": "600" }], "label-sm": ["0.6875rem", { "lineHeight": "0.875rem", "letterSpacing": "0.025em", "fontWeight": "500" }] } } } };</script></head><body class="bg-background font-body-md text-on-surface min-h-screen"><aside class="fixed left-0 top-0 h-screen w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between py-margin-md"><div class="flex flex-col gap-space-lg"><div class="px-margin-md flex items-center gap-space-sm"><img alt="Brand logo. - Primary color: #0d9488 - Font: manrope - Mode: light - Roundness: rounded-md" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UWMXhrPaup2sRb43t9KINNaQJ5AYTcVbdecsvvjnL-FjLbEwJqpmUxcbMa5gxflFh_lCYd6hbVpecyeYD7apv9IRyj8C_1YSSLlsChli-MHJ7B6k3CwnAfWIQuWqMHUmnAg4EstthoU9JyupTiGfleUzxpsuEo4_cKQZOV4gKFcc-vIKhKvEYu8ZrTBa_e5a4Js05_PElHBZtwZETJhCfkZW9c6yvSpSqW3rUUjzf__1vfepT-OggQWyM"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight leading-none">明账</span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-space-xs">清晰记账 · 理智消费</span></div></div><div class="px-margin-md"><button class="w-full flex items-center justify-center gap-space-xs py-space-sm px-space-md bg-primary text-on-primary font-label-lg text-label-lg rounded-xl shadow-[0_12px_24px_-6px_rgba(20,184,166,0.25)] hover:bg-primary-container hover:text-on-primary-container transition-all" type="button"><span class="material-symbols-outlined text-[1.25rem]">add</span><span>记一笔</span></button></div><nav class="flex flex-col gap-space-xs px-space-sm" data-active-classes="bg-surface-container text-primary font-semibold"><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="dashboard" href="#">首页概览</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="transactions" href="#">流水明细</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="budgets" href="#">预算管控</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="analytics" href="#">消费洞察</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="bill-import" href="#">账单导入</a><a class="flex items-center px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors font-body-md text-body-md" data-path="settings" href="#">个人与设置</a></nav></div><div class="px-margin-md flex flex-col gap-space-sm"><div class="bg-surface-container-low rounded-xl p-space-sm flex items-center justify-between"><div class="flex items-center gap-space-xs overflow-hidden"><span class="material-symbols-outlined text-secondary text-[1.25rem]">account_balance_wallet</span><div class="flex flex-col truncate"><span class="font-label-md text-label-md text-on-surface truncate">日常个人账本</span><span class="font-body-sm text-body-sm text-on-surface-variant">账单已于本地安全加密，已即时同频至手机端</span></div></div><span class="material-symbols-outlined text-on-surface-variant text-[1.125rem] cursor-pointer">unfold_more</span></div><div class="flex items-center justify-between pt-space-xs"><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1VGMStpNm7lxJH__ibXeQ_VQ0G_VnjqQBo-SQwG0sz_VM9W_RmplhuBHKqqxdhpYH1sIXzoxKNTrMBRrH1ppSd7oxteeuQq_y_vXmaXUNFp7j3htvOe8CJrhGydi-MkZxWJI3ejoLb6ZndOs5CqneW6UA_1OGqJ6TJaXIR4JObGkfY4jifTtQb5t8xMqfU7lZvV4j89OTLSO6PAgouqc8N8INA-LG5SRS6FKKclKhF1_ANAfVM_CZgOYu4"/><div class="flex flex-col"><span class="font-label-md text-label-md text-on-surface">陈序</span><span class="font-body-sm text-body-sm text-on-surface-variant">chen.x@clarity.cc</span></div></div><button class="text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[1.25rem]">logout</span></button></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface-bright/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-margin-lg"><div class="flex items-center gap-space-sm bg-surface-container-low px-space-md py-space-xs rounded-xl w-80"><span class="material-symbols-outlined text-on-surface-variant text-[1.25rem]">search</span><input class="bg-transparent border-none outline-none font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant w-full" placeholder="搜索流水、分类、标签..." type="text"/></div><div class="flex items-center gap-space-md"><button class="flex items-center justify-center w-10 h-10 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors relative" type="button"><span class="material-symbols-outlined text-[1.25rem]">notifications</span><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-tertiary-container"></span></button><button class="flex items-center justify-center w-10 h-10 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[1.25rem]">help_outline</span></button><div class="h-4 w-[1px] bg-outline-variant"></div><div class="flex items-center gap-space-xs text-on-surface-variant"><span class="material-symbols-outlined text-primary text-[1.25rem]">verified_user</span><span class="font-label-sm text-label-sm">本地加密保护</span></div></div></header><main class="relative pt-16 min-h-screen bg-background"><div class="flex flex-col w-full relative">
+<!-- Settings Dashboard Background (Static Preview behind overlay) -->
+<div class="w-full px-margin-lg py-margin-md flex flex-col gap-space-lg select-none pointer-events-none filter blur-[1px]">
+<!-- Header Section -->
+<div class="flex items-center justify-between">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-primary font-semibold uppercase tracking-wider">系统偏好与配置</span>
+<span class="text-outline-variant">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">财务流控基线</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">个人与系统设置</h1>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-md text-label-md px-space-md py-space-xs bg-surface-container text-on-surface-variant rounded-full">数据引擎 v1.2.4 稳定运行</span>
+</div>
+</div>
+<!-- Overview Stats Banner -->
+<div class="grid grid-cols-4 gap-gutter-lg">
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[1.75rem]">category</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">活跃消费分类</span>
+<span class="font-numeric-data text-numeric-data text-on-surface mt-space-xs">24 个支出 / 6 个收入</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container-low flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[1.75rem]">account_balance_wallet</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">绑定资金账户</span>
+<span class="font-numeric-data text-numeric-data text-on-surface mt-space-xs">4 张储蓄卡 / 2 张信用卡</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container-low flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[1.75rem]">donut_large</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">预算穿透覆盖率</span>
+<span class="font-numeric-data text-numeric-data text-primary mt-space-xs">92.4% (高稳健)</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container-low flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[1.75rem]">cloud_done</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">端到端同步密钥</span>
+<span class="font-numeric-data text-numeric-data text-on-surface mt-space-xs">3 分钟前已对齐</span>
+</div>
+</div>
+</div>
+<!-- Setting Tabs & Modules Mock -->
+<div class="grid grid-cols-12 gap-gutter-lg">
+<div class="col-span-3 flex flex-col gap-space-xs bg-surface-container-lowest p-space-md rounded-xl shadow-sm h-fit">
+<div class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg bg-surface-container text-primary font-semibold">
+<span class="material-symbols-outlined text-[1.25rem]">grid_view</span>
+<span class="font-body-md text-body-md">收支分类目录</span>
+</div>
+<div class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant">
+<span class="material-symbols-outlined text-[1.25rem]">account_circle</span>
+<span class="font-body-md text-body-md">个人档案与密钥</span>
+</div>
+<div class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant">
+<span class="material-symbols-outlined text-[1.25rem]">wallet</span>
+<span class="font-body-md text-body-md">账户与支付管道</span>
+</div>
+<div class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant">
+<span class="material-symbols-outlined text-[1.25rem]">security</span>
+<span class="font-body-md text-body-md">安全与数据归档</span>
+</div>
+</div>
+<div class="col-span-9 bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-lg">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">支出分类体系</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">拖拽调整记账时在九宫格面板的默认渲染顺序</p>
+</div>
+<button class="px-space-md py-space-xs bg-surface-container-high text-on-surface rounded-lg font-label-md text-label-md" type="button">添加新分类</button>
+</div>
+<div class="grid grid-cols-3 gap-space-md">
+<div class="p-space-md rounded-xl bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">restaurant</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-semibold text-on-surface">餐饮伙食</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">月预算 ¥3,200.00</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">drag_indicator</span>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">subway</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-semibold text-on-surface">日常通勤</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">月预算 ¥450.00</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">drag_indicator</span>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-high flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">headphones</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md font-semibold text-on-surface">数码潮玩 &amp; 外设</span>
+<span class="font-body-sm text-body-sm text-primary font-medium">编辑中...</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary">edit</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Persistent Modal / Backdrop Blur Layer -->
+<div class="fixed inset-0 top-16 left-72 bg-on-surface/40 backdrop-blur-sm z-40 transition-opacity"></div>
+<!-- Slide-over Drawer Panel (480px width) -->
+<aside class="fixed top-16 right-0 bottom-0 w-[480px] bg-surface-container-lowest shadow-2xl z-50 flex flex-col justify-between overflow-hidden">
+<!-- Drawer Header -->
+<div class="px-margin-lg py-space-lg bg-surface-container-low flex items-start justify-between">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-label-sm text-label-sm text-primary font-semibold tracking-wider uppercase">属性矩阵配置</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface font-bold">编辑消费分类</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">自定义分类属性、视觉锚点与预算穿透阈值</p>
+</div>
+<button class="w-9 h-9 flex items-center justify-center rounded-lg bg-surface-container-lowest text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all" title="关闭面板 (Esc)" type="button">
+<span class="material-symbols-outlined text-[1.25rem]">close</span>
+</button>
+</div>
+<!-- Drawer Body (Scrollable Form Canvas) -->
+<div class="flex-1 overflow-y-auto px-margin-lg py-space-lg flex flex-col gap-space-xl">
+<!-- Section 1: Classification Flow -->
+<div class="flex flex-col gap-space-sm">
+<label class="font-label-md text-label-md text-on-surface font-semibold flex items-center justify-between">
+<span>分类流动方向</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">决定账户资产流入或流出行为</span>
+</label>
+<div class="grid grid-cols-2 gap-space-xs p-1 bg-surface-container-low rounded-xl">
+<button class="flex items-center justify-center gap-space-xs py-2.5 rounded-lg bg-surface-container-lowest shadow-sm text-on-surface font-label-lg text-label-lg transition-all" type="button">
+<span class="material-symbols-outlined text-primary text-[1.125rem]">arrow_outward</span>
+<span>支出分类 (当前选中)</span>
+</button>
+<button class="flex items-center justify-center gap-space-xs py-2.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-lg text-label-lg transition-all" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">arrow_downward</span>
+<span>收入分类</span>
+</button>
+</div>
+</div>
+<!-- Section 2: Name Input -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface font-semibold" for="category-name">分类名称</label>
+<span class="font-label-sm text-label-sm text-on-surface-variant">6 / 12 字</span>
+</div>
+<div class="relative flex items-center">
+<input class="w-full h-11 px-space-md rounded-xl bg-surface-container-low font-body-md text-body-md text-on-surface placeholder:text-outline outline-none focus:bg-surface-container transition-all" id="category-name" maxlength="12" placeholder="请输入类目名称..." type="text" value="数码潮玩 &amp; 外设"/>
+<div class="absolute right-3 flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[1.125rem]">check_circle</span>
+</div>
+</div>
+</div>
+<!-- Section 3: Icon Selector Grid (6 columns) -->
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface font-semibold">类目识别图标</label>
+<span class="font-label-sm text-label-sm text-primary">已收纳 120+ 矢量符号</span>
+</div>
+<div class="grid grid-cols-6 gap-2.5 p-space-sm bg-surface-container-low rounded-xl">
+<!-- Active Icon -->
+<button class="w-12 h-12 rounded-lg bg-surface-container-lowest text-primary shadow-sm flex items-center justify-center relative transition-transform scale-105" type="button">
+<span class="material-symbols-outlined text-[1.5rem]" style="font-variation-settings: 'FILL' 1;">headphones</span>
+<span class="absolute -bottom-0.5 w-3 h-1 bg-primary rounded-full"></span>
+</button>
+<!-- Other Icons -->
+<button class="w-12 h-12 rounded-lg bg-surface-container-lowest/60 hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-all" type="button">
+<span class="material-symbols-outlined text-[1.4rem]">sports_esports</span>
+</button>
+<button class="w-12 h-12 rounded-lg bg-surface-container-lowest/60 hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-all" type="button">
+<span class="material-symbols-outlined text-[1.4rem]">local_cafe</span>
+</button>
+<button class="w-12 h-12 rounded-lg bg-surface-container-lowest/60 hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-all" type="button">
+<span class="material-symbols-outlined text-[1.4rem]">photo_camera</span>
+</button>
+<button class="w-12 h-12 rounded-lg bg-surface-container-lowest/60 hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-all" type="button">
+<span class="material-symbols-outlined text-[1.4rem]">directions_car</span>
+</button>
+<button class="w-12 h-12 rounded-lg bg-surface-container-lowest/60 hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-all" type="button">
+<span class="material-symbols-outlined text-[1.4rem]">menu_book</span>
+</button>
+<button class="w-12 h-12 rounded-lg bg-surface-container-lowest/60 hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-all" type="button">
+<span class="material-symbols-outlined text-[1.4rem]">checkroom</span>
+</button>
+<button class="w-12 h-12 rounded-lg bg-surface-container-lowest/60 hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-all" type="button">
+<span class="material-symbols-outlined text-[1.4rem]">pets</span>
+</button>
+<button class="w-12 h-12 rounded-lg bg-surface-container-lowest/60 hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-all" type="button">
+<span class="material-symbols-outlined text-[1.4rem]">medical_services</span>
+</button>
+<button class="w-12 h-12 rounded-lg bg-surface-container-lowest/60 hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-all" type="button">
+<span class="material-symbols-outlined text-[1.4rem]">flight_takeoff</span>
+</button>
+<button class="w-12 h-12 rounded-lg bg-surface-container-lowest/60 hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-all" type="button">
+<span class="material-symbols-outlined text-[1.4rem]">fitness_center</span>
+</button>
+<button class="w-12 h-12 rounded-lg bg-surface-container-lowest/60 hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-all" type="button">
+<span class="material-symbols-outlined text-[1.4rem]">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Section 4: Color Palette (10 PRD System Colors) -->
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface font-semibold">分类视觉主题色</label>
+<span class="font-label-sm text-label-sm text-on-surface-variant">当前选中：紫罗兰 (Violet)</span>
+</div>
+<div class="flex items-center justify-between p-space-sm bg-surface-container-low rounded-xl">
+<!-- 1. Teal -->
+<button class="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-on-primary transition-transform hover:scale-110 shadow-sm" title="Teal" type="button"></button>
+<!-- 2. Cyan -->
+<button class="w-7 h-7 rounded-full bg-secondary flex items-center justify-center text-on-secondary transition-transform hover:scale-110 shadow-sm" title="Cyan" type="button"></button>
+<!-- 3. Sky -->
+<button class="w-7 h-7 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container transition-transform hover:scale-110 shadow-sm" title="Sky" type="button"></button>
+<!-- 4. Indigo -->
+<button class="w-7 h-7 rounded-full bg-inverse-surface flex items-center justify-center text-inverse-on-surface transition-transform hover:scale-110 shadow-sm" title="Indigo" type="button"></button>
+<!-- 5. Violet (Selected) -->
+<button class="w-7 h-7 rounded-full bg-surface-tint flex items-center justify-center text-on-primary ring-2 ring-offset-2 ring-primary transition-transform scale-110 shadow-sm" title="Violet (当前生效)" type="button">
+<span class="material-symbols-outlined text-[0.875rem]">check</span>
+</button>
+<!-- 6. Pink -->
+<button class="w-7 h-7 rounded-full bg-tertiary-fixed-dim flex items-center justify-center text-on-tertiary-fixed-variant transition-transform hover:scale-110 shadow-sm" title="Pink" type="button"></button>
+<!-- 7. Rose -->
+<button class="w-7 h-7 rounded-full bg-tertiary flex items-center justify-center text-on-tertiary transition-transform hover:scale-110 shadow-sm" title="Rose" type="button"></button>
+<!-- 8. Amber -->
+<button class="w-7 h-7 rounded-full bg-primary-fixed-dim flex items-center justify-center text-on-primary-fixed-variant transition-transform hover:scale-110 shadow-sm" title="Amber" type="button"></button>
+<!-- 9. Lime -->
+<button class="w-7 h-7 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed transition-transform hover:scale-110 shadow-sm" title="Lime" type="button"></button>
+<!-- 10. Slate -->
+<button class="w-7 h-7 rounded-full bg-outline flex items-center justify-center text-surface transition-transform hover:scale-110 shadow-sm" title="Slate" type="button"></button>
+</div>
+</div>
+<!-- Section 5: PRD Core - Budget Penetration Integration -->
+<div class="flex flex-col gap-space-md p-space-md rounded-xl bg-surface-container-low">
+<!-- Toggle Header -->
+<div class="flex items-center justify-between">
+<div class="flex flex-col gap-0.5">
+<span class="font-body-md text-body-md font-semibold text-on-surface">单独配置月度支出预算</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">记账时即刻穿透计算该类目余量与警报</span>
+</div>
+<!-- Toggle active state -->
+<button class="w-12 h-6 bg-primary rounded-full relative p-0.5 transition-colors focus:outline-none flex items-center" type="button">
+<span class="w-5 h-5 rounded-full bg-on-primary shadow-sm transform translate-x-6 transition-transform"></span>
+</button>
+</div>
+<!-- Limit Input -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant font-medium">类目月度额度上限 (CNY)</label>
+<div class="flex items-center h-12 px-space-md bg-surface-container-lowest rounded-xl shadow-sm">
+<span class="font-numeric-data text-numeric-data text-primary mr-space-xs">¥</span>
+<input class="w-full bg-transparent font-numeric-hero text-numeric-hero text-on-surface outline-none tracking-tight font-bold" type="text" value="800.00"/>
+<span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container text-on-surface-variant font-medium">次月1日重置</span>
+</div>
+</div>
+<!-- Budget Penetration Bar Visualization -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<div class="flex justify-between font-label-sm text-label-sm">
+<span class="text-on-surface-variant">当前历史支出渗透预览</span>
+<span class="text-primary font-semibold">62.5% (健康)</span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container-highest overflow-hidden flex">
+<div class="h-full bg-primary rounded-l-full" style="width: 58%;"></div>
+<div class="h-full bg-primary-fixed-dim/80" style="width: 14%;"></div>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant font-label-sm text-label-sm">
+<span>¥0</span>
+<span class="text-primary font-medium">已渗透预测 ¥500.00</span>
+<span>¥800.00</span>
+</div>
+</div>
+<!-- PRD Smart Spend Advisor Card -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex items-start gap-space-sm">
+<div class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-primary flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[1.125rem]">auto_awesome</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="font-label-md text-label-md font-semibold text-on-surface">智能支出建议</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              根据您近 3 个月历史流水，该类目月均支出约 <span class="font-numeric-data text-on-surface font-semibold">¥650.00</span>，建议合理预算区间设定为 <span class="text-primary font-semibold">¥700.00 - ¥900.00</span>。
+            </p>
+</div>
+</div>
+</div>
+<!-- Section 6: Display & Scope -->
+<div class="flex flex-col gap-space-md">
+<label class="font-label-md text-label-md text-on-surface font-semibold">显示与归属账本</label>
+<div class="flex items-center justify-between p-space-md bg-surface-container-low rounded-xl">
+<div class="flex flex-col gap-0.5">
+<span class="font-body-md text-body-md font-medium text-on-surface">在记账面板九宫格置顶展示</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">提升高频支出类目的录入效率</span>
+</div>
+<button class="w-12 h-6 bg-primary rounded-full relative p-0.5 transition-colors focus:outline-none flex items-center" type="button">
+<span class="w-5 h-5 rounded-full bg-on-primary shadow-sm transform translate-x-6 transition-transform"></span>
+</button>
+</div>
+<div class="flex items-center justify-between p-space-md bg-surface-container-low rounded-xl">
+<div class="flex flex-col gap-0.5">
+<span class="font-body-md text-body-md font-medium text-on-surface">生效账本范围</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">仅当前账本关联此规则</span>
+</div>
+<div class="flex items-center gap-space-xs px-space-md py-space-xs bg-surface-container-lowest rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-secondary text-[1.125rem]">menu_book</span>
+<span class="font-label-md text-label-md text-on-surface font-medium">日常个人账本</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Drawer Footer (Sticky Bottom Action Bar) -->
+<div class="px-margin-lg py-space-md bg-surface-container-lowest shadow-[0_-4px_16px_rgba(0,0,0,0.04)] flex items-center justify-between">
+<!-- Destructive Ghost Action -->
+<button class="flex items-center gap-space-xs px-space-sm py-space-sm text-tertiary hover:bg-error-container/40 rounded-lg transition-colors font-label-md text-label-md" title="当前分类下无绑定历史流水，允许安全删除" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">delete_outline</span>
+<span>删除该分类</span>
+</button>
+<!-- Right Commit Actions -->
+<div class="flex items-center gap-space-sm">
+<button class="px-space-md py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-lg text-label-lg transition-colors" type="button">
+          取消
+        </button>
+<button class="px-5 py-2.5 rounded-lg bg-primary text-on-primary font-label-lg text-label-lg shadow-sm hover:bg-primary-container transition-all flex items-center gap-space-xs" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">check</span>
+<span>保存修改并生效</span>
+</button>
+</div>
+</div>
+</aside>
+</div></main></div></body></html>

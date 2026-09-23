@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#14B8A6">
+<meta name="description" content="明账 —— 把预算穿透到每一笔记录里的记账工具。">
+<title>明账 · 待激活空态</title>
+
+<!-- 字体：Manrope（正文与数字）+ Material Symbols（图标） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="../assets/js/theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+<!-- 设计令牌与基础样式（PRD 第 13 章） -->
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+
+<!-- Tailwind Play CDN：先载入运行时，再注入主题配置 -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="../assets/js/tailwind.config.js"></script>
+
+<!-- 路由表：导航与状态切换的唯一事实来源 -->
+<script src="../assets/js/routes.js"></script>
+</head><body data-page="stats-empty" class="bg-background font-body-md text-on-surface min-h-screen"><div data-shell="sidebar"></div>
+<div data-shell="topbar"></div>
+<div class="lg:pl-72"><main class="relative pt-16 min-h-screen bg-background"><div class="flex flex-col w-full">
+<div class="max-w-[1240px] mx-auto w-full px-margin-lg py-margin-md flex flex-col gap-space-lg">
+<!-- 顶部状态栏与控制区 -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-widest font-semibold">Analytics &amp; Intelligence</span>
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">冷启动准备就绪</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight leading-none">消费洞察与统计</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-0.5">全景透视现金流向，挖掘潜在结余空间</p>
+</div>
+<div class="flex items-center gap-space-sm self-start md:self-auto">
+<div class="flex items-center gap-space-xs px-space-md py-space-xs bg-surface-container-low rounded-xl text-on-surface-variant cursor-not-allowed select-none opacity-80">
+<span class="material-symbols-outlined text-[1.125rem] text-outline">calendar_today</span>
+<span class="font-label-lg text-label-lg text-on-surface">2026年9月（本月）</span>
+<span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container text-on-surface-variant">等待数据</span>
+</div>
+<button class="flex items-center gap-space-xs px-space-md py-space-xs bg-surface-container-low text-outline rounded-xl cursor-not-allowed select-none transition-all" disabled="" title="需累积有效数据" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">ios_share</span>
+<span class="font-label-lg text-label-lg">导出月度报告</span>
+</button>
+</div>
+</div>
+<!-- 智能冷启动提示条 -->
+<div class="flex items-center justify-between gap-space-md p-space-md rounded-2xl bg-surface-container-low shadow-sm">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-primary shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[1.5rem]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface">统计引擎已就绪</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded-full bg-surface-container-highest text-primary font-semibold">PRD 7.3 预期机制</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-0.5">明账正在等待您的首批流水灌入。只需导入历史账单或持续记账满 3 天，即可全面激活全景财务画像与智能洞察报告。</p>
+</div>
+</div>
+<div class="hidden lg:flex items-center gap-space-xs shrink-0">
+<span class="font-label-sm text-label-sm text-primary font-semibold bg-surface-container-highest px-space-sm py-1 rounded-lg">等待激活度 0/3 天</span>
+</div>
+</div>
+<!-- 4 大核心指标归零态 -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- 指标 1 -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">本月总支出</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[1.25rem]">trending_down</span>
+</div>
+</div>
+<div class="my-space-md flex flex-col">
+<span class="font-numeric-hero text-numeric-hero text-on-surface font-semibold tracking-tight">¥0.00</span>
+<div class="flex items-center gap-space-xs mt-space-xs text-on-surface-variant">
+<span class="font-label-sm text-label-sm">环比上月</span>
+<span class="font-numeric-data text-numeric-data text-outline font-semibold">--</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs pt-space-xs">
+<span class="w-2 h-2 rounded-full bg-outline-variant"></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">待产生第 1 笔消费记录</span>
+</div>
+</div>
+<!-- 指标 2 -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">本月到账收入</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[1.25rem]">account_balance</span>
+</div>
+</div>
+<div class="my-space-md flex flex-col">
+<span class="font-numeric-hero text-numeric-hero text-on-surface font-semibold tracking-tight">¥0.00</span>
+<div class="flex items-center gap-space-xs mt-space-xs text-on-surface-variant">
+<span class="font-label-sm text-label-sm">结余预期</span>
+<span class="font-numeric-data text-numeric-data text-outline font-semibold">¥0.00</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs pt-space-xs">
+<span class="w-2 h-2 rounded-full bg-outline-variant"></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">待录入薪资或利息进账</span>
+</div>
+</div>
+<!-- 指标 3 -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">预算执行率</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[1.25rem]">donut_large</span>
+</div>
+</div>
+<div class="my-space-md flex flex-col gap-space-xs">
+<div class="flex items-baseline justify-between">
+<span class="font-numeric-hero text-numeric-hero text-on-surface font-semibold tracking-tight">0.0%</span>
+<span class="font-body-sm text-body-sm text-outline">未设定上限</span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container overflow-hidden">
+<div class="h-full w-0 bg-primary"></div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs pt-space-xs">
+<span class="w-2 h-2 rounded-full bg-outline-variant"></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">待配置月度预算目标</span>
+</div>
+</div>
+<!-- 指标 4 -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">记账坚持度</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[1.25rem]">military_tech</span>
+</div>
+</div>
+<div class="my-space-md flex flex-col">
+<div class="flex items-baseline gap-1">
+<span class="font-numeric-hero text-numeric-hero text-on-surface font-semibold tracking-tight">0</span>
+<span class="font-headline-sm text-headline-sm text-outline">/ 30天</span>
+</div>
+<div class="flex items-center gap-1.5 mt-space-xs">
+<span class="w-2 h-2 rounded-full bg-surface-container"></span>
+<span class="w-2 h-2 rounded-full bg-surface-container"></span>
+<span class="w-2 h-2 rounded-full bg-surface-container"></span>
+<span class="font-label-sm text-label-sm text-outline">待点亮首星</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs pt-space-xs">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-body-sm text-body-sm text-primary font-semibold">连续记账 3 天解锁首个徽章</span>
+</div>
+</div>
+</div>
+<!-- 核心图表区域 (Bento 架构) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- 左侧主视觉区域 (8 列) -->
+<div class="lg:col-span-7 flex flex-col gap-space-lg">
+<!-- A. 消费日历热力图骨架 -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md relative overflow-hidden">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">消费日历热力图</h3>
+<span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant">9月周期</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">记录后将以深浅青色块呈现每日开销密度</p>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+<span>低</span>
+<span class="w-3 h-3 rounded bg-surface-container-low"></span>
+<span class="w-3 h-3 rounded bg-surface-container"></span>
+<span class="w-3 h-3 rounded bg-primary-fixed-dim opacity-50"></span>
+<span class="w-3 h-3 rounded bg-primary opacity-30"></span>
+<span>高</span>
+</div>
+</div>
+<!-- 热力图骨架网格：30天结构 -->
+<div class="relative pt-space-xs pb-space-sm">
+<div class="grid grid-cols-7 gap-2">
+<span class="text-center font-label-sm text-label-sm text-outline">一</span>
+<span class="text-center font-label-sm text-label-sm text-outline">二</span>
+<span class="text-center font-label-sm text-label-sm text-outline">三</span>
+<span class="text-center font-label-sm text-label-sm text-outline">四</span>
+<span class="text-center font-label-sm text-label-sm text-outline">五</span>
+<span class="text-center font-label-sm text-label-sm text-outline font-semibold text-primary">六</span>
+<span class="text-center font-label-sm text-label-sm text-outline font-semibold text-primary">日</span>
+<!-- 占位网格节点 -->
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">1</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">2</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">3</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">4</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">5</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">6</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">7</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">8</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">9</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">10</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">11</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">12</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">13</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">14</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">15</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">16</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">17</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">18</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">19</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">20</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">21</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">22</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">23</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">24</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">25</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">26</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">27</span></div>
+<div class="h-10 rounded-xl bg-surface-container-low flex flex-col items-center justify-center text-outline"><span class="font-label-sm text-label-sm opacity-40">28</span></div>
+</div>
+<!-- 悬浮温和指引卡片 -->
+<div class="absolute inset-0 bg-surface-container-lowest/80 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center p-space-md text-center">
+<div class="w-12 h-12 rounded-2xl bg-surface-container-high flex items-center justify-center text-primary mb-space-sm shadow-sm">
+<span class="material-symbols-outlined text-[1.75rem]">calendar_month</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">连续记录满 3 天后自动生成</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-sm mt-1">系统将自动以色块矩阵勾勒周末聚餐、工作日咖啡等开支节律，直观识别消费高峰</p>
+</div>
+</div>
+</div>
+<!-- B. 近 6 个月收支与结余走势骨架 -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">近 6 个月收支与结余走向</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">历史趋势沉淀中 · 观察长期储蓄率演化</p>
+</div>
+<div class="flex items-center gap-space-sm text-on-surface-variant font-label-sm text-label-sm">
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-primary"></span>收入</span>
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-surface-container-highest"></span>支出</span>
+</div>
+</div>
+<div class="h-48 w-full flex flex-col justify-between py-space-xs relative">
+<!-- 虚线基准背景 -->
+<div class="w-full border-b border-dashed border-outline-variant/40 h-0"></div>
+<div class="w-full border-b border-dashed border-outline-variant/40 h-0"></div>
+<div class="w-full border-b border-dashed border-outline-variant/40 h-0"></div>
+<div class="w-full border-b border-dashed border-outline-variant/40 h-0"></div>
+<!-- 极简 SVG 占位折线图 -->
+<svg class="absolute inset-0 w-full h-full text-outline-variant opacity-30" preserveaspectratio="none" viewbox="0 0 500 150">
+<path d="M0,130 Q80,120 160,125 T320,110 T500,105" fill="none" stroke="currentColor" stroke-dasharray="4 4" stroke-width="2"></path>
+<path d="M0,140 Q100,135 200,130 T380,128 T500,125" fill="none" stroke="currentColor" stroke-dasharray="2 4" stroke-width="2"></path>
+</svg>
+<!-- 居中引导说明 -->
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center p-space-md">
+<div class="flex items-center gap-space-xs bg-surface-container-low px-space-md py-space-xs rounded-full">
+<span class="material-symbols-outlined text-[1.125rem] text-primary">history_edu</span>
+<span class="font-label-sm text-label-sm text-on-surface">秒级回溯：支持导入微信/支付宝账单，即刻点亮过去 90 天现金流轨迹</span>
+</div>
+</div>
+<!-- X 轴月份标注 -->
+<div class="flex justify-between text-outline font-numeric-data text-[0.8125rem] pt-2">
+<span>2026-04</span>
+<span>2026-05</span>
+<span>2026-06</span>
+<span>2026-07</span>
+<span>2026-08</span>
+<span class="text-primary font-semibold">2026-09</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 右侧辅助分析区域 (5 列) -->
+<div class="lg:col-span-5 flex flex-col gap-space-lg">
+<!-- A. 支出分类构成 -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">支出分类构成</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">记录消费后自动分析分类占比与环比浮动</p>
+</div>
+<!-- 双层环形图骨架 -->
+<div class="py-space-md flex flex-col items-center justify-center relative">
+<svg class="w-44 h-44 text-surface-container" viewbox="0 0 100 100">
+<!-- 外环轨道 -->
+<circle cx="50" cy="50" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="2 3" stroke-width="8"></circle>
+<!-- 内环轨道 -->
+<circle cx="50" cy="50" fill="transparent" r="28" stroke="currentColor" stroke-dasharray="1 2" stroke-width="4"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+<span class="material-symbols-outlined text-outline text-[1.75rem]">pie_chart</span>
+<span class="font-label-sm text-label-sm text-outline mt-1">暂无分类数据</span>
+</div>
+</div>
+<!-- 预期分类标签骨架池 -->
+<div class="flex flex-col gap-space-sm pt-space-xs">
+<div class="flex items-center justify-between p-space-xs bg-surface-container-low rounded-xl">
+<div class="flex items-center gap-space-xs">
+<span class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[1rem]">restaurant</span>
+</span>
+<span class="font-label-md text-label-md text-on-surface">餐饮美食</span>
+</div>
+<span class="font-numeric-data text-numeric-data text-outline">--%</span>
+</div>
+<div class="flex items-center justify-between p-space-xs bg-surface-container-low rounded-xl">
+<div class="flex items-center gap-space-xs">
+<span class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[1rem]">directions_subway</span>
+</span>
+<span class="font-label-md text-label-md text-on-surface">交通出行</span>
+</div>
+<span class="font-numeric-data text-numeric-data text-outline">--%</span>
+</div>
+<div class="flex items-center justify-between p-space-xs bg-surface-container-low rounded-xl">
+<div class="flex items-center gap-space-xs">
+<span class="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[1rem]">shopping_bag</span>
+</span>
+<span class="font-label-md text-label-md text-on-surface">日常百货</span>
+</div>
+<span class="font-numeric-data text-numeric-data text-outline">--%</span>
+</div>
+</div>
+</div>
+<!-- B. 支付渠道分布 -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">支付渠道分布</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">通过账单导入或记账选择微信/支付宝/银行卡后，将在此生成资产流动画像</p>
+</div>
+<div class="grid grid-cols-3 gap-space-sm pt-space-xs">
+<div class="flex flex-col items-center justify-center p-space-md rounded-xl bg-surface-container-low gap-space-xs">
+<span class="material-symbols-outlined text-outline text-[1.5rem]">chat</span>
+<span class="font-label-sm text-label-sm text-on-surface">微信支付</span>
+<span class="font-label-sm text-label-sm text-outline">未接入</span>
+</div>
+<div class="flex flex-col items-center justify-center p-space-md rounded-xl bg-surface-container-low gap-space-xs">
+<span class="material-symbols-outlined text-outline text-[1.5rem]">payments</span>
+<span class="font-label-sm text-label-sm text-on-surface">支付宝</span>
+<span class="font-label-sm text-label-sm text-outline">未接入</span>
+</div>
+<div class="flex flex-col items-center justify-center p-space-md rounded-xl bg-surface-container-low gap-space-xs">
+<span class="material-symbols-outlined text-outline text-[1.5rem]">credit_card</span>
+<span class="font-label-sm text-label-sm text-on-surface">储蓄/信用卡</span>
+<span class="font-label-sm text-label-sm text-outline">未接入</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 底部行动催化剂大卡片 (双通道破冰行动) -->
+<div class="relative rounded-2xl bg-gradient-to-br from-surface-container-high via-surface-container to-surface-container-low p-space-xl shadow-md overflow-hidden">
+<div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-space-xl">
+<div class="flex flex-col gap-space-xs max-w-xl">
+<div class="flex items-center gap-space-xs">
+<span class="px-space-xs py-0.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm">推荐动作</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">破冰初始化</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">立刻唤醒您的消费洞察</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">无需被动等待 30 天慢慢积累。无论您习惯极速随手记，还是希望直接回溯历史轨迹，明账均已提供顺畅入口。</p>
+</div>
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-space-md shrink-0">
+<!-- 通道一：一键导入 -->
+<div class="flex flex-col gap-space-xs">
+<button class="flex items-center justify-center gap-space-sm px-space-lg py-space-md bg-primary text-on-primary rounded-xl font-label-lg text-label-lg shadow-[0_12px_24px_-6px_rgba(20,184,166,0.25)] hover:bg-primary-container hover:text-on-primary-container transition-all" type="button">
+<span class="material-symbols-outlined text-[1.25rem]">upload_file</span>
+<span>一键导入历史账单（推荐）</span>
+</button>
+<span class="text-center font-body-sm text-body-sm text-on-surface-variant">10秒本地沙盒解析 · 微信/支付宝近3个月</span>
+</div>
+<!-- 通道二：开始记录开销 -->
+<div class="flex flex-col gap-space-xs">
+<button class="flex items-center justify-center gap-space-sm px-space-lg py-space-md bg-surface-container-lowest text-on-surface rounded-xl font-label-lg text-label-lg shadow-sm hover:bg-surface-container-high transition-all" type="button">
+<span class="material-symbols-outlined text-[1.25rem] text-primary">edit_square</span>
+<span>开始记录今日开销</span>
+</button>
+<span class="text-center font-body-sm text-body-sm text-on-surface-variant">极速唤起记账键盘 · 开启预算穿透</span>
+</div>
+</div>
+</div>
+<!-- 优雅装饰背景底纹 -->
+<div class="absolute -right-16 -bottom-16 w-80 h-80 rounded-full bg-primary/5 pointer-events-none blur-3xl"></div>
+</div>
+</div>
+</div></main></div>
+<div data-shell="bottomnav"></div>
+<div data-shell="switcher"></div>
+<script src="../assets/js/shell.js"></script>
+</body></html>

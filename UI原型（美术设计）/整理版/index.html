@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>明账 · UI 原型总览（23 屏）</title>
+<style>
+  :root{
+    --ink:#0B1220; --ink-2:#131C2E; --ink-3:#1A2438; --line:#25314A;
+    --teal:#14B8A6; --teal-600:#0D9488; --cyan:#06B6D4;
+    --fg:#E6EDF7; --fg-2:#8A9AB4; --fg-3:#5C6B85;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--ink); color:var(--fg); min-height:100vh;
+    font-family:"Manrope","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1440px;margin:0 auto;padding:56px 32px 96px}
+
+  header.top{margin-bottom:8px}
+  .kicker{
+    display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;
+    letter-spacing:.14em;color:var(--teal);text-transform:uppercase;margin-bottom:16px;
+  }
+  .kicker::before{content:"";width:20px;height:1px;background:var(--teal)}
+  h1{
+    font-size:44px;line-height:1.1;font-weight:700;letter-spacing:-.03em;margin:0 0 14px;
+    background:linear-gradient(135deg,#FFFFFF 30%,var(--teal) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lede{font-size:15px;line-height:1.7;color:var(--fg-2);max-width:640px;margin:0}
+
+  .meta{display:flex;flex-wrap:wrap;gap:10px;margin:28px 0 0}
+  .pill{
+    display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;
+    background:var(--ink-2);border:1px solid var(--line);font-size:12.5px;color:var(--fg-2);
+  }
+  .pill b{color:var(--fg);font-weight:600}
+  .pill.t{background:rgba(20,184,166,.10);border-color:rgba(20,184,166,.32);color:var(--teal)}
+
+  .notice{
+    margin:28px 0 0;padding:16px 20px;border-radius:14px;
+    background:rgba(6,182,212,.07);border:1px solid rgba(6,182,212,.22);
+    font-size:13.5px;line-height:1.75;color:var(--fg-2);
+  }
+  .notice b{color:#7DD3E8;font-weight:600}
+  .notice code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;
+    background:rgba(255,255,255,.06);padding:1px 6px;border-radius:5px;color:var(--fg);
+  }
+
+  .mod{margin-top:56px}
+  .mod__hd{display:flex;align-items:baseline;gap:14px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+  .mod__no{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;
+    color:var(--teal);letter-spacing:.08em;font-weight:600;
+  }
+  .mod__ttl{font-size:19px;font-weight:600;letter-spacing:-.01em;margin:0}
+  .mod__cnt{margin-left:auto;font-size:12px;color:var(--fg-3)}
+
+  .grid{
+    display:grid;gap:22px;margin-top:26px;
+    grid-template-columns:repeat(auto-fill,minmax(268px,1fr));
+  }
+  .card{
+    display:flex;flex-direction:column;text-decoration:none;color:inherit;
+    background:var(--ink-2);border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    transition:transform .22s cubic-bezier(.2,.7,.3,1),border-color .22s,box-shadow .22s;
+  }
+  .card:hover{transform:translateY(-4px);border-color:rgba(20,184,166,.45);box-shadow:0 18px 36px -14px rgba(0,0,0,.7),0 0 0 1px rgba(20,184,166,.18)}
+  .shot{
+    position:relative;background:#0E1626;border-bottom:1px solid var(--line);
+    aspect-ratio:4/3;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  }
+  .shot img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;transition:transform .35s}
+  .card:hover .shot img{transform:scale(1.03)}
+  .shot::after{
+    content:"打开原型";position:absolute;inset:auto 0 0 0;padding:26px 12px 10px;
+    background:linear-gradient(to top,rgba(11,18,32,.94),transparent);
+    font-size:12px;font-weight:600;color:var(--teal);text-align:right;
+    opacity:0;transition:opacity .22s;
+  }
+  .card:hover .shot::after{opacity:1}
+  .card__body{padding:14px 16px 16px;display:flex;gap:11px;align-items:flex-start}
+  .no{
+    flex:none;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;font-weight:700;
+    color:var(--teal);background:rgba(20,184,166,.11);border:1px solid rgba(20,184,166,.26);
+    border-radius:7px;padding:3px 7px;margin-top:1px;
+  }
+  .card__ttl{font-size:14px;font-weight:600;line-height:1.4;letter-spacing:-.005em}
+  .card__sub{font-size:12px;color:var(--fg-3);margin-top:4px;line-height:1.5}
+
+  footer{margin-top:72px;padding-top:26px;border-top:1px solid var(--line);font-size:12.5px;color:var(--fg-3);line-height:1.9}
+  footer a{color:var(--fg-2);text-decoration:none;border-bottom:1px solid var(--line)}
+  footer a:hover{color:var(--teal);border-color:var(--teal)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="kicker">Mingzhang · Prototype Review</div>
+    <h1>明账 · UI 原型总览</h1>
+    <p class="lede">Google Stitch 导出的两批原型已合并去重。原始两包共 32 屏，其中第二包 9 屏与第一包逐字节重复，实际唯一页面 <b>23 屏</b>，按产品流程重新编号并归类为 8 个模块。</p>
+    <div class="meta">
+      <span class="pill t"><b>23</b> 唯一页面</span>
+      <span class="pill"><b>32</b> 去重前</span>
+      <span class="pill">形态 <b>桌面端优先</b>（1280–1600px）</span>
+      <span class="pill">设计语言 <b>Clarity Ledger</b></span>
+    </div>
+    <div class="notice">
+      <b>打开说明</b>：原型 HTML 依赖 <code>cdn.tailwindcss.com</code>、Google Fonts（Manrope / Material Symbols）与 Google 托管图片，需要联网才能完整呈现；离线打开会出现字体与图标缺失。缩略图取自各屏自带的 <code>screen.png</code>，不依赖网络。
+    </div>
+  </header>
+
+  <section class="mod" data-mod="引导与账户">
+    <div class="mod__hd"><span class="mod__no">MODULE 01</span><h2 class="mod__ttl">引导与账户</h2><span class="mod__cnt">3 屏</span></div>
+    <div class="grid">
+      <a class="card" href="01-引导-落地页与登录注册.html">
+        <div class="shot"><img src="01-引导-落地页与登录注册.png" alt="落地页与登录注册" loading="lazy"></div>
+        <div class="card__body"><span class="no">01</span><div><div class="card__ttl">落地页 · 登录注册</div><div class="card__sub">免登录试用 / 手机验证码 / 社交登录</div></div></div>
+      </a>
+      <a class="card" href="02-引导-首次进入冷启动.html">
+        <div class="shot"><img src="02-引导-首次进入冷启动.png" alt="首次进入冷启动" loading="lazy"></div>
+        <div class="card__body"><span class="no">02</span><div><div class="card__ttl">首次进入 · 冷启动引导</div><div class="card__sub">空账本态，引导设置月度预算</div></div></div>
+      </a>
+      <a class="card" href="03-引导-找回密码与帮助.html">
+        <div class="shot"><img src="03-引导-找回密码与帮助.png" alt="找回密码与帮助" loading="lazy"></div>
+        <div class="card__body"><span class="no">03</span><div><div class="card__ttl">找回密码 · 帮助中心</div><div class="card__sub">邮箱重置 / 常见问题排查</div></div></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="mod" data-mod="首页概览">
+    <div class="mod__hd"><span class="mod__no">MODULE 02</span><h2 class="mod__ttl">首页概览 · 预算穿透各类状态</h2><span class="mod__cnt">5 屏</span></div>
+    <div class="grid">
+      <a class="card" href="04-首页-平稳态.html">
+        <div class="shot"><img src="04-首页-平稳态.png" alt="首页平稳态" loading="lazy"></div>
+        <div class="card__body"><span class="no">04</span><div><div class="card__ttl">首页 · 平稳态</div><div class="card__sub">本月剩余 20 天 · 预算节奏平稳</div></div></div>
+      </a>
+      <a class="card" href="05-首页-今日安全配额.html">
+        <div class="shot"><img src="05-首页-今日安全配额.png" alt="今日安全配额" loading="lazy"></div>
+        <div class="card__body"><span class="no">05</span><div><div class="card__ttl">首页 · 今日安全配额</div><div class="card__sub">今日可花 ¥86.00 · 已用 43.0%</div></div></div>
+      </a>
+      <a class="card" href="06-首页-告急态.html">
+        <div class="shot"><img src="06-首页-告急态.png" alt="首页告急态" loading="lazy"></div>
+        <div class="card__body"><span class="no">06</span><div><div class="card__ttl">首页 · 告急态</div><div class="card__sub">剩余 8 天 · 餐饮透支警告条</div></div></div>
+      </a>
+      <a class="card" href="07-首页-濒临穿透.html">
+        <div class="shot"><img src="07-首页-濒临穿透.png" alt="首页濒临穿透" loading="lazy"></div>
+        <div class="card__body"><span class="no">07</span><div><div class="card__ttl">首页 · 濒临穿透</div><div class="card__sub">配额 ¥42.00，智能风控柔性拦截</div></div></div>
+      </a>
+      <a class="card" href="08-预算-总预算透支赤字.html">
+        <div class="shot"><img src="08-预算-总预算透支赤字.png" alt="总预算透支赤字" loading="lazy"></div>
+        <div class="card__body"><span class="no">08</span><div><div class="card__ttl">预算 · 总预算透支赤字</div><div class="card__sub">执行 105.3%，今日配额 ¥0.00</div></div></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="mod" data-mod="预算管控">
+    <div class="mod__hd"><span class="mod__no">MODULE 03</span><h2 class="mod__ttl">预算管控</h2><span class="mod__cnt">2 屏</span></div>
+    <div class="grid">
+      <a class="card" href="09-预算-冷启动配置向导.html">
+        <div class="shot"><img src="09-预算-冷启动配置向导.png" alt="预算冷启动配置向导" loading="lazy"></div>
+        <div class="card__body"><span class="no">09</span><div><div class="card__ttl">预算 · 冷启动配置向导</div><div class="card__sub">智能测算推荐 50/30/20 法则</div></div></div>
+      </a>
+      <a class="card" href="10-预算-总预算看板.html">
+        <div class="shot"><img src="10-预算-总预算看板.png" alt="总预算看板" loading="lazy"></div>
+        <div class="card__body"><span class="no">10</span><div><div class="card__ttl">预算 · 总预算看板</div><div class="card__sub">分类子预算穿透列表</div></div></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="mod" data-mod="记账面板">
+    <div class="mod__hd"><span class="mod__no">MODULE 04</span><h2 class="mod__ttl">记账面板</h2><span class="mod__cnt">1 屏</span></div>
+    <div class="grid">
+      <a class="card" href="11-记账面板-数字键盘与连续记账.html">
+        <div class="shot"><img src="11-记账面板-数字键盘与连续记账.png" alt="记账面板" loading="lazy"></div>
+        <div class="card__body"><span class="no">11</span><div><div class="card__ttl">记账面板 · 数字键盘</div><div class="card__sub">连续记账 / 支出·收入·转账</div></div></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="mod" data-mod="收支流水">
+    <div class="mod__hd"><span class="mod__no">MODULE 05</span><h2 class="mod__ttl">收支流水</h2><span class="mod__cnt">3 屏</span></div>
+    <div class="grid">
+      <a class="card" href="12-流水-新账本空态.html">
+        <div class="shot"><img src="12-流水-新账本空态.png" alt="流水新账本空态" loading="lazy"></div>
+        <div class="card__body"><span class="no">12</span><div><div class="card__ttl">流水 · 新账本空态</div><div class="card__sub">从第一笔明细开始激活穿透</div></div></div>
+      </a>
+      <a class="card" href="13-流水-列表与筛选.html">
+        <div class="shot"><img src="13-流水-列表与筛选.png" alt="流水列表与筛选" loading="lazy"></div>
+        <div class="card__body"><span class="no">13</span><div><div class="card__ttl">流水 · 列表与筛选</div><div class="card__sub">快捷键搜索 / 导出表格</div></div></div>
+      </a>
+      <a class="card" href="14-流水-筛选结果空态.html">
+        <div class="shot"><img src="14-流水-筛选结果空态.png" alt="流水筛选结果空态" loading="lazy"></div>
+        <div class="card__body"><span class="no">14</span><div><div class="card__ttl">流水 · 筛选结果空态</div><div class="card__sub">高级筛选、已选条件回显</div></div></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="mod" data-mod="消费洞察">
+    <div class="mod__hd"><span class="mod__no">MODULE 06</span><h2 class="mod__ttl">消费洞察</h2><span class="mod__cnt">3 屏</span></div>
+    <div class="grid">
+      <a class="card" href="15-统计-概览看板.html">
+        <div class="shot"><img src="15-统计-概览看板.png" alt="统计概览看板" loading="lazy"></div>
+        <div class="card__body"><span class="no">15</span><div><div class="card__ttl">统计 · 概览看板</div><div class="card__sub">本月支出/收入/结余、环比</div></div></div>
+      </a>
+      <a class="card" href="16-统计-空态待激活.html">
+        <div class="shot"><img src="16-统计-空态待激活.png" alt="统计空态待激活" loading="lazy"></div>
+        <div class="card__body"><span class="no">16</span><div><div class="card__ttl">统计 · 空态待激活</div><div class="card__sub">记账坚持度 0/3 天解锁徽章</div></div></div>
+      </a>
+      <a class="card" href="17-统计-餐饮分类下钻.html">
+        <div class="shot"><img src="17-统计-餐饮分类下钻.png" alt="餐饮分类下钻" loading="lazy"></div>
+        <div class="card__body"><span class="no">17</span><div><div class="card__ttl">统计 · 餐饮分类下钻</div><div class="card__sub">AI 节流诊断、防穿透建议</div></div></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="mod" data-mod="账单导入">
+    <div class="mod__hd"><span class="mod__no">MODULE 07</span><h2 class="mod__ttl">账单导入</h2><span class="mod__cnt">3 屏</span></div>
+    <div class="grid">
+      <a class="card" href="18-导入-主页面.html">
+        <div class="shot"><img src="18-导入-主页面.png" alt="账单导入主页面" loading="lazy"></div>
+        <div class="card__body"><span class="no">18</span><div><div class="card__ttl">导入 · 主页面</div><div class="card__sub">文本智能识别 / 文件上传</div></div></div>
+      </a>
+      <a class="card" href="19-导入-成功与撤销.html">
+        <div class="shot"><img src="19-导入-成功与撤销.png" alt="账单导入成功与撤销" loading="lazy"></div>
+        <div class="card__body"><span class="no">19</span><div><div class="card__ttl">导入 · 成功与撤销</div><div class="card__sub">撤销保护期、今日可花联动更新</div></div></div>
+      </a>
+      <a class="card" href="20-导入-异常诊断.html">
+        <div class="shot"><img src="20-导入-异常诊断.png" alt="导入异常诊断" loading="lazy"></div>
+        <div class="card__body"><span class="no">20</span><div><div class="card__ttl">导入 · 异常诊断</div><div class="card__sub">微信解压密码、字段缺失补全</div></div></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="mod" data-mod="个人与设置">
+    <div class="mod__hd"><span class="mod__no">MODULE 08</span><h2 class="mod__ttl">个人与设置</h2><span class="mod__cnt">3 屏</span></div>
+    <div class="grid">
+      <a class="card" href="21-设置-目录总览.html">
+        <div class="shot"><img src="21-设置-目录总览.png" alt="设置目录总览" loading="lazy"></div>
+        <div class="card__body"><span class="no">21</span><div><div class="card__ttl">设置 · 目录总览</div><div class="card__sub">六大设置分区导航</div></div></div>
+      </a>
+      <a class="card" href="22-设置-分类管理.html">
+        <div class="shot"><img src="22-设置-分类管理.png" alt="分类管理" loading="lazy"></div>
+        <div class="card__body"><span class="no">22</span><div><div class="card__ttl">设置 · 分类管理</div><div class="card__sub">拖拽排序、收支分类体系</div></div></div>
+      </a>
+      <a class="card" href="23-设置-数据与隐私.html">
+        <div class="shot"><img src="23-设置-数据与隐私.png" alt="数据与隐私" loading="lazy"></div>
+        <div class="card__body"><span class="no">23</span><div><div class="card__ttl">设置 · 数据与隐私</div><div class="card__sub">本地金钥、冷备份、高危区</div></div></div>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    设计规范见 <a href="设计规范-DESIGN.md">设计规范-DESIGN.md</a>（由 Stitch 随包导出，含完整色板、字阶、圆角与间距 token）。<br>
+    每屏源文件为同名 <b>.html</b>，截图文件为同名 <b>.png</b>。
+  </footer>
+
+</div>
+</body>
+</html>

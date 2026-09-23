@@ -1,0 +1,120 @@
+/* ============================================================================
+ * 明账（MingZhang）· 基础样式
+ *
+ * 只放三类东西：
+ *   1. CSS Reset / 全局基线
+ *   2. 原型里**反复出现**、用 Tailwind 工具类表达会冗长的组合样式
+ *   3. 深色模式的工具类补丁（原型大量使用字面色值，需在深色下覆写）
+ *
+ * 单一职责：组件样式一律用 Tailwind 工具类写在页面里，不要往这里堆。
+ * ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+ * 1. 全局基线
+ * ------------------------------------------------------------------------- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  padding: 0;
+  overscroll-behavior: none;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Manrope', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+main > :first-child { margin-top: 0 !important; }
+main > :last-child  { margin-bottom: 0 !important; }
+
+img { max-width: 100%; display: block; }
+
+a { color: inherit; text-decoration: none; }
+
+button,
+input,
+select,
+textarea { font: inherit; color: inherit; }
+
+/* 原型为沉浸式移动/桌面双端界面，全局隐藏滚动条（保留滚动能力）*/
+::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* 键盘可达性：焦点环用辅色（PRD 13.3 accent-600 指定为 focus ring）*/
+:focus-visible {
+  outline: 2px solid var(--accent-600);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* ---------------------------------------------------------------------------
+ * 2. 图标
+ * Material Symbols Outlined：由 Google Fonts 提供字体与 .material-symbols-outlined
+ * 基类，此处只补充默认字重现与视觉对齐。
+ * ------------------------------------------------------------------------- */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+  flex-shrink: 0;
+}
+.material-symbols-outlined.is-filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+/* ---------------------------------------------------------------------------
+ * 3. 数字排版（金额纵向对齐）
+ * 原型大量出现金额列表，等宽数位是财务界面的硬要求。
+ * ------------------------------------------------------------------------- */
+[class*='font-numeric-'],
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* ---------------------------------------------------------------------------
+ * 4. 金额语义色（PRD 13.5.2 关键设计决策）
+ * 支出金额一律中性深色，绝不标红；红色只留给超支 / 删除 / 错误。
+ * 用类名表达语义，避免每个页面重复写 text-[#0F172A]。
+ * ------------------------------------------------------------------------- */
+.amount-expense  { color: var(--amount-expense); }
+.amount-income   { color: var(--amount-income); }
+.amount-transfer { color: var(--amount-transfer); }
+
+/* ---------------------------------------------------------------------------
+ * 5. 品牌渐变（PRD 13.7）
+ * 「今日可花」卡片是该渐变唯一的集中使用点，用作品牌记忆锚。
+ * ------------------------------------------------------------------------- */
+.bg-brand-gradient      { background-image: var(--gradient-brand); }
+.bg-brand-gradient-soft { background-image: var(--gradient-brand-soft); }
+.bg-brand-gradient-dark { background-image: var(--gradient-brand-dark); }
+
+/* ---------------------------------------------------------------------------
+ * 6. 表面分层阴影（PRD 13.8）
+ * ------------------------------------------------------------------------- */
+.shadow-tier-1 { box-shadow: var(--shadow-tier1); }
+.shadow-tier-2 { box-shadow: var(--shadow-tier2); }
+.shadow-tier-3 { box-shadow: var(--shadow-tier3); }
+
+/* ---------------------------------------------------------------------------
+ * 7. 遮罩与浮层
+ * PRD 7.1：记账面板为底部抽屉浮层，不跳转整页。
+ * ------------------------------------------------------------------------- */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgb(15 23 42 / 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ---------------------------------------------------------------------------
+ * 8. 降级策略
+ * 未加载到 Manrope 时，中文与数字回落到系统字体，排版不塌陷。
+ * ------------------------------------------------------------------------- */
+@supports not (font-variation-settings: normal) {
+  .material-symbols-outlined { font-size: 1.25rem; }
+}

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40" role="img" aria-label="明账">
+  <title>明账</title>
+  <defs>
+    <linearGradient id="mz-brand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#14B8A6"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 底色：品牌主渐变，圆角方形容器 -->
+  <rect width="40" height="40" rx="11" fill="url(#mz-brand)"/>
+
+  <!-- 三段落差横条：既是账本行，也是预算渗透的进度刻度 -->
+  <g fill="#FFFFFF">
+    <rect x="11" y="12.5" width="18" height="3.4" rx="1.7" opacity="0.55"/>
+    <rect x="11" y="18.3" width="13" height="3.4" rx="1.7" opacity="0.8"/>
+    <rect x="11" y="24.1" width="7"  height="3.4" rx="1.7"/>
+  </g>
+</svg>

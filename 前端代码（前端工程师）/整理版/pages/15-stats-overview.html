@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#14B8A6">
+<meta name="description" content="明账 —— 把预算穿透到每一笔记录里的记账工具。">
+<title>明账 · 概览看板</title>
+
+<!-- 字体：Manrope（正文与数字）+ Material Symbols（图标） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="../assets/js/theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+<!-- 设计令牌与基础样式（PRD 第 13 章） -->
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+
+<!-- Tailwind Play CDN：先载入运行时，再注入主题配置 -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="../assets/js/tailwind.config.js"></script>
+
+<!-- 路由表：导航与状态切换的唯一事实来源 -->
+<script src="../assets/js/routes.js"></script>
+</head><body data-page="stats-overview" class="bg-background font-body-md text-on-surface min-h-screen"><div data-shell="sidebar"></div>
+<div data-shell="topbar"></div>
+<div class="lg:pl-72"><main class="relative pt-16 min-h-screen bg-background"><div class="flex flex-col w-full">
+<!-- Content Body Container with standard padding -->
+<div class="p-margin-lg flex flex-col gap-space-xl max-w-[1400px] mx-auto w-full">
+<!-- 1. Header & Controls -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-lg text-headline-lg text-on-surface tracking-tight">消费洞察与统计</span>
+<span class="bg-surface-container px-2.5 py-0.5 rounded-full text-primary font-label-sm text-label-sm font-semibold" id="periodBadge">2026 Q3</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">全景透视现金流向，挖掘潜在结余空间</p>
+</div>
+<div class="flex flex-wrap items-center gap-space-sm">
+<!-- Date Segment Selector -->
+<div class="flex items-center bg-surface-container-low p-1 rounded-xl" id="periodSwitch" role="tablist" aria-label="统计周期">
+<button class="period-btn px-3 py-1.5 rounded-lg bg-surface-container-lowest text-primary font-label-md text-label-md shadow-sm transition-all" data-period="current" type="button">2026年9月 (本月)</button>
+<button class="period-btn px-3 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors" data-period="last" type="button">上月</button>
+<button class="period-btn px-3 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors" data-period="quarter" type="button">近三月</button>
+<button class="period-btn px-3 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors" data-period="year" type="button">按年</button>
+</div>
+<!-- Export CTA -->
+<button class="flex items-center gap-1.5 px-4 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md rounded-xl transition-all shadow-sm">
+<span class="material-symbols-outlined text-[1.125rem]">ios_share</span>
+<span>导出月度报告</span>
+</button>
+</div>
+</div>
+<!-- 2. Metric Grid (4 Cards) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter-lg">
+<!-- Total Expense -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm hover:shadow-md transition-all flex flex-col justify-between" data-metric="expense">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant" data-field="label">本月总支出</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[1.25rem]">payments</span>
+</div>
+</div>
+<div class="mt-2 flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg text-on-surface tracking-tight" data-field="value">¥3,160</span>
+<span class="font-numeric-data text-numeric-data text-on-surface-variant">.00</span>
+</div>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between bg-surface-container-low/50 px-3 py-2 rounded-xl">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[1rem]">trending_down</span>
+<span class="font-label-sm text-label-sm font-semibold" data-field="delta">环比 -8.4%</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant" data-field="sub">日均 ¥105.33</span>
+</div>
+</div>
+<!-- Total Income & Savings -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm hover:shadow-md transition-all flex flex-col justify-between" data-metric="income">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant" data-field="label">本月到账收入</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[1.25rem]">account_balance</span>
+</div>
+</div>
+<div class="mt-2 flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg text-primary tracking-tight" data-field="value">+¥8,500</span>
+<span class="font-numeric-data text-numeric-data text-primary">.00</span>
+</div>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between bg-surface-container-low/50 px-3 py-2 rounded-xl">
+<div class="flex items-center gap-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">本期结余</span>
+<span class="font-label-md text-label-md text-on-surface" data-field="sub">¥5,340</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary font-semibold" data-field="delta">储蓄率 62.8%</span>
+</div>
+</div>
+<!-- Budget Health -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm hover:shadow-md transition-all flex flex-col justify-between" data-metric="budget">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant" data-field="label">预算执行率</span>
+<span class="px-2 py-0.5 rounded-md bg-[#F0FDFA] text-[#0F766E] font-label-sm text-label-sm font-semibold" data-field="badge">状态良好</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-on-surface tracking-tight" data-field="value">79.0%</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant" data-field="sub">上限 ¥4,000</span>
+</div>
+</div>
+<div class="mt-4">
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden flex">
+<div class="bg-primary h-full rounded-full transition-all duration-500" data-field="bar" style="width: 79%;"></div>
+</div>
+<div class="flex justify-between items-center mt-2 text-on-surface-variant font-label-sm text-label-sm">
+<span data-field="used">已用 ¥3,160</span>
+<span data-field="left">剩余 ¥840</span>
+</div>
+</div>
+</div>
+<!-- Ledger Habit / Streaks -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm hover:shadow-md transition-all flex flex-col justify-between" data-metric="streak">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant" data-field="label">记账坚持度</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[1.25rem]">military_tech</span>
+</div>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg text-on-surface tracking-tight" data-field="value">24</span>
+<span class="font-body-md text-body-md text-on-surface-variant" data-field="sub">天 / 30天</span>
+</div>
+</div>
+<div class="mt-4 pt-3 flex items-center justify-between bg-surface-container-low/50 px-3 py-2 rounded-xl">
+<span class="font-label-sm text-label-sm text-primary font-semibold" data-field="delta">活跃率 80.0%</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> 达成连续记账勋章
+          </span>
+</div>
+</div>
+</div>
+<!-- 3. Main Split Structure: 60% Left, 40% Right -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-lg items-start">
+<!-- LEFT SECTION (Columns 1-7, approx ~60%) -->
+<div class="lg:col-span-7 flex flex-col gap-space-lg">
+<!-- Tab Navigation Bar：本原型把四类分析平铺在同一条滚动流里，tab 作为分区导航 -->
+<div class="bg-surface-container-lowest p-2 rounded-2xl shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-1 overflow-x-auto" id="statTabs">
+<button class="stat-tab px-4 py-2 rounded-xl bg-surface-container text-primary font-label-md text-label-md transition-all whitespace-nowrap" data-view="view-heatmap" type="button">概览洞察</button>
+<button class="stat-tab px-4 py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-label-md text-label-md transition-all whitespace-nowrap" data-view="view-category" type="button">分类占比</button>
+<button class="stat-tab px-4 py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-label-md text-label-md transition-all whitespace-nowrap" data-view="view-trend" type="button">趋势对比</button>
+<button class="stat-tab px-4 py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-label-md text-label-md transition-all whitespace-nowrap" data-view="view-report" type="button">月度分析报表</button>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-2 rounded-lg" title="设置与偏好">
+<span class="material-symbols-outlined text-[1.25rem]">tune</span>
+</button>
+</div>
+<!-- 3.1 Heatmap Calendar View -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm scroll-mt-24 transition-shadow" id="view-heatmap">
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-on-surface">消费日历热力分布</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">深浅色块映射每日支出强度，点击快速查验账目高峰</span>
+</div>
+<!-- Heatmap legend -->
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">无消费</span>
+<div class="flex items-center gap-1">
+<span class="w-3 h-3 rounded-sm bg-surface-container-high"></span>
+<span class="w-3 h-3 rounded-sm bg-[#CCFBF1]"></span>
+<span class="w-3 h-3 rounded-sm bg-[#5EEAD4]"></span>
+<span class="w-3 h-3 rounded-sm bg-[#14B8A6]"></span>
+<span class="w-3 h-3 rounded-sm bg-[#0F766E]"></span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">&gt;¥300</span>
+</div>
+</div>
+<!-- Calendar Grid Header -->
+<div class="grid grid-cols-7 gap-2 mb-2 text-center">
+<div class="font-label-sm text-label-sm text-on-surface-variant">一</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">二</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">三</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">四</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">五</div>
+<div class="font-label-sm text-label-sm text-primary font-semibold">六</div>
+<div class="font-label-sm text-label-sm text-primary font-semibold">日</div>
+</div>
+<!-- Calendar Days Grid (September 2026 starts on Tuesday, 30 days) -->
+<div class="grid grid-cols-7 gap-2">
+<!-- Blank for Mon Aug 31 -->
+<div class="h-14 rounded-xl bg-surface-container-low/40 p-1 flex flex-col justify-between opacity-30 cursor-not-allowed">
+<span class="font-label-sm text-label-sm text-on-surface-variant">31</span>
+</div>
+<!-- Day 1 -->
+<div class="group relative h-14 rounded-xl bg-[#CCFBF1] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">1</span>
+<span class="font-label-sm text-label-sm text-primary">¥45</span>
+<div class="hidden group-hover:flex absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-20 bg-inverse-surface text-inverse-on-surface px-2 py-1 rounded-md text-[11px] whitespace-nowrap shadow-lg">
+                9月1日: 2笔 ¥45.00
+              </div>
+</div>
+<!-- Day 2 -->
+<div class="group relative h-14 rounded-xl bg-[#5EEAD4] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">2</span>
+<span class="font-label-sm text-label-sm text-primary">¥118</span>
+<div class="hidden group-hover:flex absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-20 bg-inverse-surface text-inverse-on-surface px-2 py-1 rounded-md text-[11px] whitespace-nowrap shadow-lg">
+                9月2日: 3笔 ¥118.00
+              </div>
+</div>
+<!-- Day 3 -->
+<div class="group relative h-14 rounded-xl bg-surface-container-high p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm text-on-surface-variant">3</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">¥0</span>
+<div class="hidden group-hover:flex absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-20 bg-inverse-surface text-inverse-on-surface px-2 py-1 rounded-md text-[11px] whitespace-nowrap shadow-lg">
+                无消费记录
+              </div>
+</div>
+<!-- Day 4 -->
+<div class="group relative h-14 rounded-xl bg-[#CCFBF1] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">4</span>
+<span class="font-label-sm text-label-sm text-primary">¥62</span>
+<div class="hidden group-hover:flex absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-20 bg-inverse-surface text-inverse-on-surface px-2 py-1 rounded-md text-[11px] whitespace-nowrap shadow-lg">
+                9月4日: 2笔 ¥62.00
+              </div>
+</div>
+<!-- Day 5 (Weekend) -->
+<div class="group relative h-14 rounded-xl bg-[#14B8A6] text-on-primary p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold">5</span>
+<span class="font-label-sm text-label-sm text-white font-medium">¥240</span>
+<div class="hidden group-hover:flex absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-20 bg-inverse-surface text-inverse-on-surface px-2 py-1 rounded-md text-[11px] whitespace-nowrap shadow-lg">
+                9月5日: 周末采购 4笔 ¥240.00
+              </div>
+</div>
+<!-- Day 6 (Weekend Peak) -->
+<div class="group relative h-14 rounded-xl bg-[#0F766E] text-on-primary p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold">6</span>
+<span class="font-label-sm text-label-sm text-white font-medium">¥380</span>
+<div class="hidden group-hover:flex absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-20 bg-inverse-surface text-inverse-on-surface px-2 py-1 rounded-md text-[11px] whitespace-nowrap shadow-lg">
+                9月6日: 聚会餐饮 5笔 ¥380.00
+              </div>
+</div>
+<!-- Days 7-14 -->
+<div class="group relative h-14 rounded-xl bg-[#CCFBF1] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">7</span>
+<span class="font-label-sm text-label-sm text-primary">¥36</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#5EEAD4] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">8</span>
+<span class="font-label-sm text-label-sm text-primary">¥95</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-surface-container-high p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm text-on-surface-variant">9</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">¥0</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#CCFBF1] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">10</span>
+<span class="font-label-sm text-label-sm text-primary">¥70</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#5EEAD4] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">11</span>
+<span class="font-label-sm text-label-sm text-primary">¥142</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#14B8A6] text-on-primary p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold">12</span>
+<span class="font-label-sm text-label-sm text-white">¥210</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#5EEAD4] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">13</span>
+<span class="font-label-sm text-label-sm text-primary">¥88</span>
+</div>
+<!-- Days 15 Highlighted in PRD -->
+<div class="group relative h-14 rounded-xl bg-[#CCFBF1] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">14</span>
+<span class="font-label-sm text-label-sm text-primary">¥55</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#5EEAD4] p-1.5 flex flex-col justify-between cursor-pointer ring-2 ring-primary shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm font-bold text-on-surface">15</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+</div>
+<span class="font-label-sm text-label-sm font-bold text-primary">¥128.5</span>
+<div class="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-30 bg-inverse-surface text-inverse-on-surface px-2.5 py-1.5 rounded-lg text-xs whitespace-nowrap shadow-xl flex flex-col gap-0.5">
+<span class="font-semibold text-primary-fixed">9月15日 (消费基准日)</span>
+<span>4笔支出 · 共计 ¥128.50</span>
+</div>
+</div>
+<div class="group relative h-14 rounded-xl bg-surface-container-high p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm text-on-surface-variant">16</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">¥0</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#CCFBF1] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">17</span>
+<span class="font-label-sm text-label-sm text-primary">¥40</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#14B8A6] text-on-primary p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold">18</span>
+<span class="font-label-sm text-label-sm text-white">¥230</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#0F766E] text-on-primary p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold">19</span>
+<span class="font-label-sm text-label-sm text-white">¥315</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#5EEAD4] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">20</span>
+<span class="font-label-sm text-label-sm text-primary">¥110</span>
+</div>
+<!-- Days 21-28 -->
+<div class="group relative h-14 rounded-xl bg-[#CCFBF1] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">21</span>
+<span class="font-label-sm text-label-sm text-primary">¥50</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#CCFBF1] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">22</span>
+<span class="font-label-sm text-label-sm text-primary">¥78</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#5EEAD4] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">23</span>
+<span class="font-label-sm text-label-sm text-primary">¥120</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-surface-container-high p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm text-on-surface-variant">24</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">¥0</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#CCFBF1] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">25</span>
+<span class="font-label-sm text-label-sm text-primary">¥64</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#14B8A6] text-on-primary p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold">26</span>
+<span class="font-label-sm text-label-sm text-white">¥205</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#5EEAD4] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">27</span>
+<span class="font-label-sm text-label-sm text-primary">¥95</span>
+</div>
+<!-- Days 29-30 -->
+<div class="group relative h-14 rounded-xl bg-[#CCFBF1] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">28</span>
+<span class="font-label-sm text-label-sm text-primary">¥45</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#5EEAD4] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">29</span>
+<span class="font-label-sm text-label-sm text-primary">¥110</span>
+</div>
+<div class="group relative h-14 rounded-xl bg-[#CCFBF1] p-1.5 flex flex-col justify-between cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">30</span>
+<span class="font-label-sm text-label-sm text-primary">¥82</span>
+</div>
+</div>
+</div>
+<!-- 3.2 Income & Expense Trend Chart (Last 6 Months) -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col scroll-mt-24 transition-shadow" id="view-trend">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm mb-space-md">
+<div>
+<span class="font-headline-md text-headline-md text-on-surface">近6个月收支与结余走向</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">双柱对比月度入账与流出，折线为当月结余率</p>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded-sm bg-secondary"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">收入</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded-sm bg-primary"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">支出</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-0.5 bg-[#F59E0B]"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">结余率</span>
+</div>
+</div>
+</div>
+<!-- Inline SVG Chart (Bar & Line Hybrid) -->
+<div class="relative w-full h-64 mt-2">
+<svg class="w-full h-full" fill="none" preserveaspectratio="none" viewbox="0 0 600 240">
+<!-- Y-Axis Gridlines -->
+<line stroke="#EAEDFF" stroke-dasharray="3 3" stroke-width="1" x1="40" x2="580" y1="30" y2="30"></line>
+<line stroke="#EAEDFF" stroke-dasharray="3 3" stroke-width="1" x1="40" x2="580" y1="85" y2="85"></line>
+<line stroke="#EAEDFF" stroke-dasharray="3 3" stroke-width="1" x1="40" x2="580" y1="140" y2="140"></line>
+<line stroke="#EAEDFF" stroke-width="1" x1="40" x2="580" y1="195" y2="195"></line>
+<!-- Y-Axis Labels -->
+<text fill="#6D7A77" font-family="Manrope" font-size="10" text-anchor="end" x="32" y="34">10k</text>
+<text fill="#6D7A77" font-family="Manrope" font-size="10" text-anchor="end" x="32" y="89">6k</text>
+<text fill="#6D7A77" font-family="Manrope" font-size="10" text-anchor="end" x="32" y="144">3k</text>
+<text fill="#6D7A77" font-family="Manrope" font-size="10" text-anchor="end" x="32" y="198">0</text>
+<!-- Month 1: 4月 (Income: 8200 -> y=60, Expense: 3450 -> y=138) -->
+<rect fill="#006780" height="135" opacity="0.85" rx="3" width="16" x="75" y="60"></rect>
+<rect fill="#00685F" height="57" rx="3" width="16" x="94" y="138"></rect>
+<text fill="#3D4947" font-family="Manrope" font-size="11" text-anchor="middle" x="93" y="215">4月</text>
+<!-- Month 2: 5月 (Income: 8200 -> y=60, Expense: 3800 -> y=132) -->
+<rect fill="#006780" height="135" opacity="0.85" rx="3" width="16" x="160" y="60"></rect>
+<rect fill="#00685F" height="63" rx="3" width="16" x="179" y="132"></rect>
+<text fill="#3D4947" font-family="Manrope" font-size="11" text-anchor="middle" x="178" y="215">5月</text>
+<!-- Month 3: 6月 (Income: 8200 -> y=60, Expense: 3200 -> y=142) -->
+<rect fill="#006780" height="135" opacity="0.85" rx="3" width="16" x="245" y="60"></rect>
+<rect fill="#00685F" height="53" rx="3" width="16" x="264" y="142"></rect>
+<text fill="#3D4947" font-family="Manrope" font-size="11" text-anchor="middle" x="263" y="215">6月</text>
+<!-- Month 4: 7月 (Income: 8500 -> y=55, Expense: 3600 -> y=135) -->
+<rect fill="#006780" height="140" opacity="0.85" rx="3" width="16" x="330" y="55"></rect>
+<rect fill="#00685F" height="60" rx="3" width="16" x="349" y="135"></rect>
+<text fill="#3D4947" font-family="Manrope" font-size="11" text-anchor="middle" x="348" y="215">7月</text>
+<!-- Month 5: 8月 (Income: 8500 -> y=55, Expense: 3450 -> y=138) -->
+<rect fill="#006780" height="140" opacity="0.85" rx="3" width="16" x="415" y="55"></rect>
+<rect fill="#00685F" height="57" rx="3" width="16" x="434" y="138"></rect>
+<text fill="#3D4947" font-family="Manrope" font-size="11" text-anchor="middle" x="433" y="215">8月</text>
+<!-- Month 6: 9月 Current (Income: 8500 -> y=55, Expense: 3160 -> y=143) -->
+<rect fill="#006780" height="140" rx="3" width="16" x="500" y="55"></rect>
+<rect fill="#00685F" height="52" rx="3" width="16" x="519" y="143"></rect>
+<text fill="#00685F" font-family="Manrope" font-size="11" font-weight="700" text-anchor="middle" x="518" y="215">9月</text>
+<!-- Line Chart: Savings Rate Trend (58%, 53.6%, 61%, 57.6%, 59.4%, 62.8%) -->
+<path d="M 93 105 L 178 118 L 263 98 L 348 106 L 433 102 L 518 90" fill="none" stroke="#F59E0B" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+<!-- Points -->
+<circle cx="93" cy="105" fill="#FFFFFF" r="3.5" stroke="#F59E0B" stroke-width="2"></circle>
+<circle cx="178" cy="118" fill="#FFFFFF" r="3.5" stroke="#F59E0B" stroke-width="2"></circle>
+<circle cx="263" cy="98" fill="#FFFFFF" r="3.5" stroke="#F59E0B" stroke-width="2"></circle>
+<circle cx="348" cy="106" fill="#FFFFFF" r="3.5" stroke="#F59E0B" stroke-width="2"></circle>
+<circle cx="433" cy="102" fill="#FFFFFF" r="3.5" stroke="#F59E0B" stroke-width="2"></circle>
+<circle cx="518" cy="90" fill="#F59E0B" r="4.5" stroke="#FFFFFF" stroke-width="2"></circle>
+<!-- Peak Badge -->
+<rect fill="#131B2E" height="18" rx="4" width="46" x="495" y="65"></rect>
+<text fill="#FFFFFF" font-family="Manrope" font-size="10" font-weight="600" text-anchor="middle" x="518" y="78">62.8%</text>
+</svg>
+</div>
+</div>
+<!-- 3.3 AI Smart Financial Insights Card (PRD 4.6.3) -->
+<div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-surface-container-low via-surface-container-lowest to-surface-container-high p-space-lg shadow-sm scroll-mt-24 transition-shadow" id="view-report">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-[0_4px_12px_rgba(0,104,95,0.25)]">
+<span class="material-symbols-outlined text-[1.5rem]">auto_awesome</span>
+</div>
+<div class="flex flex-col gap-1.5 flex-1">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-on-surface">智能财务洞察 · 结余诊断</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold px-2 py-0.5 rounded-full bg-primary-fixed/40">实时生成</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                本月餐饮支出环比下降 <strong class="text-primary font-semibold">14.0%</strong>，外卖频次减少；但休闲娱乐因周末聚会略有抬升（+18%），建议下半月维持工作日自炊习惯，预计本月可为备用金账户额外结余 <span class="font-numeric-data text-numeric-data text-on-surface font-bold">¥420.00</span>。
+              </p>
+<!-- Quick Action Suggestions -->
+<div class="flex flex-wrap items-center gap-2 mt-2 pt-2">
+<button class="text-primary bg-surface-container hover:bg-surface-container-high font-label-sm text-label-sm px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[1rem]">savings</span>
+<span>划转 ¥420 至梦想储蓄罐</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface bg-surface-container-low px-3 py-1.5 rounded-lg font-label-sm text-label-sm transition-colors">
+                  调整周末娱乐弹性限额
+                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT SECTION: Analytical Sidebar (Columns 8-12, approx ~40%) -->
+<div class="lg:col-span-5 flex flex-col gap-space-lg">
+<!-- Category Distribution & Donut -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md scroll-mt-24 transition-shadow" id="view-category">
+<div class="flex items-center justify-between">
+<div>
+<span class="font-headline-md text-headline-md text-on-surface">支出分类构成</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">点击分类可直接下钻查看该品类流水</p>
+</div>
+<a class="font-label-sm text-label-sm text-primary hover:underline flex items-center" href="17-stats-category.html">
+<span>详细报表</span>
+<span class="material-symbols-outlined text-[1rem]">chevron_right</span>
+</a>
+</div>
+<!-- Donut Graphic + Hero Total inside -->
+<div class="flex items-center justify-center py-2">
+<div class="relative w-44 h-44">
+<!-- SVG Donut Chart (Strict PRD 13.6 palette) -->
+<!-- Circumference = 2 * PI * 64 ≈ 402 -->
+<svg class="w-full h-full -rotate-90" viewbox="0 0 160 160">
+<!-- Track -->
+<circle cx="80" cy="80" fill="none" r="64" stroke="#EAEDFF" stroke-width="16"></circle>
+<!-- 1. 餐饮日常 40.5% (162.8) -> Teal #14B8A6 -->
+<circle cx="80" cy="80" fill="none" r="64" stroke="#14B8A6" stroke-dasharray="162.8 402" stroke-dashoffset="0" stroke-linecap="round" stroke-width="16"></circle>
+<!-- 2. 居家生活 21.5% (86.4) -> Indigo #6366F1 -->
+<circle cx="80" cy="80" fill="none" r="64" stroke="#6366F1" stroke-dasharray="86.4 402" stroke-dashoffset="-164" stroke-linecap="round" stroke-width="16"></circle>
+<!-- 3. 市内交通 13.3% (53.5) -> Cyan #06B6D4 -->
+<circle cx="80" cy="80" fill="none" r="64" stroke="#06B6D4" stroke-dasharray="53.5 402" stroke-dashoffset="-252" stroke-linecap="round" stroke-width="16"></circle>
+<!-- 4. 休闲娱乐 12.0% (48.2) -> Violet #8B5CF6 -->
+<circle cx="80" cy="80" fill="none" r="64" stroke="#8B5CF6" stroke-dasharray="48.2 402" stroke-dashoffset="-307" stroke-linecap="round" stroke-width="16"></circle>
+<!-- 5. 购物消费 8.2% (33.0) -> Sky #0EA5E9 -->
+<circle cx="80" cy="80" fill="none" r="64" stroke="#0EA5E9" stroke-dasharray="33.0 402" stroke-dashoffset="-357" stroke-linecap="round" stroke-width="16"></circle>
+<!-- 6. 其他杂项 4.5% (18.1) -> Slate #94A3B8 -->
+<circle cx="80" cy="80" fill="none" r="64" stroke="#94A3B8" stroke-dasharray="18.1 402" stroke-dashoffset="-391" stroke-linecap="round" stroke-width="16"></circle>
+</svg>
+<!-- Center Text inside Donut -->
+<div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+<span class="font-label-sm text-label-sm text-on-surface-variant">总支出</span>
+<span class="font-numeric-data text-numeric-data text-on-surface font-bold">¥3,160</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">6个分类</span>
+</div>
+</div>
+</div>
+<!-- Category Ranking List -->
+<div class="flex flex-col gap-2">
+<!-- Item 1: 餐饮日常 -->
+<div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors group" data-drill="17-stats-category.html">
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 rounded-full bg-[#14B8A6] shrink-0"></span>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface group-hover:text-primary transition-colors">餐饮日常</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">占比 40.5%</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-numeric-data text-numeric-data text-on-surface">¥1,280.00</span>
+<span class="font-label-sm text-label-sm text-primary">环比 -5.2%</span>
+</div>
+</div>
+<!-- Item 2: 居家生活 -->
+<div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors group" data-drill="17-stats-category.html">
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 rounded-full bg-[#6366F1] shrink-0"></span>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface group-hover:text-primary transition-colors">居家生活</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">占比 21.5%</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-numeric-data text-numeric-data text-on-surface">¥680.00</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">环比持平</span>
+</div>
+</div>
+<!-- Item 3: 市内交通 -->
+<div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors group" data-drill="17-stats-category.html">
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 rounded-full bg-[#06B6D4] shrink-0"></span>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface group-hover:text-primary transition-colors">市内交通</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">占比 13.3%</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-numeric-data text-numeric-data text-on-surface">¥420.00</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">环比 +2.1%</span>
+</div>
+</div>
+<!-- Item 4: 休闲娱乐 -->
+<div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors group" data-drill="17-stats-category.html">
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 rounded-full bg-[#8B5CF6] shrink-0"></span>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface group-hover:text-primary transition-colors">休闲娱乐</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">占比 12.0%</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-numeric-data text-numeric-data text-on-surface">¥380.00</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">环比 +18.0%</span>
+</div>
+</div>
+<!-- Item 5: 购物消费 -->
+<div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors group" data-drill="17-stats-category.html">
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 rounded-full bg-[#0EA5E9] shrink-0"></span>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface group-hover:text-primary transition-colors">购物消费</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">占比 8.2%</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-numeric-data text-numeric-data text-on-surface">¥260.00</span>
+<span class="font-label-sm text-label-sm text-primary">环比 -12.0%</span>
+</div>
+</div>
+<!-- Item 6: 其他杂项 -->
+<div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors group" data-drill="17-stats-category.html">
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 rounded-full bg-[#94A3B8] shrink-0"></span>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface group-hover:text-primary transition-colors">其他杂项</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">占比 4.5%</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-numeric-data text-numeric-data text-on-surface">¥140.00</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">--</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Payment Channels & Time Distribution -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<span class="font-headline-md text-headline-md text-on-surface">支付渠道分布</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">已关联 3 个主流渠道</span>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Channel 1: WeChat -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[1.125rem] text-[#07C160]">chat</span>
+<span class="text-on-surface font-semibold">微信支付</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-on-surface font-semibold">¥2,022.40</span>
+<span class="text-on-surface-variant">64%</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-[#07C160] h-full rounded-full" style="width: 64%;"></div>
+</div>
+</div>
+<!-- Channel 2: Alipay -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[1.125rem] text-[#1677FF]">account_balance_wallet</span>
+<span class="text-on-surface font-semibold">支付宝</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-on-surface font-semibold">¥884.80</span>
+<span class="text-on-surface-variant">28%</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-[#1677FF] h-full rounded-full" style="width: 28%;"></div>
+</div>
+</div>
+<!-- Channel 3: CMB -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[1.125rem] text-[#E11D48]">credit_card</span>
+<span class="text-on-surface font-semibold">招商银行卡 (储蓄)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-on-surface font-semibold">¥252.80</span>
+<span class="text-on-surface-variant">8%</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-[#E11D48] h-full rounded-full" style="width: 8%;"></div>
+</div>
+</div>
+</div>
+<!-- Time Horizon Mini Insight -->
+<div class="pt-3 flex items-center justify-between bg-surface-container-low px-3 py-2.5 rounded-xl">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[1.25rem] text-primary">schedule</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface">高频支付时段</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">工作日 12:15 - 13:30 (午餐峰值)</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container-lowest px-2 py-1 rounded text-on-surface-variant">集中度 46%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div></main></div>
+<div data-shell="bottomnav"></div>
+<div data-shell="switcher"></div>
+<script>
+/* 概览看板交互：① 周期切换换掉四张指标卡 ② tab 作为分区导航 ③ 分类行下钻到 17 */
+(function () {
+  'use strict';
+
+  /* ---------- ① 周期切换 ---------- */
+  /* 同一批指标在四个周期下的取值，原型里用固定样本演示切换效果 */
+  var PERIODS = {
+    current: { badge: '2026 Q3', expense: { label: '本月总支出', value: '¥3,160', delta: '环比 -8.4%', sub: '日均 ¥105.33' },
+               income: { label: '本月到账收入', value: '+¥8,500', sub: '¥5,340', delta: '储蓄率 62.8%' },
+               budget: { label: '预算执行率', value: '79.0%', badge: '状态良好', sub: '上限 ¥4,000', bar: '79%', used: '已用 ¥3,160', left: '剩余 ¥840' },
+               streak: { label: '记账坚持度', value: '24', sub: '天 / 30天', delta: '活跃率 80.0%' } },
+    last: { badge: '2026-08', expense: { label: '上月总支出', value: '¥3,450', delta: '环比 +2.9%', sub: '日均 ¥111.29' },
+            income: { label: '上月到账收入', value: '+¥8,500', sub: '¥5,050', delta: '储蓄率 59.4%' },
+            budget: { label: '上月预算执行率', value: '86.3%', badge: '接近上限', sub: '上限 ¥4,000', bar: '86.3%', used: '已用 ¥3,450', left: '剩余 ¥550' },
+            streak: { label: '上月记账坚持度', value: '27', sub: '天 / 31天', delta: '活跃率 87.1%' } },
+    quarter: { badge: '2026 Q3', expense: { label: '近三月总支出', value: '¥10,210', delta: '环比 -3.1%', sub: '日均 ¥111.00' },
+               income: { label: '近三月到账收入', value: '+¥25,500', sub: '¥15,290', delta: '储蓄率 60.0%' },
+               budget: { label: '近三月预算执行率', value: '85.1%', badge: '状态良好', sub: '上限 ¥12,000', bar: '85.1%', used: '已用 ¥10,210', left: '剩余 ¥1,790' },
+               streak: { label: '近三月记账坚持度', value: '82', sub: '天 / 92天', delta: '活跃率 89.1%' } },
+    year: { badge: '2026 全年', expense: { label: '本年总支出', value: '¥38,900', delta: '同比 -5.6%', sub: '月均 ¥4,322' },
+            income: { label: '本年到账收入', value: '+¥102,000', sub: '¥63,100', delta: '储蓄率 61.9%' },
+            budget: { label: '本年预算执行率', value: '81.0%', badge: '状态良好', sub: '上限 ¥48,000', bar: '81%', used: '已用 ¥38,900', left: '剩余 ¥9,100' },
+            streak: { label: '本年记账坚持度', value: '238', sub: '天 / 265天', delta: '活跃率 89.8%' } }
+  };
+
+  function setField(card, field, text) {
+    var el = card.querySelector('[data-field="' + field + '"]');
+    if (el) el.textContent = text;
+  }
+
+  function renderPeriod(key) {
+    var data = PERIODS[key];
+    if (!data) return;
+    ['expense', 'income', 'budget', 'streak'].forEach(function (name) {
+      var card = document.querySelector('[data-metric="' + name + '"]');
+      if (!card) return;
+      Object.keys(data[name]).forEach(function (field) {
+        var el = card.querySelector('[data-field="' + field + '"]');
+        if (!el) return;
+        if (field === 'bar') { el.style.width = data[name][field]; return; }
+        el.textContent = data[name][field];
+      });
+    });
+    var badge = document.getElementById('periodBadge');
+    if (badge) badge.textContent = data.badge;
+  }
+
+  function bindPeriod() {
+    var wrap = document.getElementById('periodSwitch');
+    if (!wrap) return;
+    var ACTIVE = ['bg-surface-container-lowest', 'text-primary', 'shadow-sm'];
+    var IDLE = ['text-on-surface-variant', 'hover:text-on-surface'];
+    wrap.addEventListener('click', function (e) {
+      var btn = e.target.closest('.period-btn');
+      if (!btn) return;
+      Array.prototype.forEach.call(wrap.querySelectorAll('.period-btn'), function (b) {
+        var on = b === btn;
+        ACTIVE.forEach(function (c) { b.classList.toggle(c, on); });
+        IDLE.forEach(function (c) { b.classList.toggle(c, !on); });
+      });
+      renderPeriod(btn.dataset.period);
+    });
+  }
+
+  /* ---------- ② tab 作为分区导航 ---------- */
+  /* 四类分析平铺在同一条滚动流里，tab 切换 = 移动高亮 + 滚到对应卡片 + 闪一下描边 */
+  var ACTIVE_TAB = ['bg-surface-container', 'text-primary'];
+  var IDLE_TAB = ['text-on-surface-variant', 'hover:bg-surface-container-low', 'hover:text-on-surface'];
+  var ORDER = ['view-heatmap', 'view-category', 'view-trend', 'view-report'];
+  /* 点击后的一小段静默期：平滑滚动过程中 IntersectionObserver 会反复触发，先别让它抢走高亮 */
+  var ioSilentUntil = 0;
+
+  function paintTab(btn) {
+    if (!btn || btn.classList.contains('bg-surface-container')) return;
+    document.querySelectorAll('.stat-tab').forEach(function (b) {
+      var on = b === btn;
+      ACTIVE_TAB.forEach(function (c) { b.classList.toggle(c, on); });
+      IDLE_TAB.forEach(function (c) { b.classList.toggle(c, !on); });
+    });
+    /* tab 条在窄屏下可以横向滚动，把刚激活的这颗带进可视区。
+       注意只动 tab 条自身的 scrollLeft —— 不能对按钮调 scrollIntoView，
+       那会连带把整个文档滚走，和平滑滚动打架（桌面端两栏并排时尤其明显）。 */
+    var bar = document.getElementById('statTabs');
+    if (!bar) return;
+    var b = btn.getBoundingClientRect(), r = bar.getBoundingClientRect();
+    if (b.left < r.left) bar.scrollLeft -= (r.left - b.left) + 8;
+    else if (b.right > r.right) bar.scrollLeft += (b.right - r.right) + 8;
+  }
+
+  function flash(el) {
+    el.classList.add('ring-2', 'ring-primary/60');
+    setTimeout(function () { el.classList.remove('ring-2', 'ring-primary/60'); }, 1100);
+  }
+
+  function gotoView(btn) {
+    var target = document.getElementById(btn.dataset.view);
+    if (!target) return;
+    ioSilentUntil = Date.now() + 1400;
+    paintTab(btn);
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    flash(target);
+  }
+
+  /* 反向同步：手动滚到哪张卡，tab 就跟到哪 */
+  function syncTabToScroll() {
+    if (Date.now() < ioSilentUntil) return;
+    var passed = null;
+    ORDER.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      var top = el.getBoundingClientRect().top;
+      if (top <= 140 && (!passed || top > passed.top)) passed = { id: id, top: top };
+    });
+    /* 滚过了那条线的，取最低的那张 —— 它就是当前所在的分区。
+       一张都没滚过（比如还停在页面顶部）就回到第一节，而不是按几何位置选：
+       桌面端两栏并排时「分类占比」的 top 反而比「概览洞察」小（左栏顶上还压着一条 tab 条），
+       按几何位置选会在刚进页面时就把高亮给到第二节。 */
+    paintTab(document.querySelector('.stat-tab[data-view="' + (passed ? passed.id : ORDER[0]) + '"]'));
+  }
+
+  function bindTabs() {
+    var bar = document.getElementById('statTabs');
+    if (!bar) return;
+    bar.addEventListener('click', function (e) {
+      var btn = e.target.closest('.stat-tab');
+      if (btn) gotoView(btn);
+    });
+    if (!('IntersectionObserver' in window)) return;
+    var io = new IntersectionObserver(syncTabToScroll, { rootMargin: '-140px 0px -20% 0px', threshold: 0 });
+    ORDER.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) io.observe(el);
+    });
+    window.addEventListener('scroll', syncTabToScroll, { passive: true });
+  }
+
+  /* ---------- ③ 分类行下钻 ---------- */
+  function bindDrill() {
+    document.addEventListener('click', function (e) {
+      var row = e.target.closest('[data-drill]');
+      if (!row) return;
+      location.href = row.dataset.drill;
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    bindPeriod();
+    bindTabs();
+    bindDrill();
+  });
+})();
+</script>
+<script src="../assets/js/shell.js"></script>
+</body></html>

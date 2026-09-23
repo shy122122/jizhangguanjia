@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#14B8A6">
+<meta name="description" content="明账 —— 把预算穿透到每一笔记录里的记账工具。原型导航台。">
+<title>明账 · 原型导航台</title>
+
+<!-- 在样式表之前应用主题，避免深色模式闪白（MZ_THEME，与其余 23 个页面共用） -->
+<script src="assets/js/theme.js"></script>
+
+<!-- 字体：Manrope（正文与数字）+ Material Symbols（图标） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+<!-- 设计令牌与基础样式（PRD 第 13 章） -->
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/base.css">
+
+<!-- Tailwind Play CDN：先载入运行时，再注入主题配置 -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="assets/js/tailwind.config.js"></script>
+
+<!-- 路由表：导航台的唯一数据来源 -->
+<script src="assets/js/routes.js"></script>
+
+<style>
+/* ============================================================================
+ * 导航台局部样式
+ *
+ * 凡涉及设计令牌（CSS 变量）的样式一律写在原生 CSS 里，不塞进 Tailwind 任意值
+ * 语法——因为 bg-[var(--x)]/80、border-[var(--x)] 这类写法在 Tailwind 里存在
+ * 「宽度还是颜色」的歧义，容易静默失效。Tailwind 只负责布局、字阶与间距。
+ * ========================================================================== */
+
+/* 导航台是一张长索引页，需要滚动条；原型页面才是沉浸式隐藏滚动条的。
+   故在此页面范围内把 base.css 的隐藏规则覆盖回来。 */
+::-webkit-scrollbar { display: block; width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 9999px; }
+::-webkit-scrollbar-track { background: transparent; }
+* { scrollbar-width: thin; -ms-overflow-style: auto; }
+
+/* ── 表面分层 ─────────────────────────────────────────────── */
+.mz-surface    { background: var(--surface); }
+.mz-surface-alt{ background: var(--surface-alt); }
+.mz-hairline   { border: 1px solid var(--border); }
+.mz-sticky     { background: var(--surface); border-bottom: 1px solid var(--border); }
+
+.mz-stat { box-shadow: var(--shadow-tier1); }
+
+.mz-field {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-tier1);
+}
+.mz-field:focus-within { border-color: var(--accent-600); }
+
+/* ── 卡片 ─────────────────────────────────────────────────── */
+.mz-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-tier1);
+  transition: box-shadow 300ms ease, transform 300ms cubic-bezier(0.32, 0.72, 0, 1),
+              border-color 300ms ease;
+}
+.mz-card:hover {
+  box-shadow: var(--shadow-tier3);
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+}
+.mz-card:hover .mz-card-title { color: var(--brand-700); }
+.mz-card:hover .mz-card-arrow { color: var(--brand-700); transform: translateX(2px); }
+.mz-card:hover .mz-card-shot  { transform: scale(1.03); }
+
+.mz-card-title { transition: color 200ms ease; }
+.mz-card-arrow { transition: color 200ms ease, transform 200ms ease; }
+.mz-card-shot  { transition: transform 500ms cubic-bezier(0.32, 0.72, 0, 1); }
+
+/* 卡片顶部的品牌色细线，悬停时从左展开 */
+.mz-card-accent {
+  background-image: var(--gradient-brand);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.mz-card:hover .mz-card-accent { transform: scaleX(1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .mz-card, .mz-card-accent, .mz-card-shot { transition: none; }
+  .mz-card:hover { transform: none; }
+}
+
+/* ── 文字与徽标 ───────────────────────────────────────────── */
+.mz-brand      { color: var(--brand-700); }
+.mz-ink        { color: var(--text-primary); }
+.mz-muted      { color: var(--text-secondary); }
+.mz-faint      { color: var(--text-tertiary); }
+
+.mz-chip-brand {
+  background: var(--surface-alt);
+  color: var(--brand-700);
+}
+.mz-chip-neutral {
+  background: var(--surface-alt);
+  color: var(--text-secondary);
+}
+.mz-chip-outline {
+  border: 1px solid var(--border);
+  color: var(--text-tertiary);
+}
+
+/* 模块序号：大号幽灵数字，做视觉脊线 */
+.mz-spine {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--border-strong);
+  font-variant-numeric: tabular-nums;
+}
+html.dark .mz-spine { -webkit-text-stroke-color: #2F3D5C; }
+
+/* ── 页脚小组件 ───────────────────────────────────────────── */
+.mz-kbd {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 1.5rem; height: 1.5rem; padding: 0 0.375rem;
+  border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 0.375rem;
+  background: var(--surface);
+  font-size: 0.6875rem; font-weight: 600; color: var(--text-secondary);
+}
+.mz-code {
+  padding: 0.0625rem 0.3125rem; border-radius: 0.25rem;
+  background: var(--surface); border: 1px solid var(--border);
+  font-size: 0.6875rem; color: var(--text-primary);
+}
+
+/* ── 搜索过滤 ─────────────────────────────────────────────── */
+.is-hidden { display: none !important; }
+</style>
+</head>
+
+<body class="mz-ink">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     顶栏
+     ════════════════════════════════════════════════════════════════════ -->
+<header class="mz-sticky sticky top-0 z-40 h-16 backdrop-blur-xl">
+  <div class="max-w-[1200px] mx-auto h-full px-5 lg:px-8 flex items-center justify-between gap-4">
+
+    <a class="flex items-center gap-3 shrink-0" href="./index.html">
+      <img class="h-9 w-9" src="assets/img/logo.svg" alt="">
+      <span class="flex items-baseline gap-2">
+        <span class="font-headline-sm text-headline-sm font-bold tracking-tight">明账</span>
+        <span class="hidden sm:inline font-label-md text-label-md mz-muted">原型导航台</span>
+      </span>
+    </a>
+
+    <nav class="flex items-center gap-1 sm:gap-2">
+      <a class="mz-navlink hidden md:inline-flex" href="../../PRD/个人财务管理产品-PRD-v1.0.md" target="_blank" rel="noopener">
+        <span class="material-symbols-outlined text-[1.125rem]">description</span>PRD 正文
+      </a>
+      <a class="mz-navlink hidden md:inline-flex" href="docs/PRD-合规对照.md" target="_blank" rel="noopener">
+        <span class="material-symbols-outlined text-[1.125rem]">fact_check</span>合规对照
+      </a>
+      <a class="mz-navlink hidden md:inline-flex" href="docs/原型设计规范-Stitch.md" target="_blank" rel="noopener">
+        <span class="material-symbols-outlined text-[1.125rem]">palette</span>设计规范
+      </a>
+
+      <button id="themeToggle" type="button" class="mz-navlink w-9 px-0 justify-center" title="切换深色模式">
+        <span class="material-symbols-outlined text-[1.25rem]">dark_mode</span>
+      </button>
+    </nav>
+
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     英雄区
+     ════════════════════════════════════════════════════════════════════ -->
+<section class="relative overflow-hidden" style="border-bottom:1px solid var(--border)">
+  <!-- 氛围：品牌渐变的极淡晕染 + 网格 -->
+  <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+    <div class="absolute -top-32 -left-24 w-[32rem] h-[32rem] rounded-full opacity-[0.18] blur-3xl"
+         style="background-image: var(--gradient-brand);"></div>
+    <div class="absolute -top-24 right-0 w-[26rem] h-[26rem] rounded-full opacity-[0.08] blur-3xl"
+         style="background:#06B6D4;"></div>
+    <div class="absolute inset-0 opacity-[0.35]"
+         style="background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+                background-size: 64px 64px;
+                -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000 20%, transparent 75%);
+                mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000 20%, transparent 75%);"></div>
+  </div>
+
+  <div class="relative max-w-[1200px] mx-auto px-5 lg:px-8 pt-14 pb-10 lg:pt-20 lg:pb-14">
+    <p class="font-label-md text-label-md tracking-[0.18em] uppercase mz-brand mb-4">
+      交互原型 · v1.0
+    </p>
+    <h1 class="font-extrabold tracking-tight max-w-3xl text-[2.25rem] leading-[2.75rem] lg:text-display-lg lg:leading-[3.5rem]">
+      把预算穿透到<br class="sm:hidden">每一笔记录里
+    </h1>
+    <p class="mt-5 max-w-2xl font-body-lg text-body-lg mz-muted leading-relaxed">
+      23 个界面覆盖从冷启动到日常记账的完整链路。所有页面已按 PRD 第 5 章信息架构接通，
+      从任意界面都能走到任意界面——不必再靠浏览器后退。
+    </p>
+
+    <!-- 统计 -->
+    <dl id="stats" class="mt-8 flex flex-wrap items-stretch gap-3"></dl>
+
+    <!-- 搜索 -->
+    <div class="mt-9 max-w-2xl">
+      <label class="mz-field flex items-center gap-3 h-12 px-4 rounded-xl transition-colors">
+        <span class="material-symbols-outlined text-[1.25rem] mz-faint">search</span>
+        <input id="search" type="search" autocomplete="off"
+          class="flex-1 bg-transparent border-none outline-none font-body-md text-body-md placeholder:text-[color:var(--text-tertiary)]"
+          placeholder="搜索界面名称、模块、PRD 章节，例如「超支」「4.4」「导入」…">
+        <kbd class="mz-kbd hidden sm:inline-flex">/</kbd>
+      </label>
+      <p id="searchHint" class="mt-2 font-body-sm text-body-sm mz-faint"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     模块清单（由 routes.js 渲染）
+     ════════════════════════════════════════════════════════════════════ -->
+<main class="max-w-[1200px] mx-auto px-5 lg:px-8 py-12 lg:py-16">
+  <div id="modules" class="flex flex-col gap-16 lg:gap-20"></div>
+
+  <p id="emptyState" class="is-hidden py-24 text-center">
+    <span class="material-symbols-outlined text-[2.5rem] mz-faint">search_off</span>
+    <span class="block mt-3 font-body-lg text-body-lg mz-muted">没有匹配的界面，换个关键词试试</span>
+  </p>
+</main>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     页脚：快捷键 / 目录结构 / 技术说明
+     ════════════════════════════════════════════════════════════════════ -->
+<footer style="border-top:1px solid var(--border)" class="mz-surface-alt">
+  <div class="max-w-[1200px] mx-auto px-5 lg:px-8 py-12 grid gap-10 md:grid-cols-3">
+
+    <section>
+      <h2 class="mz-foot-h">键盘快捷键</h2>
+      <ul class="flex flex-col gap-2.5 font-body-sm text-body-sm mz-muted">
+        <li class="flex items-center gap-2"><kbd class="mz-kbd">/</kbd><span>聚焦搜索框</span></li>
+        <li class="flex items-center gap-2"><kbd class="mz-kbd">←</kbd><kbd class="mz-kbd">→</kbd><span>模块内切换上一个 / 下一个状态</span></li>
+        <li class="flex items-center gap-2"><kbd class="mz-kbd">Esc</kbd><span>从任意页面返回本导航台</span></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="mz-foot-h">目录结构</h2>
+      <pre class="font-body-sm text-body-sm mz-muted leading-relaxed whitespace-pre overflow-x-auto">整理版/
+├── index.html          ← 本导航台
+├── pages/              23 个界面
+├── assets/
+│   ├── css/            tokens · base
+│   ├── js/             routes · shell · tailwind.config
+│   └── img/            logo · avatar
+├── docs/               设计与合规文档
+└── preview/            23 张界面截图</pre>
+    </section>
+
+    <section>
+      <h2 class="mz-foot-h">技术说明</h2>
+      <ul class="flex flex-col gap-2.5 font-body-sm text-body-sm mz-muted">
+        <li>零构建：Tailwind Play CDN，双击即可离线打开</li>
+        <li>设计令牌集中在 <code class="mz-code">assets/js/tailwind.config.js</code>，一处改、全站切</li>
+        <li>共用外壳由 <code class="mz-code">assets/js/shell.js</code> 注入，页面无重复代码</li>
+        <li>配色遵循 PRD 13 章：支出金额不标红，红色只留给超支</li>
+      </ul>
+    </section>
+
+  </div>
+
+  <div style="border-top:1px solid var(--border)">
+    <div class="max-w-[1200px] mx-auto px-5 lg:px-8 py-5 flex flex-wrap items-center justify-between gap-3">
+      <span class="font-body-sm text-body-sm mz-faint">© 2024 明账 · 交互原型，数据均为示意</span>
+      <a class="mz-navlink" href="docs/_旧索引备份.html" target="_blank" rel="noopener">查看整理前的旧索引</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+/* 导航链接与页脚小标题：同样用原生 CSS 写，避免任意值歧义 */
+.mz-navlink {
+  display: inline-flex; align-items: center; gap: 0.375rem;
+  height: 2.25rem; padding: 0 0.75rem; border-radius: 0.5rem;
+  font-size: 0.75rem; line-height: 1rem; letter-spacing: 0.02em; font-weight: 600;
+  color: var(--text-secondary);
+  transition: background-color 160ms ease, color 160ms ease;
+}
+.mz-navlink:hover { background: var(--surface-alt); color: var(--text-primary); }
+
+.mz-foot-h {
+  font-size: 0.75rem; line-height: 1rem; letter-spacing: 0.14em;
+  text-transform: uppercase; font-weight: 600;
+  color: var(--text-tertiary);
+  margin: 0 0 1rem;
+}
+</style>
+
+<script>
+/* ============================================================================
+ * 原型导航台
+ *
+ * 本页不硬编码任何页面清单——所有模块与界面卡片都从 window.MZ_ROUTES 渲染。
+ * 新增页面时只需在 assets/js/routes.js 的 PAGES 里登记一行，导航台自动收录。
+ * ========================================================================== */
+(function () {
+  'use strict';
+
+  var R = window.MZ_ROUTES;
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  /* 预览图按主题取用：浅色走 preview/，深色走 preview/dark/ */
+  function shotSrc(base) {
+    return MZ_THEME.get() === 'dark'
+      ? base.replace(/^preview\//, 'preview/dark/')
+      : base;
+  }
+
+  function applyShotTheme() {
+    document.querySelectorAll('.mz-card-shot').forEach(function (img) {
+      var next = shotSrc(img.getAttribute('data-shot'));
+      if (img.getAttribute('src') !== next) img.setAttribute('src', next);
+    });
+  }
+
+  /* ---------------------------------------------------------------------
+   * 1. 顶部统计
+   * ------------------------------------------------------------------- */
+  function renderStats() {
+    var cards = [
+      { n: R.MODULES.length, label: '功能模块', icon: 'widgets' },
+      { n: R.PAGES.length,   label: '交互界面', icon: 'layers' },
+      { n: R.PAGES.filter(function (p) { return !!p.prd; }).length, label: 'PRD 已对照', icon: 'fact_check' },
+    ];
+
+    document.getElementById('stats').innerHTML = cards.map(function (c) {
+      return '' +
+      '<div class="mz-stat mz-hairline mz-surface flex items-center gap-3 px-4 py-3 rounded-xl">' +
+        '<span class="material-symbols-outlined mz-brand text-[1.25rem]">' + c.icon + '</span>' +
+        '<span class="flex flex-col leading-none">' +
+          '<span class="font-headline-sm text-headline-sm font-bold">' + c.n + '</span>' +
+          '<span class="mt-1 font-label-sm text-label-sm mz-faint">' + c.label + '</span>' +
+        '</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  /* ---------------------------------------------------------------------
+   * 2. 单张界面卡片
+   * ------------------------------------------------------------------- */
+  function card(page) {
+    return '' +
+    '<a class="mz-card group relative flex flex-col rounded-2xl overflow-hidden" ' +
+       'href="pages/' + page.file + '" ' +
+       'data-search="' + esc((page.title + ' ' + page.short + ' ' + page.prd + ' ' + page.note + ' ' + page.file).toLowerCase()) + '">' +
+
+      /* 顶部品牌色细线 */
+      '<span class="mz-card-accent absolute top-0 left-0 right-0 h-[3px] z-10" aria-hidden="true"></span>' +
+
+      /* 截图。深浅两套：深色下换成 preview/dark/ 的版本，
+       * 否则浅色截图会在深色底上糊出一片刺眼的白。 */
+      '<span class="block relative aspect-[16/10] overflow-hidden mz-surface-alt">' +
+        '<img class="mz-card-shot w-full h-full object-cover object-top" ' +
+             'data-shot="preview/' + page.file.replace(/\.html$/, '.png') + '" ' +
+             'src="' + shotSrc('preview/' + page.file.replace(/\.html$/, '.png')) + '" alt="" loading="lazy" decoding="async">' +
+        '<span class="absolute top-3 left-3 px-2 py-0.5 rounded-md mz-surface font-label-sm text-label-sm font-bold tabular-nums mz-brand" ' +
+              'style="box-shadow:var(--shadow-tier1)">' + page.file.slice(0, 2) + '</span>' +
+      '</span>' +
+
+      /* 文字 */
+      '<span class="flex flex-col gap-2 p-4 flex-1">' +
+        '<span class="flex items-start justify-between gap-3">' +
+          '<span class="mz-card-title font-headline-sm text-headline-sm font-semibold leading-snug">' + page.title + '</span>' +
+          '<span class="mz-card-arrow material-symbols-outlined shrink-0 mt-0.5 text-[1.125rem] mz-faint">arrow_forward</span>' +
+        '</span>' +
+        '<span class="font-body-sm text-body-sm mz-muted leading-relaxed flex-1">' + page.note + '</span>' +
+        (page.prd
+          ? '<span class="mz-chip-brand mt-1 self-start px-2 py-0.5 rounded-md font-label-sm text-label-sm font-semibold">PRD ' + esc(page.prd) + '</span>'
+          : '') +
+      '</span>' +
+    '</a>';
+  }
+
+  /* ---------------------------------------------------------------------
+   * 3. 模块分组
+   * ------------------------------------------------------------------- */
+  function renderModules() {
+    document.getElementById('modules').innerHTML = R.MODULES.map(function (mod, mi) {
+      var pages = R.pagesOf(mod.key);
+      var seq = String(mi + 1).padStart(2, '0');
+
+      return '' +
+      '<section class="mz-module" data-module="' + mod.key + '">' +
+
+        '<header class="flex items-start gap-5 mb-7">' +
+          '<span class="mz-spine hidden sm:block font-extrabold leading-none pt-1 select-none text-[2.75rem] lg:text-[3.5rem]">' + seq + '</span>' +
+          '<div class="flex-1 min-w-0">' +
+            '<div class="flex flex-wrap items-center gap-x-3 gap-y-2">' +
+              '<span class="material-symbols-outlined mz-brand text-[1.375rem]">' + mod.icon + '</span>' +
+              '<h2 class="font-bold tracking-tight text-headline-md leading-[1.75rem] lg:text-headline-lg lg:leading-[2.5rem]">' + mod.name + '</h2>' +
+              '<span class="mz-chip-neutral px-2 py-0.5 rounded-full font-label-sm text-label-sm tabular-nums">' + pages.length + ' 屏</span>' +
+              '<span class="mz-chip-outline px-2 py-0.5 rounded-full font-label-sm text-label-sm">PRD ' + esc(mod.prd) + '</span>' +
+            '</div>' +
+            '<p class="mt-2.5 max-w-3xl font-body-md text-body-md mz-muted leading-relaxed">' + mod.desc + '</p>' +
+          '</div>' +
+        '</header>' +
+
+        '<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">' +
+          pages.map(card).join('') +
+        '</div>' +
+
+      '</section>';
+    }).join('');
+  }
+
+  /* ---------------------------------------------------------------------
+   * 4. 搜索过滤
+   * ------------------------------------------------------------------- */
+  function bindSearch() {
+    var input = document.getElementById('search');
+    var hint = document.getElementById('searchHint');
+    var empty = document.getElementById('emptyState');
+    var total = R.PAGES.length;
+
+    function apply() {
+      var q = input.value.trim().toLowerCase();
+      var shown = 0;
+
+      document.querySelectorAll('.mz-module').forEach(function (section) {
+        var hits = 0;
+
+        section.querySelectorAll('.mz-card').forEach(function (el) {
+          var hit = !q || el.getAttribute('data-search').indexOf(q) !== -1;
+          el.classList.toggle('is-hidden', !hit);
+          if (hit) hits++;
+        });
+
+        section.classList.toggle('is-hidden', hits === 0);
+        shown += hits;
+      });
+
+      empty.classList.toggle('is-hidden', shown !== 0);
+      hint.textContent = q
+        ? '命中 ' + shown + ' / ' + total + ' 个界面'
+        : '共 ' + total + ' 个界面 · 按 / 快速聚焦搜索';
+    }
+
+    input.addEventListener('input', apply);
+    apply();
+
+    /* 「/」聚焦搜索；输入框内「Esc」清空 */
+    document.addEventListener('keydown', function (e) {
+      if (e.target.matches('input, textarea, select')) {
+        if (e.key === 'Escape') { input.value = ''; apply(); input.blur(); }
+        return;
+      }
+      if (e.key === '/') { e.preventDefault(); input.focus(); input.select(); }
+    });
+  }
+
+  /* ---------------------------------------------------------------------
+   * 5. 深色模式
+   * ------------------------------------------------------------------- */
+  function bindTheme() {
+    var btn = document.getElementById('themeToggle');
+    var icon = btn.querySelector('.material-symbols-outlined');
+
+    function sync() {
+      var dark = MZ_THEME.get() === 'dark';
+      icon.textContent = dark ? 'light_mode' : 'dark_mode';
+      btn.title = dark ? '切换到浅色模式' : '切换到深色模式';
+    }
+
+    btn.addEventListener('click', function () { MZ_THEME.toggle(); });
+
+    document.addEventListener('mz:themechange', function () { sync(); applyShotTheme(); });
+    sync();
+  }
+
+  renderStats();
+  renderModules();
+  bindSearch();
+  bindTheme();
+  applyShotTheme();
+
+})();
+</script>
+
+</body>
+</html>

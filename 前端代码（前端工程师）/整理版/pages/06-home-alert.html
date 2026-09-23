@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#14B8A6">
+<meta name="description" content="明账 —— 把预算穿透到每一笔记录里的记账工具。">
+<title>明账 · 首页 · 告急态</title>
+
+<!-- 字体：Manrope（正文与数字）+ Material Symbols（图标） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="../assets/js/theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+<!-- 设计令牌与基础样式（PRD 第 13 章） -->
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+
+<!-- Tailwind Play CDN：先载入运行时，再注入主题配置 -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="../assets/js/tailwind.config.js"></script>
+
+<!-- 路由表：导航与状态切换的唯一事实来源 -->
+<script src="../assets/js/routes.js"></script>
+</head><body data-page="home-alert" class="bg-background font-body-md text-on-surface min-h-screen"><div data-shell="sidebar"></div>
+<div data-shell="topbar"></div>
+<div class="lg:pl-72"><main class="relative pt-16 min-h-screen bg-background"><div class="max-w-[1200px] mx-auto p-margin-lg"><div class="flex flex-col w-full gap-space-lg pb-space-xl">
+<!-- PRD 4.4.4 & 7.1 轻量柔性提示横幅 (内联、不阻断操作) -->
+<div class="flex items-center justify-between px-4 py-3 bg-red-50/90 border border-red-200/80 rounded-xl text-rose-900 shadow-sm animate-fadeIn">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-rose-600 text-[1.25rem]">warning</span>
+<span class="font-label-md text-rose-800 tracking-normal">⚠️ 本月餐饮分类已透支，总预算剩余不足 10% · 请注意控制日常开支或调整额度</span>
+</div>
+<div class="flex items-center gap-3">
+<a class="text-rose-700 hover:text-rose-900 font-label-sm underline underline-offset-2" href="08-budget-overspent.html">查看透支分析</a>
+<button class="text-rose-400 hover:text-rose-700 transition-colors" title="忽略本次提示" type="button"><span class="material-symbols-outlined text-[1.125rem]">close</span></button>
+</div>
+</div>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-lg text-headline-lg text-on-surface">小李，周一好！</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-red-100 text-rose-700 font-label-md text-label-md font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-600 animate-ping"></span>
+          本月剩余 8 天 · 预算严重告急
+        </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">
+        当前预算已透支进入警戒保护区，建议压降非必要弹性支出以实现平账。
+      </p>
+</div>
+<div class="flex items-center gap-space-sm self-start md:self-auto">
+<a class="group flex items-center gap-space-xs px-space-md py-space-sm rounded-xl bg-surface-container-lowest shadow-[0_1px_3px_0_rgba(15,23,42,0.04),0_1px_2px_-1px_rgba(15,23,42,0.02)] hover:bg-surface-container-low transition-all" href="18-import-main.html">
+<div class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[1.125rem]">upload_file</span>
+</div>
+<div class="flex flex-col text-left">
+<span class="font-label-md text-label-md text-on-surface group-hover:text-primary transition-colors">微信 / 支付宝导入</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">支持智能对账排重</span>
+</div>
+<span class="material-symbols-outlined text-[1.125rem] text-on-surface-variant ml-1 group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+</a>
+<button class="flex items-center gap-space-xs px-space-md py-space-sm rounded-xl bg-primary text-on-primary font-label-lg text-label-lg shadow-[0_12px_24px_-6px_rgba(20,184,166,0.25)] hover:bg-primary-container transition-all cursor-pointer" type="button">
+<span class="material-symbols-outlined text-[1.25rem]">edit_note</span>
+<span class="">快速记账</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- 核心主卡片：超支与额度耗尽警戒态（PRD 4.4.2 & 13.5.2 & 13.7：深色暗红与深灰调质感，沉稳克制） -->
+<div class="lg:col-span-6 xl:col-span-5 rounded-2xl p-space-lg relative overflow-hidden flex flex-col justify-between shadow-[0_16px_32px_-8px_rgba(15,23,42,0.35)] text-white" style="background: linear-gradient(135deg, #1E1B1E 0%, #2D151B 50%, #1A1F2C 100%);">
+<div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-rose-600/15 blur-3xl pointer-events-none"></div>
+<div class="absolute right-8 bottom-4 w-36 h-36 rounded-full bg-amber-600/10 blur-2xl pointer-events-none"></div>
+<div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[1.25rem] text-rose-400">report_problem</span>
+<span class="font-label-md text-label-md tracking-wider uppercase text-rose-200/90">今日建议可支配额度</span>
+</div>
+<span class="px-2.5 py-0.5 rounded-full bg-rose-900/60 border border-rose-500/40 text-rose-200 font-label-sm text-label-sm flex items-center gap-1.5 backdrop-blur-md">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span> ⚠️ 额度已枯竭 / 建议暂停非必要消费
+</span>
+</div>
+<div class="mt-space-lg flex items-baseline gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-rose-200/70 font-normal">¥</span>
+<span class="font-display-lg text-display-lg tracking-tight font-bold text-white">0.00</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 ml-2 border border-rose-500/30">透支锁定</span>
+</div>
+<p class="font-body-sm text-body-sm text-slate-300/90 mt-space-xs leading-relaxed">
+          本月预算 ¥3,000.00 · 已透支 ¥160.00 (已用 105.3%) · 距下月周期剩余 8 天
+        </p>
+</div>
+<div class="mt-space-xl pt-space-md border-t border-white/10 flex flex-col gap-space-xs">
+<div class="flex justify-between items-center text-white/90 font-label-md text-label-md">
+<span class="text-rose-200/90 flex items-center gap-1">
+<span class="material-symbols-outlined text-[1rem] text-rose-400">error</span>
+          本月总预算渗透率
+        </span>
+<span class="font-numeric-data text-numeric-data text-rose-400 font-bold">已透支 105.3%</span>
+</div>
+<div class="w-full bg-black/40 h-2.5 rounded-full overflow-hidden p-0.5 border border-rose-500/30">
+<div class="bg-rose-600 h-full rounded-full transition-all duration-500" style="width: 100%;"></div>
+</div>
+<div class="flex justify-between items-center text-slate-300/80 font-body-sm text-body-sm mt-1.5">
+<span class="text-rose-200">总计支出 ¥3,160.00 / 额度 ¥3,000.00</span>
+<div class="flex items-center gap-3">
+<button class="underline underline-offset-2 hover:text-white transition-colors cursor-pointer text-rose-300 font-medium text-xs" type="button">调整月度总预算</button>
+<button class="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-white text-xs transition-colors cursor-pointer" type="button">下半月补救方案</button>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-6 xl:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-[0_1px_3px_0_rgba(15,23,42,0.04),0_1px_2px_-1px_rgba(15,23,42,0.02)] flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">今日累计支出</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[1.125rem]">shopping_bag</span>
+</div>
+</div>
+<div class="mt-space-sm">
+<!-- 支出金额严格使用中性深色，遵循 PRD 13.5.2 -->
+<div class="font-headline-lg text-headline-lg font-bold text-on-surface">¥268.00</div>
+<div class="flex items-center justify-between mt-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span class="">今日已入账 3 笔流水</span>
+<span class="text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded font-label-sm text-label-sm">偏高</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-[0_1px_3px_0_rgba(15,23,42,0.04),0_1px_2px_-1px_rgba(15,23,42,0.02)] flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">本月实际支出</span>
+<div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-rose-600">
+<span class="material-symbols-outlined text-[1.125rem]">trending_up</span>
+</div>
+</div>
+<div class="mt-space-sm">
+<!-- 支出金额为中性深色 -->
+<div class="font-headline-lg text-headline-lg font-bold text-on-surface">¥3,160.00</div>
+<div class="flex items-center justify-between mt-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span class="">较上月同期 +34.2%</span>
+<span class="text-rose-700 bg-red-50 px-1.5 py-0.5 rounded font-label-sm text-label-sm font-medium">超出警戒线</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-[0_1px_3px_0_rgba(15,23,42,0.04),0_1px_2px_-1px_rgba(15,23,42,0.02)] flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">本月到账收入</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[1.125rem]">payments</span>
+</div>
+</div>
+<div class="mt-space-sm">
+<div class="font-headline-lg text-headline-lg font-bold text-primary">+¥8,500.00</div>
+<div class="flex items-center justify-between mt-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span class="">储蓄结余率已降至 62.8%</span>
+<span class="text-primary font-label-sm text-label-sm">主职薪酬</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-[0_1px_3px_0_rgba(15,23,42,0.04),0_1px_2px_-1px_rgba(15,23,42,0.02)] border border-red-200 flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-rose-800 font-semibold">分类超支风险</span>
+<div class="w-8 h-8 rounded-lg bg-error-container flex items-center justify-center text-error animate-bounce">
+<span class="material-symbols-outlined text-[1.125rem]">warning_amber</span>
+</div>
+</div>
+<div class="mt-space-sm">
+<div class="flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg font-bold text-error">2</span>
+<span class="font-body-md text-body-md text-rose-700 font-medium">个核心分类超支</span>
+</div>
+<div class="flex items-center justify-between mt-space-xs font-body-sm text-body-sm text-on-surface-variant">
+<span class="text-error truncate font-medium">餐饮超支 ¥158 · 休闲超支 ¥60</span>
+<button class="text-secondary font-label-sm text-label-sm hover:underline cursor-pointer font-medium ml-1" type="button">去平账</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<div class="lg:col-span-7 bg-surface-container-lowest rounded-2xl shadow-[0_1px_3px_0_rgba(15,23,42,0.04),0_1px_2px_-1px_rgba(15,23,42,0.02)] p-space-lg flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-md text-headline-md text-on-surface">最近流水明细</span>
+<span class="px-2 py-0.5 rounded bg-red-100 text-rose-700 font-label-sm text-label-sm font-medium">含超支标记</span>
+</div>
+<a class="inline-flex items-center gap-1 font-label-md text-label-md text-primary hover:text-primary-container transition-colors" href="13-ledger-list.html">
+<span class="">查看全部流水</span>
+<span class="material-symbols-outlined text-[1rem]">arrow_forward</span>
+</a>
+</div>
+<div class="flex flex-col gap-space-sm mt-space-xs">
+<div class="flex items-center justify-between py-1 border-b border-surface-container">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">今天 · 10月23日 周一</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">当日支出 ¥268.00</span>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-rose-600 flex-shrink-0">
+<span class="material-symbols-outlined text-[1.25rem]">lunch_dining</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">麦当劳 (金融街分店) · 工作午餐</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-surface-container text-on-surface-variant">微信支付</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5 font-body-sm text-body-sm text-on-surface-variant">
+<span class="">12:45</span>
+<span class="">·</span>
+<span class="text-error font-medium bg-red-50 px-1 rounded">⚠️ 餐饮已超支 ¥158.00</span>
+</div>
+</div>
+</div>
+<div class="text-right flex-shrink-0 ml-4">
+<div class="font-numeric-data text-numeric-data text-on-surface font-bold">¥38.00</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">工作午餐</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-xl bg-[#F0FDFA] flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[1.25rem]">local_taxi</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">滴滴出行 · 早高峰快车</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-surface-container text-on-surface-variant">微信支付</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5 font-body-sm text-body-sm text-on-surface-variant">
+<span class="">08:52</span>
+<span class="">·</span>
+<span class="text-amber-700 font-medium bg-amber-50 px-1 rounded">交通预算仅剩 10%</span>
+</div>
+</div>
+</div>
+<div class="text-right flex-shrink-0 ml-4">
+<div class="font-numeric-data text-numeric-data text-on-surface font-bold">¥23.50</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">周一通勤</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-secondary flex-shrink-0">
+<span class="material-symbols-outlined text-[1.25rem]">coffee</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">星巴克 · 下午茶咖啡</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-surface-container text-on-surface-variant">支付宝</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5 font-body-sm text-body-sm text-on-surface-variant">
+<span class="">15:20</span>
+<span class="">·</span>
+<span class="text-rose-600 font-medium">进一步加剧餐饮透支</span>
+</div>
+</div>
+</div>
+<div class="text-right flex-shrink-0 ml-4">
+<div class="font-numeric-data text-numeric-data text-on-surface font-bold">¥36.00</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">日常饮料</span>
+</div>
+</div>
+<div class="flex items-center justify-between py-1 border-b border-surface-container mt-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">昨天 · 10月22日 周日</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">当日支出 ¥320.00</span>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-rose-600 flex-shrink-0">
+<span class="material-symbols-outlined text-[1.25rem]">checkroom</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">优衣库 · 秋季针织与风衣</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-surface-container text-on-surface-variant">微信支付</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5 font-body-sm text-body-sm text-on-surface-variant">
+<span class="">14:10</span>
+<span class="">·</span>
+<span class="text-error font-medium bg-red-50 px-1 rounded">🚨 导致月度总额度直接穿透</span>
+</div>
+</div>
+</div>
+<div class="text-right flex-shrink-0 ml-4">
+<div class="font-numeric-data text-numeric-data text-on-surface font-bold">¥320.00</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">换季衣物</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[1.25rem]">savings</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">设计顾问外包收益</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#F0FDFA] text-primary">银行转账</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5 font-body-sm text-body-sm text-on-surface-variant">
+<span class="">17:30</span>
+<span class="">·</span>
+<span class="text-primary font-medium">已自动存入应急储备池</span>
+</div>
+</div>
+</div>
+<div class="text-right flex-shrink-0 ml-4">
+<div class="font-numeric-data text-numeric-data text-primary font-bold">+¥1,000.00</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">副业报酬</span>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-5 flex flex-col gap-space-lg">
+<div class="bg-surface-container-lowest rounded-2xl shadow-[0_1px_3px_0_rgba(15,23,42,0.04),0_1px_2px_-1px_rgba(15,23,42,0.02)] p-space-lg flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-on-surface">重点分类预算速览</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">穿透至单项子预算健康线</span>
+</div>
+<button class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">tune</span>
+</button>
+</div>
+<div class="flex flex-col gap-space-md mt-space-xs">
+<!-- 餐饮日常：已超支 -->
+<div class="flex flex-col gap-1.5 p-2 rounded-xl bg-red-50/50 border border-red-100">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="text-on-surface font-semibold">餐饮日常</span>
+<span class="px-1.5 py-0.2 rounded text-[10px] bg-red-100 text-rose-700">超支</span>
+</div>
+<span class="text-on-surface font-numeric-data text-numeric-data">¥1,658.00 / ¥1,500.00</span>
+</div>
+<div class="w-full bg-red-100 h-2 rounded-full overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 100%;"></div>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm text-on-surface-variant">
+<span class="text-error font-medium">⚠️ 已超支 ¥158.00 (用量 110.5%)</span>
+<button class="text-secondary hover:underline cursor-pointer font-medium" type="button">从储蓄平账</button>
+</div>
+</div>
+<!-- 休闲娱乐：已超支 -->
+<div class="flex flex-col gap-1.5 p-2 rounded-xl bg-red-50/50 border border-red-100">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="text-on-surface font-semibold">休闲娱乐</span>
+<span class="px-1.5 py-0.2 rounded text-[10px] bg-red-100 text-rose-700">超支</span>
+</div>
+<span class="text-on-surface font-numeric-data text-numeric-data">¥360.00 / ¥300.00</span>
+</div>
+<div class="w-full bg-red-100 h-2 rounded-full overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 100%;"></div>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm text-on-surface-variant">
+<span class="text-error font-medium">🚨 已超支 ¥60.00 (用量 120%)</span>
+<span class="text-rose-600 font-medium">建议冻结</span>
+</div>
+</div>
+<!-- 市内交通：黄色警报剩余10% -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+<span class="text-on-surface">市内交通</span>
+</div>
+<span class="text-on-surface font-numeric-data text-numeric-data">¥540.00 / ¥600.00</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-amber-500 h-full rounded-full" style="width: 90.0%;"></div>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm text-on-surface-variant">
+<span class="text-amber-700 font-medium">已用 90.0% ⚠️ 仅剩 ¥60.00</span>
+<span class="text-on-surface-variant">剩余额度有限</span>
+</div>
+</div>
+<!-- 服饰购物 -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-slate-400"></span>
+<span class="text-on-surface">居家生活</span>
+</div>
+<span class="text-on-surface font-numeric-data text-numeric-data">¥420.00 / ¥500.00</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-slate-500 h-full rounded-full" style="width: 84%;"></div>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm text-on-surface-variant">
+<span class="text-slate-600 font-medium">已用 84% · 剩余 ¥80.00</span>
+<span class="text-slate-500">平稳</span>
+</div>
+</div>
+</div>
+<!-- 智能平摊减脂建议 -->
+<div class="mt-space-xs p-3 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-[1.25rem] text-amber-600 flex-shrink-0 mt-0.5">tips_and_updates</span>
+<div class="flex flex-col gap-0.5 text-xs text-amber-900 leading-relaxed">
+<span class="font-bold text-amber-950">智能平摊减脂建议：</span>
+<span>为保障月底平稳过账，建议未来 8 天将每日支出严格压降至 <strong class="font-bold text-rose-700">¥30.00</strong> 以内，或从储蓄池调拨 ¥200.00 进行临时垫付。</span>
+</div>
+</div>
+<div class="pt-space-xs border-t border-surface-container flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[1rem] text-primary">insights</span>
+<span class="">预算推算模型已自动切换为强约束护航模式</span>
+</div>
+<button class="text-primary font-label-sm text-label-sm hover:underline cursor-pointer" type="button">重设预算方案</button>
+</div>
+</div>
+<div class="rounded-2xl p-space-md bg-surface-container-low flex items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-surface-container-lowest flex items-center justify-center text-primary flex-shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[1.25rem]">cloud_sync</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">本地优先 · 多端即时同频</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">账单已于本地安全加密，已即时同频至手机端</span>
+</div>
+</div>
+<button class="px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors shadow-sm flex-shrink-0 cursor-pointer" type="button">
+          同步检查
+        </button>
+</div>
+</div>
+</div>
+</div></div></main></div>
+<div data-shell="bottomnav"></div>
+<div data-shell="switcher"></div>
+<script src="../assets/js/shell.js"></script>
+
+</body></html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#14B8A6">
+<meta name="description" content="明账 —— 把预算穿透到每一笔记录里的记账工具。">
+<title>明账 · 落地页与登录注册</title>
+
+<!-- 字体：Manrope（正文与数字）+ Material Symbols（图标） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="../assets/js/theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+<!-- 设计令牌与基础样式（PRD 第 13 章） -->
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+
+<!-- Tailwind Play CDN：先载入运行时，再注入主题配置 -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="../assets/js/tailwind.config.js"></script>
+
+<!-- 路由表：导航与状态切换的唯一事实来源 -->
+<script src="../assets/js/routes.js"></script>
+</head><body data-page="onboarding-landing" class="min-h-screen bg-surface font-body-md text-body-md text-on-surface flex flex-col justify-between selection:bg-primary-fixed selection:text-on-primary-fixed">
+<div data-shell="public-topbar"></div><main class="w-full flex-1 flex flex-col items-center justify-center relative bg-gradient-to-b from-surface via-surface-container-lowest to-surface px-margin-md py-margin-lg"><div class="flex flex-col w-full">
+<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+<!-- LEFT BRAND HERO COLUMN (Col 1-7) -->
+<div class="lg:col-span-7 flex flex-col space-y-8">
+<!-- Brand identity header block -->
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-xl bg-surface-container-lowest p-2 shadow-sm flex items-center justify-center">
+<img alt="明账 Logo" class="w-full h-full object-contain" src="../assets/img/logo.svg">
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-headline-lg text-headline-lg text-on-surface font-extrabold tracking-tight">明账</span>
+<span class="px-2.5 py-0.5 rounded-full bg-primary-fixed/50 text-on-primary-fixed-variant font-label-sm text-label-sm font-semibold">v2.4 Desktop Pro</span>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant font-medium tracking-wide">全链路智能穿透记账与理性财务系统</p>
+</div>
+</div>
+<!-- Main Narrative Value Proposition -->
+<div class="space-y-4">
+<h1 class="font-display-lg text-display-lg-mobile sm:text-display-lg text-on-surface font-extrabold tracking-tight leading-tight">
+            把预算穿透到<br>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary-container to-secondary">每一笔记录里</span>
+</h1>
+<p class="font-headline-md text-headline-md text-on-surface-variant max-w-xl font-normal leading-relaxed">
+            记账的瞬间就知道本月还剩多少。告别盲目消费与月底超支焦虑，重获对个人现金流的理性掌控。
+          </p>
+</div>
+<!-- Micro Interactive Preview Widget (Hero Analytical Card) -->
+<div class="w-full max-w-xl rounded-xl p-6 bg-gradient-to-br from-primary-container via-primary to-secondary text-on-primary shadow-xl relative overflow-hidden">
+<div class="absolute -right-8 -bottom-8 w-40 h-40 rounded-full bg-surface-container-lowest/10 blur-2xl pointer-events-none"></div>
+<div class="flex items-start justify-between relative z-10">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary-fixed">query_stats</span>
+<span class="font-label-md text-label-md text-primary-fixed uppercase tracking-wider font-semibold">今日实时动态额度</span>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-numeric-hero text-numeric-hero font-bold tracking-tight">¥86.00</span>
+<span class="font-label-sm text-label-sm text-on-primary/80">/ 今日安全可支配</span>
+</div>
+</div>
+<div class="px-3 py-1 rounded-full bg-surface-container-lowest/20 backdrop-blur-md flex items-center gap-1.5 text-on-primary font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-primary-fixed animate-pulse"></span>
+              预算健康度：优秀
+            </div>
+</div>
+<!-- Penetration Gauge Bar Preview -->
+<div class="mt-6 space-y-2 relative z-10">
+<div class="flex justify-between font-label-sm text-label-sm text-on-primary/90">
+<span>本月餐饮剩余: ¥1,420 / 3,000</span>
+<span class="font-semibold text-primary-fixed">穿透度 52.6%</span>
+</div>
+<div class="w-full h-2 rounded-full bg-inverse-surface/20 overflow-hidden flex">
+<div class="h-full bg-primary-fixed rounded-full" style="width: 52.6%;"></div>
+<div class="h-full bg-primary-fixed/40 animate-pulse rounded-full" style="width: 8%;"></div>
+</div>
+<div class="flex justify-between font-body-sm text-body-sm text-on-primary/75 pt-1">
+<span>预演支出: 晚餐 -¥48.00</span>
+<span>记录后结余: ¥1,372.00</span>
+</div>
+</div>
+</div>
+<!-- 3 Pillars Feature Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-xl">
+<div class="p-4 rounded-xl bg-surface-container-lowest shadow-sm space-y-2">
+<div class="w-9 h-9 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">auto_graph</span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold">动态平稳推导</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-normal">
+              根据结余天数自动平摊“今日可花”，彻底告别月底节衣缩食。
+            </p>
+</div>
+<div class="p-4 rounded-xl bg-surface-container-lowest shadow-sm space-y-2">
+<div class="w-9 h-9 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">speed</span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold">极速预算穿透</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-normal">
+              敲下金额的同时，即时映射分类剩余容量，下意识克制冲动。
+            </p>
+</div>
+<div class="p-4 rounded-xl bg-surface-container-lowest shadow-sm space-y-2">
+<div class="w-9 h-9 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">security</span>
+</div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold">本地离线加密</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-normal">
+              IndexedDB 沙盒级存储，数据属于你自己，绝不下注给云端模型。
+            </p>
+</div>
+</div>
+<!-- Trust badge & metrics -->
+<div class="flex items-center gap-4 pt-2">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-label-sm text-label-sm font-bold shadow-sm">陈</div>
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center font-label-sm text-label-sm font-bold shadow-sm">王</div>
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-sm text-label-sm font-bold shadow-sm">李</div>
+<div class="w-8 h-8 rounded-full bg-inverse-surface text-inverse-on-surface flex items-center justify-center font-label-sm text-label-sm font-bold shadow-sm">4W+</div>
+</div>
+<div class="font-label-md text-label-md text-on-surface-variant">
+            已陪伴 <span class="font-bold text-on-surface">42,000+</span> 位理性自律者构建财务秩序 · 极简无推广
+          </div>
+</div>
+</div>
+<!-- RIGHT AUTH FORM CARD CONTAINER (Col 8-12) -->
+<div class="lg:col-span-5 w-full">
+<div class="bg-surface-container-lowest rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
+<!-- PRD 4.1.1 P0: Zero-Threshold Quick Try (免登录快速体验) -->
+<div class="p-4 rounded-xl bg-surface-container-low space-y-3">
+<div class="flex items-start justify-between gap-3">
+<div class="space-y-1">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[18px]">bolt</span>
+<span class="font-label-lg text-label-lg text-on-surface font-bold">免登录快速试用 (零门槛)</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                  账单即刻加密存储于本机浏览器 IndexedDB，不需注册即刻拥有完整穿透记账体验。
+                </p>
+</div>
+</div>
+<button class="w-full py-2.5 px-4 rounded-xl bg-surface-container-lowest text-primary font-label-md text-label-md font-bold shadow-sm hover:bg-surface-bright transition-all flex items-center justify-center gap-2" onclick="handleGuestEntry()" type="button">
+<span>直接进入体验</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+<!-- Subtle divider text -->
+<div class="relative flex py-1 items-center">
+<div class="flex-grow bg-surface-container-high h-[1px]"></div>
+<span class="flex-shrink mx-4 font-label-sm text-label-sm text-on-surface-variant">或登录账号开启多端实时云同步</span>
+<div class="flex-grow bg-surface-container-high h-[1px]"></div>
+</div>
+<!-- Main Auth Box -->
+<div class="space-y-5">
+<!-- Tabs: Login vs Register -->
+<div class="grid grid-cols-2 p-1 bg-surface-container-low rounded-xl">
+<button class="py-2 rounded-lg font-label-md text-label-md font-bold transition-all bg-surface-container-lowest text-on-surface shadow-sm text-center" id="tab-login" onclick="switchAuthTab('login')" type="button">
+                账号登录
+              </button>
+<button class="py-2 rounded-lg font-label-md text-label-md font-medium text-on-surface-variant transition-all hover:text-on-surface text-center" id="tab-register" onclick="switchAuthTab('register')" type="button">
+                注册新账号
+              </button>
+</div>
+<!-- Sub Mode Pill: SMS vs Password -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<button class="px-3 py-1 rounded-full font-label-sm text-label-sm font-semibold bg-primary/10 text-primary transition-colors" id="sub-sms" onclick="switchSubMode('sms')" type="button">
+                  手机验证码登录
+                </button>
+<button class="px-3 py-1 rounded-full font-label-sm text-label-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors" id="sub-pwd" onclick="switchSubMode('pwd')" type="button">
+                  密码登录
+                </button>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant/80">无需事先注册</span>
+</div>
+<!-- Form Body -->
+<form class="space-y-4" id="auth-form" onsubmit="handleAuthSubmit(event)">
+<!-- Phone Input Row -->
+<div class="space-y-1.5">
+<label class="font-label-sm text-label-sm text-on-surface-variant font-medium" for="phone-input">手机号码</label>
+<div class="flex rounded-xl bg-surface-container-low p-1 focus-within:ring-2 focus-within:ring-primary">
+<div class="flex items-center pl-3 pr-2 text-on-surface font-label-md text-label-md font-bold">
+<span>+86</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant ml-1">expand_more</span>
+</div>
+<input class="w-full bg-transparent px-2 py-2.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none" id="phone-input" maxlength="11" placeholder="请输入11位大陆手机号码" required="" type="tel">
+<button class="px-2 text-on-surface-variant hover:text-on-surface flex items-center" onclick="clearInput('phone-input')" type="button">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+</button>
+</div>
+</div>
+<!-- SMS Code Input (Dynamic) -->
+<div class="space-y-1.5" id="sms-container">
+<label class="font-label-sm text-label-sm text-on-surface-variant font-medium" for="sms-input">短信验证码</label>
+<div class="flex gap-2">
+<div class="flex-1 rounded-xl bg-surface-container-low p-1 focus-within:ring-2 focus-within:ring-primary flex items-center">
+<input class="w-full bg-transparent px-3 py-2.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none" id="sms-input" maxlength="6" placeholder="请输入6位短信验证码" type="text">
+</div>
+<button class="px-4 py-2.5 rounded-xl bg-surface-container-low text-primary font-label-sm text-label-sm font-bold hover:bg-surface-container-high transition-colors whitespace-nowrap" id="btn-send-code" onclick="sendVerifyCode()" type="button">
+                    获取验证码
+                  </button>
+</div>
+</div>
+<!-- Password Input (Hidden in SMS mode) -->
+<div class="space-y-1.5 hidden" id="pwd-container">
+<label class="font-label-sm text-label-sm text-on-surface-variant font-medium" for="pwd-input">账号密码</label>
+<div class="rounded-xl bg-surface-container-low p-1 focus-within:ring-2 focus-within:ring-primary flex items-center">
+<input class="w-full bg-transparent px-3 py-2.5 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none" id="pwd-input" placeholder="请输入8-20位密码" type="password">
+<button class="px-3 text-on-surface-variant hover:text-on-surface" onclick="togglePasswordVisibility()" type="button">
+<span class="material-symbols-outlined text-[18px]" id="pwd-eye-icon">visibility_off</span>
+</button>
+</div>
+</div>
+<!-- Helper links & Checkboxes -->
+<div class="flex items-center justify-between pt-1">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input checked="" class="rounded text-primary focus:ring-primary w-4 h-4 accent-primary" type="checkbox">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-normal">记住登录状态 (30天免密)</span>
+</label>
+<a class="font-label-sm text-label-sm text-primary hover:underline" href="03-onboarding-help.html">遇到问题 / 找回密码</a>
+</div>
+<!-- Primary CTA Button -->
+<button class="w-full h-12 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg font-bold shadow-md hover:bg-primary-container transition-all flex items-center justify-center gap-2 group" id="auth-submit-btn" type="submit">
+<span id="submit-btn-text">立即登录并同步数据</span>
+<span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">east</span>
+</button>
+</form>
+<!-- Third party auth section -->
+<div class="space-y-3 pt-2">
+<div class="relative flex py-1 items-center">
+<div class="flex-grow bg-surface-container-high h-[1px]"></div>
+<span class="flex-shrink mx-3 font-label-sm text-label-sm text-on-surface-variant/70">社交账号极速接入</span>
+<div class="flex-grow bg-surface-container-high h-[1px]"></div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="h-10 rounded-xl bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm text-on-surface font-medium flex items-center justify-center gap-2 transition-colors" onclick="simulateOAuth('WeChat')" type="button">
+<span class="material-symbols-outlined text-[20px] text-primary">qr_code_scanner</span>
+<span>微信扫码登录</span>
+</button>
+<button class="h-10 rounded-xl bg-surface-container-low hover:bg-surface-container-high font-label-sm text-label-sm text-on-surface font-medium flex items-center justify-center gap-2 transition-colors" onclick="simulateOAuth('Apple')" type="button">
+<span class="material-symbols-outlined text-[20px] text-on-surface">account_circle</span>
+<span>Apple ID 登录</span>
+</button>
+</div>
+</div>
+<!-- Security & Agreement Footer Guarantee -->
+<div class="pt-2 text-center space-y-2">
+<div class="flex items-center justify-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-primary text-[15px]">verified_user</span>
+<span>银行级端到端加密 · 账单数据绝不上报云端大模型</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant/70 leading-normal">
+                登录即代表您已阅读并同意
+                <a class="text-on-surface hover:underline font-medium" href="03-onboarding-help.html">《用户服务协议》</a>
+                与
+                <a class="text-on-surface hover:underline font-medium" href="23-settings-privacy.html">《隐私安全保障条款》</a>
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  let currentAuthTab = 'login'; // 'login' | 'register'
+  let currentSubMode = 'sms';   // 'sms' | 'pwd'
+  let countdownTimer = null;
+
+  function switchAuthTab(tab) {
+    currentAuthTab = tab;
+    const tabLogin = document.getElementById('tab-login');
+    const tabRegister = document.getElementById('tab-register');
+    const submitText = document.getElementById('submit-btn-text');
+
+    if (tab === 'login') {
+      tabLogin.className = 'py-2 rounded-lg font-label-md text-label-md font-bold transition-all bg-surface-container-lowest text-on-surface shadow-sm text-center';
+      tabRegister.className = 'py-2 rounded-lg font-label-md text-label-md font-medium text-on-surface-variant transition-all hover:text-on-surface text-center';
+      submitText.textContent = '立即登录并同步数据';
+    } else {
+      tabRegister.className = 'py-2 rounded-lg font-label-md text-label-md font-bold transition-all bg-surface-container-lowest text-on-surface shadow-sm text-center';
+      tabLogin.className = 'py-2 rounded-lg font-label-md text-label-md font-medium text-on-surface-variant transition-all hover:text-on-surface text-center';
+      submitText.textContent = '立即注册明账账号';
+    }
+  }
+
+  function switchSubMode(mode) {
+    currentSubMode = mode;
+    const subSms = document.getElementById('sub-sms');
+    const subPwd = document.getElementById('sub-pwd');
+    const smsContainer = document.getElementById('sms-container');
+    const pwdContainer = document.getElementById('pwd-container');
+
+    if (mode === 'sms') {
+      subSms.className = 'px-3 py-1 rounded-full font-label-sm text-label-sm font-semibold bg-primary/10 text-primary transition-colors';
+      subPwd.className = 'px-3 py-1 rounded-full font-label-sm text-label-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors';
+      smsContainer.classList.remove('hidden');
+      pwdContainer.classList.add('hidden');
+    } else {
+      subPwd.className = 'px-3 py-1 rounded-full font-label-sm text-label-sm font-semibold bg-primary/10 text-primary transition-colors';
+      subSms.className = 'px-3 py-1 rounded-full font-label-sm text-label-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors';
+      pwdContainer.classList.remove('hidden');
+      smsContainer.classList.add('hidden');
+    }
+  }
+
+  function sendVerifyCode() {
+    const phoneInput = document.getElementById('phone-input');
+    const btnSend = document.getElementById('btn-send-code');
+    const phoneVal = phoneInput.value.trim();
+
+    if (!/^1[3-9]\d{9}$/.test(phoneVal)) {
+      alert('请输入正确的11位手机号码');
+      phoneInput.focus();
+      return;
+    }
+
+    if (countdownTimer) return;
+
+    let seconds = 60;
+    btnSend.disabled = true;
+    btnSend.classList.add('opacity-50', 'cursor-not-allowed');
+    btnSend.textContent = `${seconds}s 后重新获取`;
+
+    countdownTimer = setInterval(() => {
+      seconds--;
+      if (seconds > 0) {
+        btnSend.textContent = `${seconds}s 后重新获取`;
+      } else {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+        btnSend.disabled = false;
+        btnSend.classList.remove('opacity-50', 'cursor-not-allowed');
+        btnSend.textContent = '获取验证码';
+      }
+    }, 1000);
+  }
+
+  function clearInput(id) {
+    const input = document.getElementById(id);
+    if (input) {
+      input.value = '';
+      input.focus();
+    }
+  }
+
+  function togglePasswordVisibility() {
+    const pwdInput = document.getElementById('pwd-input');
+    const eyeIcon = document.getElementById('pwd-eye-icon');
+    if (pwdInput.type === 'password') {
+      pwdInput.type = 'text';
+      eyeIcon.textContent = 'visibility';
+    } else {
+      pwdInput.type = 'password';
+      eyeIcon.textContent = 'visibility_off';
+    }
+  }
+
+  function handleGuestEntry() {
+    // PRD 4.1.1 免登录试用：直接进首页，数据留在本机
+    window.location.href = '04-home-calm.html';
+  }
+
+  function handleAuthSubmit(e) {
+    e.preventDefault();
+    const phone = document.getElementById('phone-input').value.trim();
+    if (!phone) {
+      alert('请填写手机号码');
+      return;
+    }
+    // Simulation
+    const btn = document.getElementById('auth-submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span> 验证中...`;
+
+    // 登录 → 回访用户已有数据，直接进首页
+    // 注册 → 新用户无数据，走冷启动引导（PRD 2.3：用导入账单替代空白图表）
+    const next = currentAuthTab === 'register'
+      ? '02-onboarding-coldstart.html'
+      : '04-home-calm.html';
+
+    setTimeout(() => {
+      window.location.href = next;
+    }, 800);
+  }
+
+  function simulateOAuth(provider) {
+    alert(`正在拉起 ${provider} 授权验证...`);
+  }
+</script></main><footer class="w-full bg-surface-container-lowest/60 backdrop-blur-md shadow-[0_-1px_8px_rgba(0,0,0,0.02)] py-space-lg"><div class="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-space-md text-center sm:text-left"><div class="flex items-center gap-space-md flex-wrap justify-center"><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="03-onboarding-help.html">服务协议</a><span class="text-outline-variant font-label-sm text-label-sm">•</span><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="23-settings-privacy.html">隐私权政策</a><span class="text-outline-variant font-label-sm text-label-sm">•</span><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="23-settings-privacy.html">安全与合规保障</a></div><div class="flex items-center gap-space-sm flex-wrap justify-center"><span class="font-label-sm text-label-sm text-on-surface-variant">© 2024 明账金融科技. 保留所有权利.</span><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" href="https://beian.miit.gov.cn/" rel="noopener noreferrer" target="_blank">京ICP备2024098231号-1</a></div></div></footer>
+<div data-shell="switcher"></div>
+<script src="../assets/js/shell.js"></script>
+</body></html>

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#14B8A6">
+<meta name="description" content="明账 —— 把预算穿透到每一笔记录里的记账工具。">
+<title>明账 · 异常诊断</title>
+
+<!-- 字体：Manrope（正文与数字）+ Material Symbols（图标） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="../assets/js/theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+<!-- 设计令牌与基础样式（PRD 第 13 章） -->
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+
+<!-- Tailwind Play CDN：先载入运行时，再注入主题配置 -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="../assets/js/tailwind.config.js"></script>
+
+<!-- 路由表：导航与状态切换的唯一事实来源 -->
+<script src="../assets/js/routes.js"></script>
+</head><body data-page="import-diagnose" class="bg-background font-body-md text-on-surface min-h-screen"><div data-shell="sidebar"></div>
+<div data-shell="topbar"></div>
+<div class="lg:pl-72"><main class="relative pt-16 min-h-screen bg-background"><div class="flex flex-col w-full">
+<div class="px-margin-lg py-margin-md max-w-7xl mx-auto w-full flex flex-col gap-space-lg">
+<!-- 面包屑导航与状态概览 -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs text-body-sm font-body-sm text-on-surface-variant mb-space-xs">
+<span>账单导入工作台</span>
+<span class="material-symbols-outlined text-body-sm">chevron_right</span>
+<span>账单预解析阶段</span>
+<span class="material-symbols-outlined text-body-sm">chevron_right</span>
+<span class="text-primary font-semibold">格式校验与异常修正</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">流水导入诊断与排查</h1>
+<span class="inline-flex items-center gap-space-xs px-space-sm py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+            PRD 7.1 容错拦截机制
+          </span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm text-label-md font-label-md text-on-surface-variant">
+<span class="material-symbols-outlined text-[1.125rem]">history_toggle_off</span>
+<span>解析耗时: 142ms</span>
+<span class="text-outline-variant">|</span>
+<span>文件: wechat_pay_statement_202609.csv.zip</span>
+</div>
+</div>
+<!-- 1. 顶部异常警示与智能诊断条 (暖琥珀与玫瑰红平缓警示，不引发焦虑) -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container-lowest shadow-sm p-space-md flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-error"></div>
+<div class="flex items-start gap-space-md pl-space-xs">
+<div class="w-10 h-10 rounded-xl bg-error-container/60 flex items-center justify-center shrink-0 text-error">
+<span class="material-symbols-outlined text-[1.5rem]" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface">账单解析未完全成功</span>
+<span class="px-space-xs py-0.5 rounded bg-surface-container text-primary font-label-sm text-label-sm">已隔离异常行</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-0.5">
+            系统已成功提取并结构化 <span class="text-primary font-semibold">18 笔有效流水</span>，检测到 <span class="text-error font-semibold">14 笔格式损坏、字段不全或语法异常行</span>。
+          </p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm shrink-0 pl-space-xs lg:pl-0">
+<a class="inline-flex items-center gap-space-xs px-space-md py-space-sm rounded-xl bg-surface-container text-on-surface font-label-lg text-label-lg hover:bg-surface-container-high transition-colors" href="#inspection-table">
+<span class="material-symbols-outlined text-[1.125rem]">center_focus_strong</span>
+<span>一键定位异常行</span>
+</a>
+<button class="inline-flex items-center gap-space-xs px-space-md py-space-sm rounded-xl bg-primary text-on-primary font-label-lg text-label-lg hover:bg-primary-container transition-all shadow-sm" type="button">
+<span>直接导入 18 笔正常流水</span>
+<span class="material-symbols-outlined text-[1.125rem]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- 2. 异常智能排查与解决指引卡片 Bento 网格 -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-space-md">
+<!-- 卡片一：微信加密解压密码 (跨 5 列) -->
+<div class="md:col-span-5 rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col justify-between gap-space-md relative">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-primary font-label-md text-label-md">
+<span class="material-symbols-outlined text-[1.25rem]">lock</span>
+<span>安全凭证校验</span>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-surface-container text-on-surface-variant text-label-sm font-label-sm">仅本地内存解压</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">微信加密账单需要独立解压密码</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            依据微信支付安全策略，导出的月度明细压缩包已设置专属加密。请打开微信App进入「微信支付」服务号，查看账单推送凭证底部的 <span class="font-semibold text-on-surface">6 位数字解压码</span>。
+          </p>
+<!-- 示意微图 -->
+<div class="rounded-lg bg-surface-container-low p-space-sm flex items-center gap-space-sm">
+<img class="w-12 h-12 rounded-lg object-cover shrink-0" data-alt="A clean modern schematic representation of a smartphone WeChat pay verification notification receipt with highlighted 6-digit numeric decryption passcode against slate blue backdrop" src="../assets/img/logo.svg"/>
+<div class="flex flex-col text-label-sm font-label-sm text-on-surface-variant">
+<span class="text-on-surface font-semibold">微信支付凭证消息</span>
+<span>路径：微信 &gt; 微信支付通知 &gt; 账单导出详情</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-xs pt-space-xs">
+<div class="relative flex-1">
+<input class="w-full bg-surface-container-low px-space-md py-space-sm rounded-lg text-on-surface font-numeric-data text-numeric-data tracking-widest placeholder:text-outline placeholder:text-body-sm focus:outline-none focus:ring-2 focus:ring-primary" id="pwd-input" maxlength="6" placeholder="输入 6 位解压码" type="text"/>
+</div>
+<button class="px-space-md py-space-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors shrink-0 flex items-center gap-space-xs" onclick="handleReextract()" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">key_vertical</span>
+<span>重新本地解压</span>
+</button>
+</div>
+</div>
+<!-- 卡片二：字段缺失与智能补全建议 (跨 4 列) -->
+<div class="md:col-span-4 rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-secondary font-label-md text-label-md">
+<span class="material-symbols-outlined text-[1.25rem]">auto_fix_high</span>
+<span>启发式推断</span>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-surface-container-high text-secondary font-label-sm text-label-sm">检测到 6 处</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">年份与商户字段缺失补全</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            部分快捷导出记录仅有月日（例如「09-15」）。系统已根据账单文件时间戳，建议统一补齐当前自然年。
+          </p>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex flex-col gap-space-xs">
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">系统默认补今年份</span>
+<span class="font-numeric-data text-numeric-data text-on-surface">2026 年</span>
+</div>
+<div class="flex items-center justify-between text-body-sm font-body-sm">
+<span class="text-on-surface-variant">商户缺失匹配率</span>
+<span class="font-numeric-data text-numeric-data text-primary">83.4% 命中历史库</span>
+</div>
+</div>
+</div>
+<button class="w-full py-space-sm px-space-md rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors flex items-center justify-center gap-space-xs" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">done_all</span>
+<span>一键应用当前推荐规则</span>
+</button>
+</div>
+<!-- 卡片三：文件编码识别与无损转换 (跨 3 列) -->
+<div class="md:col-span-3 rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-primary font-label-md text-label-md">
+<span class="material-symbols-outlined text-[1.25rem]">manage_search</span>
+<span>编码嗅探</span>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-surface-container text-primary font-label-sm text-label-sm">已自动修复</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">文件编码自动转译</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            检测到源文件包含 Windows 历史遗留编码。引擎已自动由 <span class="font-semibold text-on-surface">GBK</span> 转换为 <span class="font-semibold text-on-surface">UTF-8</span>，消除乱码。
+          </p>
+<!-- 视觉对比胶囊 -->
+<div class="flex items-center justify-center gap-space-sm py-space-sm rounded-lg bg-surface-container-low">
+<span class="font-numeric-data text-body-sm text-on-surface-variant line-through opacity-70">GBK/GB2312</span>
+<span class="material-symbols-outlined text-primary text-[1rem]">arrow_right_alt</span>
+<span class="font-numeric-data text-body-sm text-primary font-bold">UTF-8 (无BOM)</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant">
+<span class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> 文本字符流正常
+          </span>
+<span class="text-on-surface cursor-pointer hover:underline">切换手工编码</span>
+</div>
+</div>
+</div>
+<!-- 3. 异常行对照检查大表 (Visual Diff / Inspection Table) -->
+<div class="rounded-xl bg-surface-container-lowest shadow-sm flex flex-col overflow-hidden" id="inspection-table">
+<!-- 表格工具控制栏 -->
+<div class="p-space-md flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm bg-surface-bright">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface">异常行定位与即时修正</span>
+<span class="px-space-xs py-0.5 rounded-full bg-error-container text-error font-label-sm text-label-sm font-semibold">
+            待处理 4 行
+          </span>
+</div>
+<div class="flex items-center gap-space-xs text-label-sm font-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[1.125rem]">info</span>
+<span>修正结果将即时计入流水，不污染云端原备份</span>
+</div>
+</div>
+<!-- 数据表主体 -->
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left font-body-md text-body-md text-on-surface">
+<thead class="bg-surface-container-low text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">
+<tr>
+<th class="py-space-sm px-space-md w-20" scope="col">行号</th>
+<th class="py-space-sm px-space-md min-w-[240px]" scope="col">原始输入片段 (Raw Snippet)</th>
+<th class="py-space-sm px-space-md w-36" scope="col">问题类型</th>
+<th class="py-space-sm px-space-md min-w-[260px]" scope="col">智能修复建议</th>
+<th class="py-space-sm px-space-md text-right min-w-[200px]" scope="col">校验行动</th>
+</tr>
+</thead>
+<tbody class="text-body-sm font-body-sm">
+<!-- 行 1: 缺失金额与时间 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-space-md px-space-md font-numeric-data text-body-md text-on-surface-variant">
+                #04
+              </td>
+<td class="py-space-md px-space-md font-mono text-on-surface bg-surface-container/30 rounded-md">
+<code>09-15 麦当劳</code>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded bg-surface-container text-tertiary-container font-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                  数据不完整
+                </span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-outline text-[1.125rem]">edit_note</span>
+<span class="text-on-surface-variant">缺失关键金额，商户已确认为「餐饮美食/麦当劳」</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-space-sm py-1 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-md text-label-md transition-colors" type="button">
+                    补填金额
+                  </button>
+<button class="px-space-sm py-1 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-label-md text-label-md transition-colors" type="button">
+                    跳过此行
+                  </button>
+</div>
+</td>
+</tr>
+<!-- 行 2: 方向歧义 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-space-md px-space-md font-numeric-data text-body-md text-on-surface-variant">
+                #11
+              </td>
+<td class="py-space-md px-space-md font-mono text-on-surface bg-surface-container/30 rounded-md">
+<code>微信转账-转给朋友张三 200.00</code>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded bg-surface-container-high text-secondary font-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                  方向歧义
+                </span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="text-on-surface-variant">未标注正负符号，推断为</span>
+<span class="font-numeric-data font-semibold text-on-surface">支出 ¥200.00</span>
+<span class="text-outline text-label-sm">（或人情往来借出）</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-space-sm py-1 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high font-label-md text-label-md transition-colors" type="button">
+                    标记为支出
+                  </button>
+<button class="px-space-sm py-1 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-label-md text-label-md transition-colors" type="button">
+                    跳过
+                  </button>
+</div>
+</td>
+</tr>
+<!-- 行 3: 金额包含中文字符与单位 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-space-md px-space-md font-numeric-data text-body-md text-on-surface-variant">
+                #19
+              </td>
+<td class="py-space-md px-space-md font-mono text-on-surface bg-surface-container/30 rounded-md">
+<code>支付宝服务费 0.10元</code>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded bg-surface-container text-primary font-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                  格式多余后缀
+                </span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[1.125rem]">check_circle</span>
+<span class="text-on-surface-variant">正则智能提取纯净数值：</span>
+<span class="font-numeric-data font-bold text-primary">¥0.10</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-space-sm py-1 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors" type="button">
+                    确认采纳修正
+                  </button>
+</div>
+</td>
+</tr>
+<!-- 行 4: 乱码非法字符行 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="py-space-md px-space-md font-numeric-data text-body-md text-on-surface-variant">
+                #27
+              </td>
+<td class="py-space-md px-space-md font-mono text-error/80 bg-error-container/30 rounded-md">
+<code>%%--2026-INVALID--&amp;&amp;</code>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded bg-error-container text-error font-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                  语法错误
+                </span>
+</td>
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="text-on-surface-variant">无法识别的控制符号行，疑为文件尾部脏数据</span>
+</div>
+</td>
+<td class="py-space-md px-space-md text-right">
+<div class="flex items-center justify-end gap-space-xs">
+<button class="px-space-sm py-1 rounded-lg bg-error-container/60 hover:bg-error-container text-error font-label-md text-label-md transition-colors" type="button">
+                    直接剔除此行
+                  </button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- 交互辅助：内联补全模态轻量条 (隐藏触发示例结构，默认处于待交互就绪) -->
+<div class="p-space-sm bg-surface-container-low flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[1.125rem]">rule</span>
+<span>当前排查策略已开启「预算穿透预估」，所有被修复条目将自动按商户特征映射至当月对应额度。</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="text-label-sm font-label-sm text-on-surface-variant">支持快捷键：[Space] 采纳推荐 · [Esc] 忽略跳过</span>
+</div>
+</div>
+</div>
+<!-- 4. 底部行动控制面板 (Sticky Floating Bottom Action Bar) -->
+<div class="sticky bottom-4 z-30 w-full rounded-2xl bg-surface-container-lowest shadow-xl p-space-md flex flex-col md:flex-row items-center justify-between gap-space-md">
+<!-- 左侧统计状态计分板 -->
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<span class="font-body-md text-body-md text-on-surface">已修复 <strong class="font-numeric-data text-primary">1</strong> 笔</span>
+</div>
+<span class="text-outline-variant">/</span>
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="font-body-md text-body-md text-on-surface">待处理 <strong class="font-numeric-data text-on-surface">3</strong> 笔</span>
+</div>
+<span class="text-outline-variant">/</span>
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-outline"></span>
+<span class="font-body-md text-body-md text-on-surface-variant">已忽略 <strong class="font-numeric-data text-on-surface-variant">2</strong> 笔</span>
+</div>
+</div>
+<!-- 中间辅助诊断操作 -->
+<div class="flex items-center gap-space-sm">
+<button class="inline-flex items-center gap-space-xs px-space-md py-space-sm rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors font-label-md text-label-md" type="button">
+<span class="material-symbols-outlined text-[1.25rem]">download</span>
+<span>下载异常行错误日志报告 (.txt)</span>
+</button>
+</div>
+<!-- 右侧主决策通道 -->
+<div class="flex items-center gap-space-sm w-full md:w-auto justify-end">
+<button class="px-space-md py-space-sm rounded-xl bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-label-lg text-label-lg" type="button">
+          重新上传账单文件
+        </button>
+<button class="px-space-lg py-space-sm rounded-xl bg-primary text-on-primary hover:bg-primary-container transition-all font-label-lg text-label-lg flex items-center gap-space-xs shadow-md" type="button">
+<span>仅导入已确认无误的 19 笔流水</span>
+<span class="material-symbols-outlined text-[1.25rem]">task_alt</span>
+</button>
+</div>
+</div>
+</div>
+<!-- 轻量交互脚本：支持密码快速验证体验 -->
+<script>
+    function handleReextract() {
+      const input = document.getElementById('pwd-input');
+      if (!input.value || input.value.length < 6) {
+        input.focus();
+        input.classList.add('ring-2', 'ring-error');
+        setTimeout(() => input.classList.remove('ring-error'), 1500);
+      } else {
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[1.125rem]">sync</span><span>解压解析中...</span>';
+        setTimeout(() => {
+          btn.innerHTML = '<span class="material-symbols-outlined text-[1.125rem]">check</span><span>解密成功</span>';
+          btn.classList.replace('bg-primary', 'bg-primary-container');
+        }, 800);
+      }
+    }
+  </script>
+</div></main></div>
+<div data-shell="bottomnav"></div>
+<div data-shell="switcher"></div>
+<script src="../assets/js/shell.js"></script>
+</body></html>

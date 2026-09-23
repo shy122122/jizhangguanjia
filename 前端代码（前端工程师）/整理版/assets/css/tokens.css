@@ -1,0 +1,286 @@
+/* ============================================================================
+ * 明账（MingZhang）· 设计令牌
+ * 依据：PRD v1.2 第 13 章「视觉设计规范（配色系统）」
+ *
+ * 供两种场景使用：
+ *   1. 内联 style / JS 动态计算的样式（Tailwind 工具类覆盖不到的场合）
+ *   2. 深色模式切换（html.dark 覆盖）
+ *
+ * Tailwind 工具类见 assets/js/tailwind.config.js，两者取值必须保持一致。
+ * ========================================================================== */
+
+:root {
+  /* ── PRD 13.2 品牌主色：青 ── */
+  --brand-50:  #F0FDFA;
+  --brand-100: #CCFBF1;
+  --brand-200: #99F6E4;
+  --brand-300: #5EEAD4;
+  --brand-400: #2DD4BF;
+  --brand-500: #14B8A6;  /* 仅作图填充，不作文字色 */
+  --brand-600: #0D9488;
+  --brand-700: #0F766E;  /* 主按钮底色 / 正文强调 */
+  --brand-800: #115E59;
+  --brand-900: #134E4A;
+
+  /* ── PRD 13.3 辅助色：青蓝 ── */
+  --accent-50:  #ECFEFF;
+  --accent-100: #CFFAFE;
+  --accent-200: #A5F3FC;
+  --accent-300: #67E8F9;
+  --accent-400: #22D3EE;
+  --accent-500: #06B6D4;
+  --accent-600: #0891B2;
+  --accent-700: #0E7490;  /* 信息文字，AA 5.36:1 */
+  --accent-800: #155E75;
+  --accent-900: #164E63;
+
+  /* ── PRD 13.5.1 语义色 ── */
+  --success:    var(--brand-600);  /* 复用主色，不引入独立绿 */
+  --warning:    #F59E0B;           /* amber-500，仅图标 / 底色 */
+  --warning-ink:#B45309;           /* amber-700，预警文字用 */
+  --warning-bg: #FFFBEB;
+  --danger:     #E11D48;           /* rose-600，仅超支 / 删除 / 错误 */
+  --danger-bg:  #FFF1F2;
+  --info:       var(--accent-600);
+
+  /* ── PRD 13.4 中性色 ── */
+  --bg:             #F8FAFC;
+  --surface:        #FFFFFF;
+  --surface-alt:    #F1F5F9;
+  --border:         #E2E8F0;
+  --border-strong:  #CBD5E1;
+  --text-tertiary:  #94A3B8;
+  --text-secondary: #64748B;
+  --text-primary:   #0F172A;
+
+  /* ── PRD 13.5.2 金额色彩约定（关键设计决策）──
+   * 支出金额一律中性深色，绝不标红：
+   * 用户每天要记 5 笔以上支出，全标红会让界面持续传递"你在犯错"的焦虑信号。
+   * 红色保留给真正的异常，用稀缺性换取警示强度。 */
+  --amount-expense:  var(--text-primary);   /* #0F172A 中性深色 */
+  --amount-income:   var(--brand-600);      /* #0D9488 正向强调 */
+  --amount-transfer: var(--text-secondary); /* #64748B 弱化 */
+
+  /* 预算进度三档 */
+  --progress-ok:      var(--brand-600);
+  --progress-warning: var(--warning);
+  --progress-over:    var(--danger);
+
+  /* ── PRD 13.6 图表色板（颜色与分类绑定，不随排序变化）── */
+  --chart-1: #14B8A6;  /* 餐饮 */
+  --chart-2: #06B6D4;  /* 交通 */
+  --chart-3: #0EA5E9;  /* 购物 */
+  --chart-4: #6366F1;  /* 居住 */
+  --chart-5: #8B5CF6;  /* 娱乐 */
+  --chart-6: #EC4899;  /* 医疗 */
+  --chart-7: #F43F5E;  /* 学习 */
+  --chart-8: #F59E0B;  /* 通讯 */
+  --chart-9: #84CC16;  /* 人情 */
+  --chart-10:#94A3B8;  /* 其他 */
+
+  /* ── PRD 13.7 品牌渐变 ── */
+  --gradient-brand:      linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%);
+  --gradient-brand-dark: linear-gradient(135deg, #0D9488 0%, #0E7490 100%);
+  --gradient-brand-soft: linear-gradient(135deg, #F0FDFA 0%, #ECFEFF 100%);
+
+  /* ── PRD 13.8 阴影分层 ── */
+  --shadow-tier1: 0 1px 3px 0 rgb(15 23 42 / 0.04), 0 1px 2px -1px rgb(15 23 42 / 0.02);
+  --shadow-tier2: 0 12px 24px -6px rgb(20 184 166 / 0.25);
+  --shadow-tier3: 0 20px 25px -5px rgb(15 23 42 / 0.08), 0 8px 10px -6px rgb(15 23 42 / 0.04);
+
+  /* ── 布局 ── */
+  --sidebar-w: 18rem;   /* w-72，与原型侧边栏一致 */
+  --topbar-h:  4rem;    /* h-16 */
+  --content-max: 1200px;
+}
+
+/* ============================================================================
+ * PRD 13.8 深色模式
+ * 背景采用深墨蓝 #0B1220 而非纯黑或中性深灰：
+ * 纯黑会让青色产生剧烈光晕，长时间观看易疲劳；深墨蓝与青色同属冷色，
+ * 且保留"专业、可信"的金融质感。
+ * ========================================================================== */
+html.dark {
+  --bg:             #0B1220;
+  --surface:        #131C2E;
+  --surface-alt:    #1A2438;
+  --border:         #24304A;
+  --border-strong:  #2F3D5C;
+  --text-tertiary:  #64748B;
+  --text-secondary: #94A3B8;
+  --text-primary:   #E2E8F0;
+
+  --brand-500: #2DD4BF;   /* 深色模式主色上移一档，保证可读 */
+  --brand-600: #2DD4BF;
+  --brand-700: #5EEAD4;
+  --accent-600: #22D3EE;
+  --accent-700: #22D3EE;
+  --warning:    #FBBF24;
+  --warning-ink:#FBBF24;
+  --danger:     #FB7185;
+
+  --amount-expense:  #E2E8F0;
+  --amount-income:   #2DD4BF;
+  --amount-transfer: #94A3B8;
+
+  --progress-ok:      #2DD4BF;
+  --progress-warning: #FBBF24;
+  --progress-over:    #FB7185;
+
+  --gradient-brand:      linear-gradient(135deg, #0D9488 0%, #0E7490 100%);
+  --gradient-brand-soft: linear-gradient(135deg, #11312E 0%, #0C2B33 100%);
+
+  --shadow-tier1: 0 1px 3px 0 rgb(0 0 0 / 0.30), 0 1px 2px -1px rgb(0 0 0 / 0.24);
+  --shadow-tier2: 0 12px 24px -6px rgb(13 148 136 / 0.35);
+  --shadow-tier3: 0 20px 25px -5px rgb(0 0 0 / 0.45), 0 8px 10px -6px rgb(0 0 0 / 0.30);
+}
+
+/* ============================================================================
+ * Material 3 语义角色的 RGB 通道桥接层
+ *
+ * 23 个原型页面沿用了 Google Stitch 的 M3 角色类名（bg-surface-container-lowest、
+ * text-on-surface …）。这些类名由 tailwind.config.js 消费，而后者把取值指向
+ * 下面的 --mz-* 变量 —— 于是：
+ *
+ *   · 页面标记一行不用改，颜色却可以随 html.dark 整体翻转；
+ *   · 变量存的是「R G B」通道而非完整色值，Tailwind 才能继续支持
+ *     bg-surface-bright/80 这类透明度写法（rgb(var(--x) / <alpha-value>)）。
+ *
+ * 改配色请只改这里，tailwind.config.js 不再硬编码色值。
+ * ========================================================================== */
+:root {
+  /* 表面：由低到高是「越靠近内容越亮」的抬升阶梯 */
+  --mz-background:                248 250 252;
+  --mz-surface:                   255 255 255;
+  --mz-surface-bright:            255 255 255;
+  --mz-surface-container-lowest:  255 255 255;
+  --mz-surface-container-low:     241 245 249;
+  --mz-surface-container:         241 245 249;
+  --mz-surface-container-high:    226 232 240;
+  --mz-surface-container-highest: 226 232 240;
+  --mz-surface-variant:           226 232 240;
+  --mz-surface-dim:               226 232 240;
+  --mz-surface-tint:              20 184 166;
+
+  /* 前景 */
+  --mz-on-surface:         15 23 42;
+  --mz-on-surface-variant: 100 116 139;
+  --mz-on-background:      15 23 42;
+  --mz-inverse-surface:    19 28 46;
+  --mz-inverse-on-surface: 226 232 240;
+
+  /* 描边 */
+  --mz-outline:         148 163 184;
+  --mz-outline-variant: 226 232 240;
+
+  /* 主色角色（青） */
+  --mz-primary:                    15 118 110;
+  --mz-on-primary:                 255 255 255;
+  --mz-primary-container:          17 94 89;
+  --mz-on-primary-container:       255 255 255;
+  --mz-inverse-primary:            94 234 212;
+  --mz-primary-fixed:              204 251 241;
+  --mz-primary-fixed-dim:          94 234 212;
+  --mz-on-primary-fixed:           19 78 74;
+  --mz-on-primary-fixed-variant:   15 118 110;
+
+  /* 辅色角色（青蓝） */
+  --mz-secondary:                  14 116 144;
+  --mz-on-secondary:               255 255 255;
+  --mz-secondary-container:        207 250 254;
+  --mz-on-secondary-container:     14 116 144;
+  --mz-secondary-fixed:            165 243 252;
+  --mz-secondary-fixed-dim:        103 232 249;
+  --mz-on-secondary-fixed:         22 78 99;
+  --mz-on-secondary-fixed-variant: 14 116 144;
+
+  /* 错误 / 第三色角色（仅超支、删除、错误） */
+  --mz-error:                        225 29 72;
+  --mz-on-error:                     255 255 255;
+  --mz-error-container:              255 241 242;
+  --mz-on-error-container:           190 18 60;
+  --mz-tertiary:                     225 29 72;
+  --mz-tertiary-container:           244 63 94;
+  --mz-on-tertiary:                  255 255 255;
+  --mz-on-tertiary-container:        255 255 255;
+  --mz-tertiary-fixed:               255 228 230;
+  --mz-tertiary-fixed-dim:           253 164 175;
+  --mz-on-tertiary-fixed:            136 19 55;
+  --mz-on-tertiary-fixed-variant:    190 18 60;
+
+  /* PRD 原生调色板别名，供新代码直接使用 */
+  --mz-canvas:    248 250 252;
+  --mz-ink:       15 23 42;
+  --mz-warn:      245 158 11;
+  --mz-warn-ink:  180 83 9;
+  --mz-danger:    225 29 72;
+  --mz-brand-500: 20 184 166;
+  --mz-brand-600: 13 148 136;
+  --mz-brand-700: 15 118 110;
+}
+
+html.dark {
+  /* 表面：深色下阶梯方向不变，但整体压到深墨蓝系 */
+  --mz-background:                11 18 32;
+  --mz-surface:                   19 28 46;
+  --mz-surface-bright:            26 36 56;
+  --mz-surface-container-lowest:  14 22 38;
+  --mz-surface-container-low:     19 28 46;
+  --mz-surface-container:         26 36 56;
+  --mz-surface-container-high:    31 42 64;
+  --mz-surface-container-highest: 36 48 74;
+  --mz-surface-variant:           31 42 64;
+  --mz-surface-dim:               11 18 32;
+  --mz-surface-tint:              45 212 191;
+
+  --mz-on-surface:         226 232 240;
+  --mz-on-surface-variant: 148 163 184;
+  --mz-on-background:      226 232 240;
+  --mz-inverse-surface:    226 232 240;
+  --mz-inverse-on-surface: 19 28 46;
+
+  --mz-outline:         100 116 139;
+  --mz-outline-variant: 36 48 74;
+
+  /* 深色下品牌色上移一档，保证在深底上的对比度 */
+  --mz-primary:                    45 212 191;
+  --mz-on-primary:                 11 18 32;
+  --mz-primary-container:          94 234 212;
+  --mz-on-primary-container:       11 18 32;
+  --mz-inverse-primary:            15 118 110;
+  --mz-primary-fixed:              19 78 74;
+  --mz-primary-fixed-dim:          17 94 89;
+  --mz-on-primary-fixed:           204 251 241;
+  --mz-on-primary-fixed-variant:   94 234 212;
+
+  --mz-secondary:                  34 211 238;
+  --mz-on-secondary:               11 18 32;
+  --mz-secondary-container:        22 78 99;
+  --mz-on-secondary-container:     165 243 252;
+  --mz-secondary-fixed:            22 78 99;
+  --mz-secondary-fixed-dim:        21 94 117;
+  --mz-on-secondary-fixed:         207 250 254;
+  --mz-on-secondary-fixed-variant: 165 243 252;
+
+  --mz-error:                        251 113 133;
+  --mz-on-error:                     11 18 32;
+  --mz-error-container:              76 5 25;
+  --mz-on-error-container:           253 164 175;
+  --mz-tertiary:                     251 113 133;
+  --mz-tertiary-container:           244 63 94;
+  --mz-on-tertiary:                  11 18 32;
+  --mz-on-tertiary-container:        255 255 255;
+  --mz-tertiary-fixed:               76 5 25;
+  --mz-tertiary-fixed-dim:           136 19 55;
+  --mz-on-tertiary-fixed:            255 228 230;
+  --mz-on-tertiary-fixed-variant:    253 164 175;
+
+  --mz-canvas:    11 18 32;
+  --mz-ink:       226 232 240;
+  --mz-warn:      251 191 36;
+  --mz-warn-ink:  251 191 36;
+  --mz-danger:    251 113 133;
+  --mz-brand-500: 45 212 191;
+  --mz-brand-600: 45 212 191;
+  --mz-brand-700: 94 234 212;
+}

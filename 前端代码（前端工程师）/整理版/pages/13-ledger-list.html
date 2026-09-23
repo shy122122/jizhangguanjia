@@ -1,0 +1,880 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#14B8A6">
+<meta name="description" content="明账 —— 把预算穿透到每一笔记录里的记账工具。">
+<title>明账 · 列表与筛选</title>
+
+<!-- 字体：Manrope（正文与数字）+ Material Symbols（图标） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="../assets/js/theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+<!-- 设计令牌与基础样式（PRD 第 13 章） -->
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+
+<!-- Tailwind Play CDN：先载入运行时，再注入主题配置 -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="../assets/js/tailwind.config.js"></script>
+
+<!-- 路由表：导航与状态切换的唯一事实来源 -->
+<script src="../assets/js/routes.js"></script>
+</head><body data-page="ledger-list" class="bg-background font-body-md text-on-surface min-h-screen"><div data-shell="sidebar"></div>
+<div data-shell="topbar"></div>
+<div class="lg:pl-72"><main class="relative pt-16 min-h-screen bg-background"><div class="max-w-[1200px] mx-auto p-margin-lg"><div class="flex flex-col w-full">
+<!-- Top Summary & Main Action Bar -->
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md mb-space-lg">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">收支流水</h1>
+<span class="px-space-sm py-space-xs rounded-full bg-surface-container text-primary font-label-sm text-label-sm">实时同步</span>
+</div>
+<div class="flex flex-wrap items-center gap-x-space-sm gap-y-space-xs mt-space-xs text-on-surface-variant font-body-md text-body-md">
+<span class="">本月累计支出 <strong class="font-numeric-data text-on-surface">¥1,280.00</strong></span>
+<span class="text-outline-variant">·</span>
+<span class="">收入 <strong class="font-numeric-data text-primary">¥8,500.00</strong></span>
+<span class="text-outline-variant">·</span>
+<span class="">结余 <strong class="font-numeric-data text-primary">+¥7,220.00</strong></span>
+</div>
+</div>
+<!-- Right Operations Bar -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="relative flex items-center bg-surface-container-lowest rounded-xl shadow-sm px-space-md py-space-xs w-64">
+<span class="material-symbols-outlined text-on-surface-variant text-[1.25rem] mr-space-xs">search</span>
+<input class="w-full bg-transparent border-none outline-none font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant" id="quickSearchInput" placeholder="搜索备注、商户或标签..." type="text">
+<kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono rounded bg-surface-container text-on-surface-variant font-semibold shadow-inner">快捷键 ⌘ /</kbd>
+</div>
+<button class="flex items-center gap-space-xs h-10 px-space-md bg-surface-container-lowest hover:bg-surface-container rounded-xl shadow-sm text-on-surface font-label-lg text-label-lg transition-all" id="toggleFilterPanelBtn" type="button">
+<span class="material-symbols-outlined text-[1.25rem] text-secondary">tune</span>
+<span class="">筛选</span>
+<span class="w-2 h-2 rounded-full bg-primary inline-block ml-0.5"></span>
+</button>
+<button class="flex items-center gap-space-xs h-10 px-space-md bg-surface-container-lowest hover:bg-surface-container rounded-xl shadow-sm text-on-surface font-label-lg text-label-lg transition-all" id="exportCsvBtn" type="button">
+<span class="material-symbols-outlined text-[1.25rem] text-on-surface-variant">download</span>
+<span class="">导出表格</span>
+</button>
+<button class="flex items-center gap-space-xs h-10 px-space-md bg-primary hover:bg-primary-container text-on-primary font-label-lg text-label-lg rounded-xl shadow-sm hover:shadow-md transition-all" id="importBillBtn" type="button">
+<span class="material-symbols-outlined text-[1.25rem]">upload_file</span>
+<span class="">导入账单</span>
+</button>
+</div>
+</div>
+<!-- Advanced Filter Bar Panel -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md mb-space-lg flex flex-col gap-space-md" id="filterPanel">
+<!-- Top Filter Controls Row -->
+<div class="flex flex-wrap items-center justify-between gap-space-md">
+<!-- Time Range Selectors：窄屏整条横向滚动，不让「上月 / 近 3 个月 / 自定义」折成竖排 */
+<div class="flex items-center overflow-x-auto bg-surface-container-low p-1 rounded-xl">
+<button class="time-btn shrink-0 whitespace-nowrap px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-primary font-label-md text-label-md shadow-xs transition-all" type="button">本月 (2026/09)</button>
+<button class="time-btn shrink-0 whitespace-nowrap px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" type="button">上月</button>
+<button class="time-btn shrink-0 whitespace-nowrap px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" type="button">近 3 个月</button>
+<button class="time-btn shrink-0 whitespace-nowrap px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md flex items-center gap-1 transition-all" type="button">
+<span class="">自定义</span>
+<span class="material-symbols-outlined text-[1rem]">calendar_today</span>
+</button>
+</div>
+<!-- Transaction Type Segmented Switch -->
+<div class="flex items-center bg-surface-container-low p-1 rounded-xl">
+<button class="type-filter-btn px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md shadow-xs transition-all" data-type="all" type="button">全部</button>
+<button class="type-filter-btn px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-type="expense" type="button">仅支出</button>
+<button class="type-filter-btn px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-type="income" type="button">仅收入</button>
+<button class="type-filter-btn px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-type="transfer" type="button">转账</button>
+</div>
+</div>
+<!-- Dropdown / Parametric Filters Row -->
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-space-sm pt-space-xs">
+<!-- Category Multi-select dropdown trigger -->
+<div class="relative">
+<button class="w-full flex items-center justify-between px-space-md py-2 bg-surface-container-low hover:bg-surface-container rounded-xl text-left font-body-sm text-body-sm text-on-surface transition-colors" id="categoryDropdownTrigger" type="button">
+<div class="flex items-center gap-space-xs truncate"><span class="material-symbols-outlined text-secondary text-[1.125rem]">category</span><span class="" id="categoryLabel">分类：全部分类</span></div>
+<span class="material-symbols-outlined text-on-surface-variant text-[1.125rem]">expand_more</span>
+</button>
+</div>
+<!-- Account Selector -->
+<div class="relative">
+<button class="w-full flex items-center justify-between px-space-md py-2 bg-surface-container-low hover:bg-surface-container rounded-xl text-left font-body-sm text-body-sm text-on-surface transition-colors" id="accountDropdownTrigger" type="button">
+<div class="flex items-center gap-space-xs truncate"><span class="material-symbols-outlined text-secondary text-[1.125rem]">account_balance_wallet</span><span class="" id="accountLabel">账户：全部账户</span></div>
+<span class="material-symbols-outlined text-on-surface-variant text-[1.125rem]">expand_more</span>
+</button>
+</div>
+<!-- Amount Range Filter -->
+<div class="flex items-center gap-space-xs bg-surface-container-low px-space-md py-1.5 rounded-xl">
+<span class="font-label-sm text-label-sm text-on-surface-variant">金额</span>
+<input class="w-20 bg-transparent border-none outline-none font-numeric-data text-[0.875rem] text-on-surface placeholder:text-on-surface-variant" id="amountMin" placeholder="¥ 最小" type="number">
+<span class="text-outline-variant font-label-sm">-</span>
+<input class="w-20 bg-transparent border-none outline-none font-numeric-data text-[0.875rem] text-on-surface placeholder:text-on-surface-variant" id="amountMax" placeholder="¥ 最大" type="number">
+</div>
+<!-- Quick Reset & Active Filter Chips -->
+<div class="flex flex-wrap items-center justify-end gap-space-xs" id="activeChips">
+<span class="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+          本月
+          <span class="material-symbols-outlined text-[0.875rem] cursor-pointer hover:text-on-surface">close</span>
+</span>
+<button class="px-space-md py-1.5 text-on-surface-variant hover:text-primary font-label-md text-label-md transition-colors" id="resetFiltersBtn" type="button">重置过滤</button>
+</div>
+</div>
+</div>
+<!-- Data Table Container：12 栏表格在窄屏改成横向滚动（表头与行一起滚），不做挤压变形 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-x-auto flex flex-col">
+<!-- Table Header Definition -->
+<div class="grid grid-cols-12 min-w-[760px] px-space-lg py-space-sm bg-surface-container-low text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">
+<div class="col-span-2 flex items-center gap-space-xs">
+<span class="">交易日期与时间</span>
+</div>
+<div class="col-span-2 flex items-center gap-space-xs">
+<span class="">分类</span>
+</div>
+<div class="col-span-3">
+<span class="">交易商户与说明</span>
+</div>
+<div class="col-span-2">
+<span class="">支付账户</span>
+</div>
+<div class="col-span-2">
+<span class="">预算渗透状态</span>
+</div>
+<div class="col-span-1 text-right">
+<span class="">金额</span>
+</div>
+</div>
+<!-- Group 1: 9月22日 (今天) -->
+<div class="day-group">
+<!-- Group Header Bar -->
+<div class="flex items-center justify-between px-space-lg py-space-xs bg-surface-container-low/50">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface">今天 · 9月22日</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">周二</span>
+</div>
+<div class="flex items-center gap-space-md font-body-sm text-body-sm text-on-surface-variant">
+<span class="">当日支出 <span class="font-numeric-data text-on-surface">¥128.50</span></span>
+</div>
+</div>
+<!-- Row 1.1: Lunch at McDonald's -->
+<div class="transaction-row grid grid-cols-12 min-w-[760px] items-center px-space-lg py-space-md hover:bg-surface-container-low/70 transition-colors group relative" data-id="tx-101" data-date="2026-09-22" data-kind="expense" data-cat="餐饮美食" data-acct="微信钱包" data-amount="38.50">
+<div class="col-span-2 flex flex-col">
+<span class="font-numeric-data text-[0.875rem] text-on-surface">12:35</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">午餐时段</span>
+</div>
+<div class="col-span-2 flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[1.25rem]">restaurant</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">餐饮美食</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">日常正餐</span>
+</div>
+</div>
+<div class="col-span-3 flex flex-col pr-space-md">
+<span class="font-label-lg text-label-lg text-on-surface truncate">麦当劳 (国贸店)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">午餐双层吉士汉堡中杯零度套餐</span>
+</div>
+<div class="col-span-2 flex items-center gap-space-xs">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[0.875rem] text-primary">account_balance_wallet</span>
+            微信钱包
+          </span>
+</div>
+<!-- Budget Penetration Bar Micro-component -->
+<div class="col-span-2 flex flex-col justify-center pr-space-md">
+<div class="flex items-center justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface-variant">餐饮剩余</span>
+<span class="text-primary font-bold">42%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden flex">
+<div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 58%"></div>
+</div>
+</div>
+<div class="col-span-1 text-right flex flex-col justify-center">
+<!-- Expense strictly neutral dark slate #0F172A per PRD, never aggressive red -->
+<span class="font-numeric-data text-numeric-data text-on-surface">-¥38.50</span>
+</div>
+<!-- Floating Hover Operations -->
+<div class="absolute right-4 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-1 bg-surface-container-lowest shadow-md px-2 py-1 rounded-lg">
+<button class="p-1 hover:bg-surface-container text-on-surface-variant hover:text-primary rounded transition-colors" title="快速编辑" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">edit</span>
+</button>
+<button class="p-1 hover:bg-error-container text-on-surface-variant hover:text-error rounded transition-colors" onclick="deleteRecord('tx-101', '麦当劳 (国贸店)')" title="删除记录" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">delete</span>
+</button>
+</div>
+</div>
+<!-- Row 1.2: Supermarket Shopping -->
+<div class="transaction-row grid grid-cols-12 min-w-[760px] items-center px-space-lg py-space-md hover:bg-surface-container-low/70 transition-colors group relative" data-id="tx-102" data-date="2026-09-22" data-kind="expense" data-cat="购物杂货" data-acct="招商信用卡" data-amount="90.00">
+<div class="col-span-2 flex flex-col">
+<span class="font-numeric-data text-[0.875rem] text-on-surface">09:12</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">早间补给</span>
+</div>
+<div class="col-span-2 flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[1.25rem]">shopping_bag</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">购物杂货</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">生鲜超市</span>
+</div>
+</div>
+<div class="col-span-3 flex flex-col pr-space-md">
+<span class="font-label-lg text-label-lg text-on-surface truncate">盒马鲜生 (CBD中心店)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">鲜牛奶、精品吐司及水果拼盘</span>
+</div>
+<div class="col-span-2 flex items-center gap-space-xs">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[0.875rem] text-secondary">credit_card</span>
+            招商信用卡
+          </span>
+</div>
+<div class="col-span-2 flex flex-col justify-center pr-space-md">
+<div class="flex items-center justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface-variant">购物剩余</span>
+<span class="text-primary font-bold">68%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden flex">
+<div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 32%"></div>
+</div>
+</div>
+<div class="col-span-1 text-right flex flex-col justify-center">
+<span class="font-numeric-data text-numeric-data text-on-surface">-¥90.00</span>
+</div>
+<!-- Floating Hover Operations -->
+<div class="absolute right-4 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-1 bg-surface-container-lowest shadow-md px-2 py-1 rounded-lg">
+<button class="p-1 hover:bg-surface-container text-on-surface-variant hover:text-primary rounded transition-colors" title="快速编辑" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">edit</span>
+</button>
+<button class="p-1 hover:bg-error-container text-on-surface-variant hover:text-error rounded transition-colors" onclick="deleteRecord('tx-102', '盒马鲜生 (CBD中心店)')" title="删除记录" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Group 2: 9月21日 (昨天) -->
+<div class="day-group">
+<div class="flex items-center justify-between px-space-lg py-space-xs bg-surface-container-low/50">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface">昨天 · 9月21日</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">周一</span>
+</div>
+<div class="flex items-center gap-space-md font-body-sm text-body-sm text-on-surface-variant">
+<span class="">当日支出 <span class="font-numeric-data text-on-surface">¥286.00</span></span>
+<span class="text-outline-variant">·</span>
+<span class="">收入 <span class="font-numeric-data text-primary">¥1,000.00</span></span>
+</div>
+</div>
+<!-- Row 2.1: Financial Income -->
+<div class="transaction-row grid grid-cols-12 min-w-[760px] items-center px-space-lg py-space-md hover:bg-surface-container-low/70 transition-colors group relative" data-id="tx-201" data-date="2026-09-21" data-kind="income" data-cat="理财分红" data-acct="招商储蓄卡" data-amount="1000.00">
+<div class="col-span-2 flex flex-col">
+<span class="font-numeric-data text-[0.875rem] text-on-surface">15:40</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">被动收益</span>
+</div>
+<div class="col-span-2 flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[1.25rem]">savings</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">理财分红</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">收益结转</span>
+</div>
+</div>
+<div class="col-span-3 flex flex-col pr-space-md">
+<span class="font-label-lg text-label-lg text-on-surface truncate">招商银行稳健理财季季宝</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">2026 Q3 期息派发结转本金账户</span>
+</div>
+<div class="col-span-2 flex items-center gap-space-xs">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[0.875rem] text-secondary">account_balance</span>
+            招商储蓄卡
+          </span>
+</div>
+<div class="col-span-2 flex items-center">
+<span class="px-2.5 py-0.5 rounded-md bg-surface-container text-primary font-label-sm text-label-sm font-semibold">
+            增益结余
+          </span>
+</div>
+<div class="col-span-1 text-right flex flex-col justify-center">
+<!-- Income strictly in Teal #0D9488 per PRD -->
+<span class="font-numeric-data text-numeric-data text-primary">+¥1,000.00</span>
+</div>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-1 bg-surface-container-lowest shadow-md px-2 py-1 rounded-lg">
+<button class="p-1 hover:bg-surface-container text-on-surface-variant hover:text-primary rounded transition-colors" title="快速编辑" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">edit</span>
+</button>
+<button class="p-1 hover:bg-error-container text-on-surface-variant hover:text-error rounded transition-colors" onclick="deleteRecord('tx-201', '招商银行稳健理财')" title="删除记录" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">delete</span>
+</button>
+</div>
+</div>
+<!-- Row 2.2: Petrol / Transportation -->
+<div class="transaction-row grid grid-cols-12 min-w-[760px] items-center px-space-lg py-space-md hover:bg-surface-container-low/70 transition-colors group relative" data-id="tx-202" data-date="2026-09-21" data-kind="expense" data-cat="行车交通" data-acct="支付宝余额" data-amount="286.00">
+<div class="col-span-2 flex flex-col">
+<span class="font-numeric-data text-[0.875rem] text-on-surface">19:15</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">晚间通勤</span>
+</div>
+<div class="col-span-2 flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[1.25rem]">local_gas_station</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">行车交通</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">私家车加油</span>
+</div>
+</div>
+<div class="col-span-3 flex flex-col pr-space-md">
+<span class="font-label-lg text-label-lg text-on-surface truncate">中国石化朝阳加油站</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">95# 汽油 加注 35.2 升</span>
+</div>
+<div class="col-span-2 flex items-center gap-space-xs">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[0.875rem] text-secondary">payments</span>
+            支付宝余额
+          </span>
+</div>
+<div class="col-span-2 flex flex-col justify-center pr-space-md">
+<div class="flex items-center justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface-variant">交通剩余</span>
+<span class="text-primary font-bold">25%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden flex">
+<div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 75%"></div>
+</div>
+</div>
+<div class="col-span-1 text-right flex flex-col justify-center">
+<span class="font-numeric-data text-numeric-data text-on-surface">-¥286.00</span>
+</div>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-1 bg-surface-container-lowest shadow-md px-2 py-1 rounded-lg">
+<button class="p-1 hover:bg-surface-container text-on-surface-variant hover:text-primary rounded transition-colors" title="快速编辑" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">edit</span>
+</button>
+<button class="p-1 hover:bg-error-container text-on-surface-variant hover:text-error rounded transition-colors" onclick="deleteRecord('tx-202', '中国石化朝阳加油站')" title="删除记录" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Group 3: 9月20日 -->
+<div class="day-group">
+<div class="flex items-center justify-between px-space-lg py-space-xs bg-surface-container-low/50">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface">9月20日</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">周日</span>
+</div>
+<div class="flex items-center gap-space-md font-body-sm text-body-sm text-on-surface-variant">
+<span class="">当日支出 <span class="font-numeric-data text-on-surface">¥105.00</span></span>
+<span class="text-outline-variant">·</span>
+<span class="">内部转账 <span class="font-numeric-data text-on-surface-variant">¥500.00</span></span>
+</div>
+</div>
+<!-- Row 3.1: Internal Transfer (Neutral Slate-500) -->
+<div class="transaction-row grid grid-cols-12 min-w-[760px] items-center px-space-lg py-space-md hover:bg-surface-container-low/70 transition-colors group relative" data-id="tx-301" data-date="2026-09-20" data-kind="transfer" data-cat="账户转账" data-acct="内部转账" data-amount="500.00">
+<div class="col-span-2 flex flex-col">
+<span class="font-numeric-data text-[0.875rem] text-on-surface">11:00</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">账户流转</span>
+</div>
+<div class="col-span-2 flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[1.25rem]">swap_horiz</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">账户转账</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">零钱归集</span>
+</div>
+</div>
+<div class="col-span-3 flex flex-col pr-space-md">
+<span class="font-label-lg text-label-lg text-on-surface truncate">招行卡 → 微信零钱通</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">充值备用日常消费金</span>
+</div>
+<div class="col-span-2 flex items-center gap-space-xs">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[0.875rem] text-on-surface-variant">sync_alt</span>
+            内部转账
+          </span>
+</div>
+<div class="col-span-2 flex items-center">
+<span class="px-2.5 py-0.5 rounded-md bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">
+            不计入预算
+          </span>
+</div>
+<div class="col-span-1 text-right flex flex-col justify-center">
+<!-- Transfer weakened with cool Slate / text-on-surface-variant per PRD -->
+<span class="font-numeric-data text-numeric-data text-on-surface-variant">¥500.00</span>
+</div>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-1 bg-surface-container-lowest shadow-md px-2 py-1 rounded-lg">
+<button class="p-1 hover:bg-surface-container text-on-surface-variant hover:text-primary rounded transition-colors" title="快速编辑" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">edit</span>
+</button>
+<button class="p-1 hover:bg-error-container text-on-surface-variant hover:text-error rounded transition-colors" onclick="deleteRecord('tx-301', '招行卡转账')" title="删除记录" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">delete</span>
+</button>
+</div>
+</div>
+<!-- Row 3.2: Coffee & Casual Dining -->
+<div class="transaction-row grid grid-cols-12 min-w-[760px] items-center px-space-lg py-space-md hover:bg-surface-container-low/70 transition-colors group relative" data-id="tx-302" data-date="2026-09-20" data-kind="expense" data-cat="餐饮美食" data-acct="微信钱包" data-amount="77.00">
+<div class="col-span-2 flex flex-col">
+<span class="font-numeric-data text-[0.875rem] text-on-surface">16:20</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">下午茶</span>
+</div>
+<div class="col-span-2 flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[1.25rem]">local_cafe</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">餐饮美食</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">咖啡饮品</span>
+</div>
+</div>
+<div class="col-span-3 flex flex-col pr-space-md">
+<span class="font-label-lg text-label-lg text-on-surface truncate">星巴克甄选 (三里屯店)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">大杯馥芮白 + 提拉米苏蛋糕</span>
+</div>
+<div class="col-span-2 flex items-center gap-space-xs">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[0.875rem] text-primary">account_balance_wallet</span>
+            微信钱包
+          </span>
+</div>
+<div class="col-span-2 flex flex-col justify-center pr-space-md">
+<div class="flex items-center justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface-variant">餐饮剩余</span>
+<span class="text-primary font-bold">45%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden flex">
+<div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 55%"></div>
+</div>
+</div>
+<div class="col-span-1 text-right flex flex-col justify-center">
+<span class="font-numeric-data text-numeric-data text-on-surface">-¥77.00</span>
+</div>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-1 bg-surface-container-lowest shadow-md px-2 py-1 rounded-lg">
+<button class="p-1 hover:bg-surface-container text-on-surface-variant hover:text-primary rounded transition-colors" title="快速编辑" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">edit</span>
+</button>
+<button class="p-1 hover:bg-error-container text-on-surface-variant hover:text-error rounded transition-colors" onclick="deleteRecord('tx-302', '星巴克甄选')" title="删除记录" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">delete</span>
+</button>
+</div>
+</div>
+<!-- Row 3.3: App subscription -->
+<div class="transaction-row grid grid-cols-12 min-w-[760px] items-center px-space-lg py-space-md hover:bg-surface-container-low/70 transition-colors group relative" data-id="tx-303" data-date="2026-09-20" data-kind="expense" data-cat="数码服务" data-acct="招商信用卡" data-amount="28.00">
+<div class="col-span-2 flex flex-col">
+<span class="font-numeric-data text-[0.875rem] text-on-surface">00:01</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">自动续费</span>
+</div>
+<div class="col-span-2 flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[1.25rem]">subscriptions</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">数码服务</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">订阅会员</span>
+</div>
+</div>
+<div class="col-span-3 flex flex-col pr-space-md">
+<span class="font-label-lg text-label-lg text-on-surface truncate">Apple Services (iCloud+ 2TB)</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">家庭共享云存储自动按月扣费</span>
+</div>
+<div class="col-span-2 flex items-center gap-space-xs">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-surface-container-high text-on-surface font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[0.875rem] text-secondary">credit_card</span>
+            招商信用卡
+          </span>
+</div>
+<div class="col-span-2 flex flex-col justify-center pr-space-md">
+<div class="flex items-center justify-between font-label-sm text-label-sm mb-1">
+<span class="text-on-surface-variant">数码剩余</span>
+<span class="text-primary font-bold">82%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden flex">
+<div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 18%"></div>
+</div>
+</div>
+<div class="col-span-1 text-right flex flex-col justify-center">
+<span class="font-numeric-data text-numeric-data text-on-surface">-¥28.00</span>
+</div>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-1 bg-surface-container-lowest shadow-md px-2 py-1 rounded-lg">
+<button class="p-1 hover:bg-surface-container text-on-surface-variant hover:text-primary rounded transition-colors" title="快速编辑" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">edit</span>
+</button>
+<button class="p-1 hover:bg-error-container text-on-surface-variant hover:text-error rounded transition-colors" onclick="deleteRecord('tx-303', 'Apple Services')" title="删除记录" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- 筛选无结果时的就地空态（不跳页，保留筛选条件供用户改） -->
+<div class="hidden" id="noResultState">
+<div class="flex flex-col items-center justify-center gap-space-sm py-space-xl text-center">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[1.5rem]">search_off</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface">没有符合条件的记录</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">换个关键词，或放宽分类、账户与金额区间试试</span>
+<button class="mt-space-xs px-space-md py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors" id="clearFiltersBtn" type="button">清空筛选条件</button>
+</div>
+</div>
+<!-- Modern Lightweight Pagination Bar -->
+<div class="flex flex-wrap items-center justify-between px-space-lg py-space-md bg-surface-container-lowest" id="paginationBar">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span class="">共 <strong class="font-numeric-data text-on-surface" id="resultCount">38</strong> 笔记录</span>
+<span class="text-outline-variant" id="countDivider">·</span>
+<span class="" id="pageInfo">当前显示第 <strong class="font-numeric-data text-on-surface">1 / 3</strong> 页</span>
+<div class="ml-space-sm flex items-center gap-1">
+<span class="">每页</span>
+<select class="bg-surface-container-low rounded-lg px-2 py-1 outline-none text-on-surface font-label-sm text-label-sm cursor-pointer">
+<option>10 条</option>
+<option>20 条</option>
+<option>50 条</option>
+</select>
+</div>
+</div>
+<!-- Page Controls -->
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg text-outline-variant cursor-not-allowed bg-surface-container-low/40" disabled="" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-xs" type="button">
+          1
+        </button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface hover:bg-surface-container font-label-md text-label-md transition-colors" type="button">
+          2
+        </button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface hover:bg-surface-container font-label-md text-label-md transition-colors" type="button">
+          3
+        </button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg text-on-surface hover:bg-surface-container font-label-md text-label-md transition-colors" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- 5-Second Undo Toast Notification Bar -->
+<div class="fixed bottom-8 right-12 z-50 transform translate-y-24 opacity-0 pointer-events-none transition-all duration-300 ease-out" id="undoToast">
+<div class="flex items-center gap-space-md bg-inverse-surface text-inverse-on-surface px-space-lg py-space-sm rounded-xl shadow-xl">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-fixed text-[1.25rem]">check_circle</span>
+<span class="font-body-md text-body-md" id="toastMessage">已删除 1 笔记录</span>
+</div>
+<div class="h-4 w-[1px] bg-outline"></div>
+<button class="flex items-center gap-1 font-label-lg text-label-lg text-primary-fixed hover:text-on-primary-fixed transition-colors" id="undoActionBtn" type="button">
+<span class="">撤销</span>
+<span class="font-numeric-data text-[0.8125rem] bg-surface-container-highest/20 px-1 rounded" id="undoCountdown">(5s)</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  // Undo Toast Controller
+  let undoTimer = null;
+  let countdownTimer = null;
+  let lastDeletedElement = null;
+
+  function deleteRecord(txId, name) {
+    const targetRow = document.querySelector(`[data-id="${txId}"]`);
+    if (!targetRow) return;
+
+    lastDeletedElement = {
+      parent: targetRow.parentElement,
+      node: targetRow,
+      nextSibling: targetRow.nextSibling
+    };
+
+    targetRow.style.transition = 'all 0.25s ease-out';
+    targetRow.style.opacity = '0';
+    targetRow.style.transform = 'translateX(20px)';
+    
+    setTimeout(() => {
+      targetRow.remove();
+      showUndoToast(`已删除「${name}」记录`);
+    }, 250);
+  }
+
+  function showUndoToast(msg) {
+    const toast = document.getElementById('undoToast');
+    const toastMessage = document.getElementById('toastMessage');
+    const countdownEl = document.getElementById('undoCountdown');
+    
+    if (!toast) return;
+
+    toastMessage.textContent = msg;
+    toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+    toast.classList.add('translate-y-0', 'opacity-100');
+
+    let secondsLeft = 5;
+    countdownEl.textContent = `(${secondsLeft}s)`;
+
+    if (countdownTimer) clearInterval(countdownTimer);
+    if (undoTimer) clearTimeout(undoTimer);
+
+    countdownTimer = setInterval(() => {
+      secondsLeft -= 1;
+      if (secondsLeft > 0) {
+        countdownEl.textContent = `(${secondsLeft}s)`;
+      } else {
+        clearInterval(countdownTimer);
+      }
+    }, 1000);
+
+    undoTimer = setTimeout(() => {
+      hideUndoToast();
+      lastDeletedElement = null;
+    }, 5000);
+  }
+
+  function hideUndoToast() {
+    const toast = document.getElementById('undoToast');
+    if (!toast) return;
+    toast.classList.remove('translate-y-0', 'opacity-100');
+    toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+  }
+
+  document.getElementById('undoActionBtn')?.addEventListener('click', () => {
+    if (lastDeletedElement && lastDeletedElement.parent) {
+      if (lastDeletedElement.nextSibling) {
+        lastDeletedElement.parent.insertBefore(lastDeletedElement.node, lastDeletedElement.nextSibling);
+      } else {
+        lastDeletedElement.parent.appendChild(lastDeletedElement.node);
+      }
+      
+      setTimeout(() => {
+        lastDeletedElement.node.style.opacity = '1';
+        lastDeletedElement.node.style.transform = 'none';
+      }, 20);
+
+      hideUndoToast();
+      if (undoTimer) clearTimeout(undoTimer);
+      if (countdownTimer) clearInterval(countdownTimer);
+      lastDeletedElement = null;
+    }
+  });
+
+  /* ---------------------------------------------------------------------
+   * 筛选引擎（PRD 4.5.2：时间 / 类型 / 分类 / 账户 / 金额区间 + 关键词）
+   *
+   * 原型没有数据层，每行的 data-* 就是唯一事实来源；关键词不另设字段，
+   * 直接拿行内可见文本做模糊匹配 —— 这样「备注 / 商户 / 标签」都命中，
+   * 且永远不会和界面上显示的文字脱节。
+   * ------------------------------------------------------------------- */
+  const filters = { period: 'month', kind: 'all', cat: '', acct: '', min: null, max: null, q: '' };
+
+  const rows = Array.from(document.querySelectorAll('.transaction-row'));
+  const dayGroups = Array.from(document.querySelectorAll('.day-group'));
+  rows.forEach(function (row) { row.dataset.text = row.textContent.replace(/\s+/g, ' ').trim(); });
+
+  /* 各时间范围的起止（原型固定为 2026-09 这一期数据） */
+  const PERIODS = {
+    month:  [new Date('2026-09-01'), new Date('2026-09-30')],
+    last:   [new Date('2026-08-01'), new Date('2026-08-31')],
+    quarter: [new Date('2026-07-01'), new Date('2026-09-30')],
+  };
+
+  const esc = function (s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  };
+
+  function matches(row) {
+    const range = PERIODS[filters.period];
+    if (range) {
+      const d = new Date(row.dataset.date);
+      if (d < range[0] || d > range[1]) return false;
+    }
+    if (filters.kind !== 'all' && row.dataset.kind !== filters.kind) return false;
+    if (filters.cat && row.dataset.cat !== filters.cat) return false;
+    if (filters.acct && row.dataset.acct !== filters.acct) return false;
+    const amt = parseFloat(row.dataset.amount);
+    if (filters.min !== null && amt < filters.min) return false;
+    if (filters.max !== null && amt > filters.max) return false;
+    if (filters.q && row.dataset.text.toLowerCase().indexOf(filters.q.toLowerCase()) < 0) return false;
+    return true;
+  }
+
+  function apply() {
+    let shown = 0;
+    rows.forEach(function (row) {
+      const ok = matches(row);
+      row.classList.toggle('hidden', !ok);
+      if (ok) shown += 1;
+    });
+    /* 整组都落选时连日期分组头一起收，免得留下孤零零的「今天 · 9月22日」 */
+    dayGroups.forEach(function (group) {
+      group.classList.toggle('hidden', !group.querySelector('.transaction-row:not(.hidden)'));
+    });
+
+    /* 未筛选时沿用设计稿的「共 38 笔 · 第 1/3 页」；一旦筛选就换成真实命中数，
+     * 否则页脚会一边说 38 笔、一边只列出 7 行 */
+    const filtered = filters.q || filters.cat || filters.acct || filters.min !== null ||
+      filters.max !== null || filters.kind !== 'all' || filters.period !== 'month';
+    document.getElementById('resultCount').textContent = filtered ? shown : 38;
+    document.getElementById('pageInfo').innerHTML = filtered
+      ? '已按条件筛选'
+      : '当前显示第 <strong class="font-numeric-data text-on-surface">1 / 3</strong> 页';
+    document.getElementById('noResultState').classList.toggle('hidden', shown > 0);
+    document.getElementById('paginationBar').classList.toggle('hidden', shown === 0);
+    renderChips();
+  }
+
+  /* 已生效的筛选以可关闭的 chip 列在面板右上，重置按钮留在最后 */
+  function renderChips() {
+    const host = document.getElementById('activeChips');
+    const resetBtn = document.getElementById('resetFiltersBtn');
+    host.querySelectorAll('[data-chip]').forEach(function (c) { c.remove(); });
+
+    function chip(label, onClear) {
+      const el = document.createElement('span');
+      el.dataset.chip = '';
+      el.className = 'px-2.5 py-1 rounded-lg bg-surface-container text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1';
+      el.innerHTML = esc(label) + '<span class="material-symbols-outlined text-[0.875rem] cursor-pointer hover:text-on-surface">close</span>';
+      el.querySelector('span').addEventListener('click', function () { onClear(); apply(); });
+      host.insertBefore(el, resetBtn);
+    }
+
+    if (filters.q) chip('“' + filters.q + '”', function () { filters.q = ''; searchInput.value = ''; });
+    if (filters.cat) chip(filters.cat, function () { filters.cat = ''; setLabel(catLabel, '分类：全部分类'); });
+    if (filters.acct) chip(filters.acct, function () { filters.acct = ''; setLabel(acctLabel, '账户：全部账户'); });
+    if (filters.min !== null || filters.max !== null) {
+      chip('金额 ' + (filters.min !== null ? filters.min : '') + '–' + (filters.max !== null ? filters.max : ''),
+        function () { filters.min = filters.max = null; amountMin.value = ''; amountMax.value = ''; });
+    }
+  }
+
+  const searchInput = document.getElementById('quickSearchInput');
+  const catLabel = document.getElementById('categoryLabel');
+  const acctLabel = document.getElementById('accountLabel');
+  const amountMin = document.getElementById('amountMin');
+  const amountMax = document.getElementById('amountMax');
+
+  function setLabel(el, text) { el.textContent = text; }
+
+  /* 时间范围 */
+  document.querySelectorAll('.time-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const btns = document.querySelectorAll('.time-btn');
+      btns.forEach(function (b) {
+        b.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-xs');
+        b.classList.add('text-on-surface-variant');
+      });
+      btn.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-xs');
+      btn.classList.remove('text-on-surface-variant');
+
+      const period = btn.querySelector('.material-symbols-outlined') ? null : btn.textContent.trim();
+      filters.period = period === '上月' ? 'last' : period === '近 3 个月' ? 'quarter' : period ? 'month' : null;
+      apply();
+    });
+  });
+
+  /* 交易类型 */
+  document.querySelectorAll('.type-filter-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.type-filter-btn').forEach(function (b) {
+        b.classList.remove('bg-surface-container-lowest', 'text-on-surface', 'shadow-xs');
+        b.classList.add('text-on-surface-variant');
+      });
+      btn.classList.add('bg-surface-container-lowest', 'text-on-surface', 'shadow-xs');
+      btn.classList.remove('text-on-surface-variant');
+      filters.kind = btn.dataset.type;
+      apply();
+    });
+  });
+
+  /* 分类 / 账户下拉：选项直接从现有流水里归纳，不另维护一份清单 */
+  function buildMenu(trigger, options, onPick) {
+    const pop = document.createElement('div');
+    pop.className = 'hidden absolute left-0 top-full mt-1 z-30 w-full bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant py-1 max-h-64 overflow-y-auto';
+    options.forEach(function (text) {
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'w-full text-left px-3 py-2 font-body-sm text-body-sm text-on-surface hover:bg-surface-container transition-colors';
+      item.textContent = text;
+      item.addEventListener('click', function () { onPick(text); pop.classList.add('hidden'); });
+      pop.appendChild(item);
+    });
+    trigger.parentElement.appendChild(pop);
+    trigger.addEventListener('click', function (e) { e.stopPropagation(); pop.classList.toggle('hidden'); });
+    document.addEventListener('click', function () { pop.classList.add('hidden'); });
+  }
+
+  const uniq = function (key) {
+    return Array.from(new Set(rows.map(function (r) { return r.dataset[key]; }))).sort();
+  };
+
+  buildMenu(document.getElementById('categoryDropdownTrigger'), ['全部分类'].concat(uniq('cat')), function (text) {
+    filters.cat = text === '全部分类' ? '' : text;
+    setLabel(catLabel, '分类：' + text);
+    apply();
+  });
+
+  buildMenu(document.getElementById('accountDropdownTrigger'), ['全部账户'].concat(uniq('acct')), function (text) {
+    filters.acct = text === '全部账户' ? '' : text;
+    setLabel(acctLabel, '账户：' + text);
+    apply();
+  });
+
+  /* 关键词：实时过滤 + 回车不跳页 */
+  searchInput.addEventListener('input', function () { filters.q = searchInput.value.trim(); apply(); });
+  searchInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') e.preventDefault(); });
+
+  /* 金额区间 */
+  function readAmounts() {
+    const lo = amountMin.value.trim(), hi = amountMax.value.trim();
+    filters.min = lo === '' ? null : parseFloat(lo);
+    filters.max = hi === '' ? null : parseFloat(hi);
+    apply();
+  }
+  amountMin.addEventListener('input', readAmounts);
+  amountMax.addEventListener('input', readAmounts);
+
+  /* 重置：把面板恢复到「本月 / 全部类型 / 全部分类 / 全部账户 / 无金额」 */
+  function resetFilters() {
+    filters.period = 'month'; filters.kind = 'all';
+    filters.cat = filters.acct = ''; filters.min = filters.max = null; filters.q = '';
+    searchInput.value = ''; amountMin.value = ''; amountMax.value = '';
+    setLabel(catLabel, '分类：全部分类');
+    setLabel(acctLabel, '账户：全部账户');
+
+    document.querySelectorAll('.type-filter-btn').forEach(function (b) {
+      const on = b.dataset.type === 'all';
+      b.classList.toggle('bg-surface-container-lowest', on);
+      b.classList.toggle('text-on-surface', on);
+      b.classList.toggle('shadow-xs', on);
+      b.classList.toggle('text-on-surface-variant', !on);
+    });
+    document.querySelectorAll('.time-btn').forEach(function (b) {
+      const on = b.textContent.trim().indexOf('本月') === 0;
+      b.classList.toggle('bg-surface-container-lowest', on);
+      b.classList.toggle('text-primary', on);
+      b.classList.toggle('shadow-xs', on);
+      b.classList.toggle('text-on-surface-variant', !on);
+    });
+    apply();
+  }
+  document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
+  document.getElementById('clearFiltersBtn').addEventListener('click', resetFilters);
+
+  /* 顶栏搜索带着 ?q= 跳进来时，直接把关键词预置进筛选 */
+  const incoming = new URLSearchParams(location.search).get('q');
+  if (incoming) { searchInput.value = incoming; filters.q = incoming.trim(); }
+
+  /* 筛选面板开合 */
+  document.getElementById('toggleFilterPanelBtn').addEventListener('click', function () {
+    const panel = document.getElementById('filterPanel');
+    panel.classList.toggle('hidden');
+    this.classList.toggle('bg-surface-container', !panel.classList.contains('hidden'));
+  });
+
+  apply();
+
+  // Keyboard shortcut: Cmd/Ctrl + / for focus
+  window.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+      e.preventDefault();
+      document.getElementById('quickSearchInput')?.focus();
+    }
+  });
+</script></div></main></div>
+<div data-shell="bottomnav"></div>
+<div data-shell="switcher"></div>
+<script src="../assets/js/shell.js"></script>
+
+
+</body></html>
