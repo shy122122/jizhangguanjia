@@ -1,0 +1,20 @@
+{
+  "name": "mingzhang-uni-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "明账跨端 App（uni-app / Vue 3）",
+  "scripts": {
+    "check:vue": "node scripts/check-vue.js",
+    "check:icons": "node scripts/check-usage.js",
+    "check:api": "node scripts/check-api.js",
+    "check:pages": "node scripts/check-pages.js",
+    "check": "npm run check:vue && npm run check:icons && npm run check:api && npm run check:pages"
+  },
+  "devDependencies": {
+    "@vue/compiler-sfc": "^3.5.43",
+    "sass": "^1.93.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

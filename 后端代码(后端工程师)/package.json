@@ -1,0 +1,29 @@
+{
+  "name": "mingzhang-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "明账 MingZhang 后端 —— Express 5 + mysql2 原生 SQL，复用 6 个统计视图，并同源托管前端静态页",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "migrate:backend-fixes": "node scripts/migrate-backend-fixes.js",
+    "migrate:avatar": "node scripts/migrate-avatar.js",
+    "check:static": "node scripts/static-check.js",
+    "smoke": "node scripts/smoke.js",
+    "check": "node scripts/api-check.js",
+    "check:client": "node scripts/client-check.js",
+    "check:page": "node scripts/page-check.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^18.0.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.4.0",
+    "mysql2": "^3.24.4"
+  }
+}

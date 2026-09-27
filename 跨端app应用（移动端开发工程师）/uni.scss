@@ -1,0 +1,22 @@
+/* uni-app 会把本文件自动注入每个组件的 <style lang="scss">，无需手动 @import。
+ *
+ * 这里只放「编译期常量」—— 需要参与 SCSS 运算或作为 mixin 参数的东西。
+ * 真正的主题色是运行时变量（见 styles/tokens.scss 的 --mz-*），
+ * 因为它们要能随深色模式整体翻转，而 SCSS 变量在编译后就固化了。
+ */
+
+/* 品牌色（编译期常量，供少数无法用 var() 的场合使用） */
+$brand-500: #14b8a6;
+$brand-600: #0d9488;
+$brand-700: #0f766e;
+$accent-600: #0891b2;
+
+/* 底部原生 Tab 的高度；页面内容要预留这么多，否则最后一行会被 Tab 压住。
+ * 52px 对应 pages.json 里 tabBar.height。
+ */
+$tabbar-h: 104rpx;
+
+/* 自定义导航栏（navigationStyle: custom）的高度。状态栏高度在运行时由
+ * uni.getSystemInfoSync().statusBarHeight 决定，这里只给导航栏本体。
+ */
+$navbar-h: 88rpx;

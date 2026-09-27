@@ -1,0 +1,666 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#14B8A6">
+<meta name="description" content="明账 —— 把预算穿透到每一笔记录里的记账工具。">
+<title>明账 · 首页 · 平稳态</title>
+
+<!-- 字体：Manrope（正文与数字）+ Material Symbols（图标） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="../assets/js/theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+<!-- 设计令牌与基础样式（PRD 第 13 章） -->
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+
+<!-- Tailwind Play CDN：先载入运行时，再注入主题配置 -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="../assets/js/tailwind.config.js"></script>
+
+<!-- 路由表：导航与状态切换的唯一事实来源 -->
+<script src="../assets/js/routes.js"></script>
+
+<!-- 数据层：api.js 只做传输（token / 401 / 信封解析），ui.js 只做展示工具 -->
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/ui.js"></script>
+</head><body data-page="home-calm" class="bg-background font-body-md text-on-surface min-h-screen"><div data-shell="sidebar"></div>
+<div data-shell="topbar"></div>
+<div class="lg:pl-72"><main class="relative pt-16 min-h-screen bg-background"><div class="max-w-[1200px] mx-auto p-margin-lg"><div class="flex flex-col w-full gap-space-lg pb-space-xl">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-lg text-headline-lg text-on-surface" id="home-greeting">你好！</span>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-label-md text-label-md" id="home-pace-badge">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+<span id="home-pace-text">正在读取本月预算…</span>
+        </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1" id="home-pace-desc">
+        正在读取本月预算节奏…
+      </p>
+</div>
+<div class="flex items-center gap-space-sm self-start md:self-auto">
+<a class="group flex items-center gap-space-xs px-space-md py-space-sm rounded-xl bg-surface-container-lowest shadow-[0_1px_3px_0_rgba(15,23,42,0.04),0_1px_2px_-1px_rgba(15,23,42,0.02)] hover:bg-surface-container-low transition-all" href="18-import-main.html">
+<div class="w-7 h-7 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[1.125rem]">upload_file</span>
+</div>
+<div class="flex flex-col text-left">
+<span class="font-label-md text-label-md text-on-surface group-hover:text-primary transition-colors">微信 / 支付宝导入</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">支持智能对账排重</span>
+</div>
+<span class="material-symbols-outlined text-[1.125rem] text-on-surface-variant ml-1 group-hover:translate-x-0.5 transition-transform">chevron_right</span>
+</a>
+<button class="flex items-center gap-space-xs px-space-md py-space-sm rounded-xl bg-primary text-on-primary font-label-lg text-label-lg shadow-[0_12px_24px_-6px_rgba(20,184,166,0.25)] hover:bg-primary-container transition-all cursor-pointer" type="button" onclick="location.href='11-record-sheet.html'">
+<span class="material-symbols-outlined text-[1.25rem]">edit_note</span>
+<span class="">快速记账</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<div class="lg:col-span-6 xl:col-span-5 rounded-2xl p-space-lg relative overflow-hidden flex flex-col justify-between shadow-[0_12px_24px_-6px_rgba(20,184,166,0.25)] text-on-primary" style="background: linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%);">
+<div class="absolute -right-8 -top-8 w-44 h-44 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
+<div class="absolute right-12 bottom-2 w-32 h-32 rounded-full bg-surface-tint/20 blur-xl pointer-events-none"></div>
+<div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[1.25rem] text-white/90">shield_lock</span>
+<span class="font-label-md text-label-md tracking-wider uppercase text-white/80">今日安全额度 · 动态演算</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white font-label-sm text-label-sm flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-white"></span> <span id="home-health">—</span>
+          </span>
+</div>
+<div class="mt-space-lg flex items-baseline gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-white/80 font-normal" id="home-quota-symbol">¥</span>
+<span class="font-display-lg text-display-lg tracking-tight font-bold text-white" id="home-quota">—</span>
+<span class="font-body-sm text-body-sm text-white/70 ml-2">今日自由支配上限</span>
+</div>
+<p class="font-body-sm text-body-sm text-white/85 mt-space-xs" id="home-quota-desc">
+          依当月剩余天数动态平摊，花完即止无愧疚感。
+        </p>
+</div>
+<div class="mt-space-xl pt-space-md border-t border-white/15 flex flex-col gap-space-xs">
+<div class="flex justify-between items-center text-white/90 font-label-md text-label-md">
+<span class="">本月总预算渗透率</span>
+<span class="font-numeric-data text-numeric-data" id="home-used-pct">—</span>
+</div>
+<div class="w-full bg-black/15 h-2 rounded-full overflow-hidden p-0.5">
+<div class="bg-white h-full rounded-full transition-all duration-500" id="home-progress-bar" style="width: 0%;"></div>
+</div>
+<div class="flex justify-between items-center text-white/75 font-body-sm text-body-sm mt-1">
+<span class="" id="home-spent-total">—</span>
+<div class="flex items-center gap-2">
+<span class="text-white font-semibold" id="home-remaining">—</span>
+<button class="underline underline-offset-2 hover:text-white transition-colors cursor-pointer text-white/90" type="button" onclick="location.href='09-budget-setup.html'">调整</button>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-6 xl:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-[0_1px_3px_0_rgba(15,23,42,0.04),0_1px_2px_-1px_rgba(15,23,42,0.02)] flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">今日累计支出</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[1.125rem]">shopping_bag</span>
+</div>
+</div>
+<div class="mt-space-sm">
+<div class="font-headline-lg text-headline-lg font-bold text-on-surface" id="card-today-amount">—</div>
+<div class="flex items-center justify-between mt-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span class="" id="card-today-count">正在读取今日流水…</span>
+<span class="text-primary font-label-sm text-label-sm" id="card-today-tag">—</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-[0_1px_3px_0_rgba(15,23,42,0.04),0_1px_2px_-1px_rgba(15,23,42,0.02)] flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">本月实际支出</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[1.125rem]">trending_down</span>
+</div>
+</div>
+<div class="mt-space-sm">
+<div class="font-headline-lg text-headline-lg font-bold text-on-surface" id="card-month-expense">—</div>
+<div class="flex items-center justify-between mt-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span class="" id="card-month-expense-sub">正在读取本月支出…</span>
+<span class="text-primary font-label-sm text-label-sm" id="card-month-expense-tag">—</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-[0_1px_3px_0_rgba(15,23,42,0.04),0_1px_2px_-1px_rgba(15,23,42,0.02)] flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">本月到账收入</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[1.125rem]">payments</span>
+</div>
+</div>
+<div class="mt-space-sm">
+<div class="font-headline-lg text-headline-lg font-bold text-primary" id="card-month-income">—</div>
+<div class="flex items-center justify-between mt-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span class="" id="card-month-income-sub">正在读取本月收入…</span>
+<span class="text-primary font-label-sm text-label-sm" id="card-month-income-tag">—</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-[0_1px_3px_0_rgba(15,23,42,0.04),0_1px_2px_-1px_rgba(15,23,42,0.02)] flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">分类超支风险</span>
+<div class="w-8 h-8 rounded-lg bg-error-container flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-[1.125rem]">warning_amber</span>
+</div>
+</div>
+<div class="mt-space-sm">
+<div class="flex items-baseline gap-2">
+<span class="font-headline-lg text-headline-lg font-bold text-error" id="card-risk-count">—</span>
+<span class="font-body-md text-body-md text-on-surface-variant">项类目超限</span>
+</div>
+<div class="flex items-center justify-between mt-space-xs font-body-sm text-body-sm text-on-surface-variant">
+<span class="text-error truncate" id="card-risk-detail">正在核对分类预算…</span>
+<button class="text-secondary font-label-sm text-label-sm hover:underline cursor-pointer" type="button" onclick="location.href='09-budget-setup.html'">平账</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<div class="lg:col-span-7 bg-surface-container-lowest rounded-2xl shadow-[0_1px_3px_0_rgba(15,23,42,0.04),0_1px_2px_-1px_rgba(15,23,42,0.02)] p-space-lg flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-md text-headline-md text-on-surface">最近流水明细</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">实时</span>
+</div>
+<a class="inline-flex items-center gap-1 font-label-md text-label-md text-primary hover:text-primary-container transition-colors" href="13-ledger-list.html">
+<span class="">查看全部流水</span>
+<span class="material-symbols-outlined text-[1rem]">arrow_forward</span>
+</a>
+</div>
+<div class="flex flex-col gap-space-sm mt-space-xs" id="home-recent-list">
+<div class="flex items-center justify-between py-1 border-b border-surface-container">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">今日安全额度 · 动态演算</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">当日支出 ¥128.50</span>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-xl bg-[#F0FDFA] flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[1.25rem]">lunch_dining</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">麦当劳 (金融街分店)</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-surface-container text-on-surface-variant">微信支付</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5 font-body-sm text-body-sm text-on-surface-variant">
+<span class="">12:45</span>
+<span class="">·</span>
+<span class="text-primary font-medium">餐饮预算已用 77.2%</span>
+</div>
+</div>
+</div>
+<div class="text-right flex-shrink-0 ml-4">
+<div class="font-numeric-data text-numeric-data text-[#0F172A] font-bold">¥28.00</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">工作午餐</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-xl bg-[#F0FDFA] flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[1.25rem]">local_taxi</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">滴滴出行 · 快车行程</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-surface-container text-on-surface-variant">微信支付</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5 font-body-sm text-body-sm text-on-surface-variant">
+<span class="">08:52</span>
+<span class="">·</span>
+<span class="text-primary font-medium">交通预算充裕 (剩 ¥408)</span>
+</div>
+</div>
+</div>
+<div class="text-right flex-shrink-0 ml-4">
+<div class="font-numeric-data text-numeric-data text-[#0F172A] font-bold">¥23.50</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">周一通勤</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-xl bg-[#F0FDFA] flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[1.25rem]">shopping_bag</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">京东商城 · 生活消耗品</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-surface-container text-on-surface-variant">支付宝</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5 font-body-sm text-body-sm text-on-surface-variant">
+<span class="">00:15</span>
+<span class="">·</span>
+<span class="text-secondary font-medium">居家生活类 正常</span>
+</div>
+</div>
+</div>
+<div class="text-right flex-shrink-0 ml-4">
+<div class="font-numeric-data text-numeric-data text-[#0F172A] font-bold">¥77.00</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">纸品补给</span>
+</div>
+</div>
+<div class="flex items-center justify-between py-1 border-b border-surface-container mt-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">今日安全额度 · 动态演算</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">当日结余 +¥940.00</span>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[1.25rem]">savings</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">设计顾问外包收益</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#F0FDFA] text-primary">银行转账</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5 font-body-sm text-body-sm text-on-surface-variant">
+<span class="">17:30</span>
+<span class="">·</span>
+<span class="text-primary font-medium">计入额外闲余金</span>
+</div>
+</div>
+</div>
+<div class="text-right flex-shrink-0 ml-4">
+<div class="font-numeric-data text-numeric-data text-[#0D9488] font-bold">+¥1,000.00</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">副业报酬</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-xl bg-[#FFF1F2] flex items-center justify-center text-error flex-shrink-0">
+<span class="material-symbols-outlined text-[1.25rem]">checkroom</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">优衣库 · 秋季针织衫</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-surface-container text-on-surface-variant">微信支付</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5 font-body-sm text-body-sm text-on-surface-variant">
+<span class="">14:10</span>
+<span class="">·</span>
+<span class="text-error font-medium">触发服饰超支预警</span>
+</div>
+</div>
+</div>
+<div class="text-right flex-shrink-0 ml-4">
+<div class="font-numeric-data text-numeric-data text-[#0F172A] font-bold">¥260.00</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">换季衣物</span>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-5 flex flex-col gap-space-lg">
+<div class="bg-surface-container-lowest rounded-2xl shadow-[0_1px_3px_0_rgba(15,23,42,0.04),0_1px_2px_-1px_rgba(15,23,42,0.02)] p-space-lg flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md text-on-surface">重点分类预算速览</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">穿透至单项子预算健康线</span>
+</div>
+<button class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">tune</span>
+</button>
+</div>
+<div class="flex flex-col gap-space-md mt-space-xs" id="home-catbudget-list">
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+<span class="text-on-surface">餐饮日常</span>
+</div>
+<span class="text-on-surface font-numeric-data text-numeric-data">¥1,158.00 / ¥1,500.00</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-amber-500 h-full rounded-full" style="width: 77.2%;"></div>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm text-on-surface-variant">
+<span class="text-amber-700 font-medium">已用 77.2% · 进入关注区间</span>
+<span class="">剩余 ¥342.00</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-[#0D9488]"></span>
+<span class="text-on-surface">市内交通</span>
+</div>
+<span class="text-on-surface font-numeric-data text-numeric-data">¥192.00 / ¥600.00</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-[#0D9488] h-full rounded-full" style="width: 32.0%;"></div>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm text-on-surface-variant">
+<span class="text-primary font-medium">已用 32.0% · 进度从容</span>
+<span class="">剩余 ¥408.00</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+<span class="text-on-surface">休闲娱乐</span>
+</div>
+<span class="text-on-surface font-numeric-data text-numeric-data">¥286.00 / ¥300.00</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-amber-500 h-full rounded-full" style="width: 95.3%;"></div>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm text-on-surface-variant">
+<span class="text-amber-700 font-medium">已用 95.3% ⚠️ 仅剩 ¥14.00</span>
+<span class="">预算告急</span>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="text-on-surface">服饰购物</span>
+</div>
+<span class="text-error font-numeric-data text-numeric-data">¥260.00 / ¥200.00</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 100%;"></div>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm text-on-surface-variant">
+<span class="text-error font-medium">已透支 130% 🚨 超支 ¥60.00</span>
+<span class="text-error font-medium">已锁定</span>
+</div>
+</div>
+</div>
+<div class="mt-space-xs pt-space-md border-t border-surface-container flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[1rem] text-primary">insights</span>
+<span class="">每日可花额按当月剩余天数动态重算</span>
+</div>
+<button class="text-primary font-label-sm text-label-sm hover:underline cursor-pointer" type="button">配置阈值</button>
+</div>
+</div>
+<div class="rounded-2xl p-space-md bg-surface-container-low flex items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-surface-container-lowest flex items-center justify-center text-primary flex-shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[1.25rem]">cloud_sync</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">账本归你自己 · 数据在自建库</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">账单存于自建数据库，随时可一键导出，不进任何第三方模型</span>
+</div>
+</div>
+<button class="px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high transition-colors shadow-sm flex-shrink-0 cursor-pointer" type="button" onclick="location.href='23-settings-privacy.html'">
+          数据设置
+        </button>
+</div>
+</div>
+</div>
+</div></div></main></div>
+<div data-shell="bottomnav"></div>
+<div data-shell="switcher"></div>
+<script>
+/* ============================================================================
+ * 首页 · 平稳态
+ *
+ * 数据来自两个接口，并行发：
+ *   GET /home/overview   预算进度 / 今日支出 / 最近流水 / 分类预算 / 月度收支
+ *   GET /stats/overview  只为了 avgExpensePerDay（本月日均支出）
+ *
+ * 日均为什么单独取一次：它是「支出合计 ÷ 当月天数」，v_monthly_summary 里没有
+ * 这一列，而 stats 模块已经按这个口径算好了。复用那份结果而不是在前端再算一遍
+ * —— 同一个口径两处实现，迟早会漂移成两个数。
+ *
+ * 页面上所有数字都由本脚本填充。HTML 里那段静态文案是设计稿留的视觉参考，
+ * 脚本一跑起来就会被骨架条替换掉，请求回来后换成真实数字。
+ * ========================================================================== */
+(function () {
+  'use strict';
+
+  var API = window.MZ_API;
+  var UI = window.MZ_UI;
+  var FMT = window.MZ_FMT;
+
+  function set(id, text) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+
+  /** 换文案顺带换配色（超支才允许转红，PRD 13.5.2） */
+  function setTag(id, text, tone) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = text;
+    el.className = (tone === 'error' ? 'text-error' : tone === 'warn' ? 'text-amber-700' : 'text-primary') +
+      ' font-label-sm text-label-sm';
+  }
+
+  function show(id, on) {
+    var el = document.getElementById(id);
+    if (el) el.classList.toggle('hidden', !on);
+  }
+
+  var WEEK = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+
+  /* 预算档位 → 中文。与 ui.js 的 ALERT_CLASS 同源：那边管颜色，这边管字。 */
+  var ALERT_TEXT = { normal: '节奏平稳', yellow: '进入关注区间', red: '已超出预警线' };
+
+  var TYPE_LABEL = { expense: '支出', income: '收入', transfer: '转账' };
+
+  /* 分类预算的颜色档位。
+   *
+   * ⚠️ 这是**纯展示**规则，不是产品口径 —— 后端刻意没有定义分类预算的预警阈值
+   * （见 home.service.js：PRD 未规定分类预算的预警线）。75% / 100% 这两个数照着
+   * 设计稿的视觉档位定：稿子里 32% 走主色、77.2% 走琥珀、130% 走报错色。 */
+  function categoryTone(pct) {
+    if (pct > 100) return { dot: 'bg-error', bar: 'bg-error', text: 'text-error' };
+    if (pct >= 75) return { dot: 'bg-amber-500', bar: 'bg-amber-500', text: 'text-amber-700' };
+    return { dot: 'bg-[#0D9488]', bar: 'bg-[#0D9488]', text: 'text-primary' };
+  }
+
+  /* ---------------------------------------------------------------- 流水行 --- */
+
+  function transactionRow(t) {
+    var income = t.type === 'income';
+    // 标题优先取商户，其次取分类；右侧小字留给备注，没有备注就退回类型名，
+    // 避免「标题和右侧小字是同一句话」。
+    var title = t.merchant || (t.category && t.category.name) || TYPE_LABEL[t.type];
+    var label = t.note || (t.merchant ? (t.category && t.category.name) || TYPE_LABEL[t.type] : TYPE_LABEL[t.type]);
+    var icon = (t.category && t.category.icon) ||
+      (t.type === 'transfer' ? 'swap_horiz' : 'receipt_long');
+    var tone = income ? 'text-[#0D9488]' : 'text-primary';
+    var amount = t.type === 'transfer' ? FMT.money(t.amount) : UI.signedMoney(t.type, t.amount);
+
+    return '<div class="flex items-center justify-between p-space-sm rounded-xl hover:bg-surface-container-low transition-colors group">' +
+        '<div class="flex items-center gap-space-md min-w-0">' +
+          '<div class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center ' + tone + ' flex-shrink-0">' +
+            UI.icon(icon, 'text-[1.25rem]') +
+          '</div>' +
+          '<div class="flex flex-col min-w-0">' +
+            '<div class="flex items-center gap-space-xs">' +
+              '<span class="font-headline-sm text-headline-sm text-on-surface truncate">' + UI.esc(title) + '</span>' +
+              '<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-surface-container text-on-surface-variant whitespace-nowrap">' +
+                UI.esc(t.account ? t.account.name : '未指定账户') + '</span>' +
+            '</div>' +
+            '<div class="flex items-center gap-2 mt-0.5 font-body-sm text-body-sm text-on-surface-variant">' +
+              // 日期一律带上：只显示时分的话，非当天的流水会被误读成今天
+              '<span>' + UI.esc(FMT.relDay(t.happenedAt) + ' ' + FMT.time(t.happenedAt)) + '</span>' +
+              '<span>·</span>' +
+              '<span class="' + tone + ' font-medium">' + UI.esc(label) + '</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="text-right flex-shrink-0 ml-4">' +
+          '<div class="font-numeric-data text-numeric-data ' + (income ? 'text-[#0D9488]' : 'text-[#0F172A]') + ' font-bold whitespace-nowrap">' +
+            amount + '</div>' +
+          '<span class="font-label-sm text-label-sm text-on-surface-variant">' + UI.esc(TYPE_LABEL[t.type]) + '</span>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderRecent(el, data) {
+    var rows = data.recentTransactions || [];
+    if (!rows.length) {
+      UI.empty(el, '还没有流水。点左下角「记一笔」，这里就有了。');
+      return;
+    }
+    el.innerHTML =
+      '<div class="flex items-center justify-between py-1 border-b border-surface-container">' +
+        '<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">最近 ' + rows.length + ' 笔 · 按时间倒序</span>' +
+        '<span class="font-label-sm text-label-sm text-on-surface-variant">今日支出 ' + FMT.money(data.today.todayExpense) + '</span>' +
+      '</div>' +
+      UI.each(rows, transactionRow);
+  }
+
+  /* ------------------------------------------------------------ 分类预算行 --- */
+
+  function categoryBudgetRow(item) {
+    var tone = categoryTone(item.usedPct);
+    var over = item.remaining < 0;
+    // 超支时用绝对值表达「超了多少」，负数直接显示出来读起来像还有余额
+    var note = over
+      ? '已超支 ' + FMT.money(-item.remaining)
+      : '已用 ' + FMT.percent(item.usedPct);
+
+    return '<div class="flex flex-col gap-1.5">' +
+        '<div class="flex items-center justify-between font-label-md text-label-md">' +
+          '<div class="flex items-center gap-2 min-w-0">' +
+            '<span class="w-2 h-2 rounded-full ' + tone.dot + ' flex-shrink-0"></span>' +
+            '<span class="text-on-surface truncate">' + UI.esc(item.categoryName) + '</span>' +
+          '</div>' +
+          '<span class="' + tone.text + ' font-numeric-data text-numeric-data whitespace-nowrap">' +
+            FMT.money(item.spent) + ' / ' + FMT.money(item.budgetAmount) + '</span>' +
+        '</div>' +
+        '<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">' +
+          '<div class="' + tone.bar + ' h-full rounded-full" style="width: ' + FMT.clampPercent(item.usedPct) + '%;"></div>' +
+        '</div>' +
+        '<div class="flex justify-between items-center text-body-sm font-body-sm text-on-surface-variant">' +
+          '<span class="' + tone.text + ' font-medium">' + UI.esc(note) + '</span>' +
+          '<span class="' + (over ? tone.text + ' font-medium' : '') + '">' +
+            (over ? '已超额' : '剩余 ' + FMT.money(item.remaining)) + '</span>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderCategoryBudget(el, items) {
+    if (!items.length) {
+      UI.empty(el, '本月还没有分类预算。给常花的几类各设一个上限，就能看到单项健康线。',
+        '<a class="font-label-md text-label-md text-primary hover:underline" href="09-budget-setup.html">去设置分类预算</a>');
+      return;
+    }
+    el.innerHTML = UI.each(items, categoryBudgetRow);
+  }
+
+  /* ------------------------------------------------------------------ 渲染 --- */
+
+  function render(ctx, data, stats) {
+    var budget = data.budget || {};
+    var summary = data.summary || {};
+    var today = data.today || {};
+
+    /* 问候 + 预算节奏 */
+    set('home-greeting', ((ctx.user && ctx.user.displayName) || '你好') + '，' + WEEK[new Date().getDay()] + '好！');
+
+    if (budget.hasBudget) {
+      var level = budget.alertLevel;
+      set('home-pace-text', '本月剩余 ' + budget.remainingDays + ' 天 · ' + (ALERT_TEXT[level] || ''));
+      set('home-pace-desc', FMT.period(data.period) + '预算 ' + FMT.money(budget.totalAmount) +
+        '，已用 ' + FMT.percent(budget.usedPct) + '。预算每天按剩余天数重新平摊。');
+      set('home-health', ALERT_TEXT[level] || '—');
+
+      show('home-quota-symbol', true);
+      set('home-quota', FMT.amount(budget.todayQuota));
+      set('home-quota-desc', '依当月剩余 ' + budget.remainingDays + ' 天平摊，花完即止无愧疚感。');
+
+      set('home-used-pct', FMT.percent(budget.usedPct));
+      document.getElementById('home-progress-bar').style.width = FMT.clampPercent(budget.usedPct) + '%';
+      set('home-spent-total', '已用 ' + FMT.money(budget.spent) + ' / ' + FMT.money(budget.totalAmount));
+      set('home-remaining', '剩余 ' + FMT.money(budget.remaining));
+    } else {
+      /* 视图返回 0 行是**正常分支**（当月未设预算 / 回看历史月），不是错误。
+       * 后端为此显式返回 200 + hasBudget:false，前端走「引导去设预算」。 */
+      set('home-pace-text', '本月尚未设预算');
+      set('home-pace-desc', budget.message || '设置预算后就能看到「今日可花」。');
+      set('home-health', '待设置');
+      show('home-quota-symbol', false);
+      set('home-quota', '未设置');
+      set('home-quota-desc', '设置本月预算总额，就能开始算每天能花多少。');
+      set('home-used-pct', '—');
+      document.getElementById('home-progress-bar').style.width = '0%';
+      set('home-spent-total', '还没有预算可对照');
+      set('home-remaining', '');
+    }
+
+    /* 四张数卡 */
+    set('card-today-amount', FMT.money(today.todayExpense));
+    set('card-today-count', '今日已入账 ' + today.todayExpenseCount + ' 笔流水');
+    if (budget.hasBudget && budget.todayQuota != null) {
+      var overToday = today.todayExpense > budget.todayQuota;
+      setTag('card-today-tag', overToday ? '已超今日额度' : '今日额度内', overToday ? 'error' : 'ok');
+    } else {
+      setTag('card-today-tag', '未设预算', 'ok');
+    }
+
+    set('card-month-expense', FMT.money(summary.expenseTotal));
+    // stats 拉不到就只少这一行，不影响主内容渲染
+    set('card-month-expense-sub', stats ? '日均 ' + FMT.money(stats.avgExpensePerDay) : '—');
+    setTag('card-month-expense-tag', summary.expenseCount + ' 笔支出', 'ok');
+
+    set('card-month-income', (summary.incomeTotal > 0 ? '+' : '') + FMT.money(summary.incomeTotal));
+    set('card-month-income-sub', summary.incomeCount + ' 笔入账');
+    setTag('card-month-income-tag', '结余 ' + (summary.net >= 0 ? '+' : '') + FMT.money(summary.net),
+      summary.net < 0 ? 'warn' : 'ok');
+
+    /* 分类超支风险：分母是「设了分类预算的类目」，不是全部分类 */
+    var overItems = (data.categoryBudget || []).filter(function (x) { return x.spent > x.budgetAmount; });
+    set('card-risk-count', overItems.length);
+    if (overItems.length) {
+      var worst = overItems[0];
+      set('card-risk-detail', worst.categoryName + ' 超支 ' + FMT.money(worst.spent - worst.budgetAmount) +
+        (overItems.length > 1 ? ' 等 ' + overItems.length + ' 项' : ''));
+    } else {
+      set('card-risk-detail', '各分类都在预算内');
+      var detail = document.getElementById('card-risk-detail');
+      if (detail) detail.className = 'text-on-surface-variant truncate';
+      show('card-risk-detail', true);
+    }
+
+    renderRecent(document.getElementById('home-recent-list'), data);
+    renderCategoryBudget(document.getElementById('home-catbudget-list'), data.categoryBudget || []);
+  }
+
+  /* ------------------------------------------------------------------ 启动 --- */
+
+  MZ_UI.boot(function (ctx) {
+    var period = MZ_UI.currentPeriod();
+    var recentEl = document.getElementById('home-recent-list');
+    var catEl = document.getElementById('home-catbudget-list');
+
+    UI.skeleton(recentEl, 4);
+    UI.skeleton(catEl, 3);
+
+    var main = API.get('/home/overview', { period: period, recentLimit: 5 });
+    // 日均是锦上添花：它挂了不该把整页拖垮，所以单独吞掉失败
+    var stats = API.get('/stats/overview', { period: period }).catch(function () { return null; });
+
+    return Promise.all([main, stats])
+      .then(function (res) {
+        render(ctx, res[0], res[1]);
+      })
+      .catch(function (err) {
+        // 提示条已由 ui.js 的 notifier 弹过；这里把骨架换成明确的失败态，
+        // 否则用户会一直盯着脉冲动画，分不清是慢还是挂了。
+        UI.empty(recentEl, '数据加载失败：' + ((err && err.message) || '请稍后重试'));
+        UI.empty(catEl, '数据加载失败');
+        throw err;
+      });
+  });
+})();
+</script>
+<script src="../assets/js/shell.js"></script>
+
+
+</body></html>

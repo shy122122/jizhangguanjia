@@ -1,0 +1,199 @@
+{
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^mz-(.*)": "@/components/mz-$1/mz-$1.vue"
+    }
+  },
+  "pages": [
+    {
+      "path": "pages/onboarding/landing",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "明账"
+      }
+    },
+    {
+      "path": "pages/home/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "首页概览"
+      }
+    },
+    {
+      "path": "pages/ledger/list",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "流水明细"
+      }
+    },
+    {
+      "path": "pages/record/sheet",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "记一笔"
+      }
+    },
+    {
+      "path": "pages/stats/overview",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "消费洞察"
+      }
+    },
+    {
+      "path": "pages/settings/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "个人与设置"
+      }
+    },
+    {
+      "path": "pages/budget/overview",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "总预算看板"
+      }
+    },
+    {
+      "path": "pages/budget/setup",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "预算配置向导"
+      }
+    },
+    {
+      "path": "pages/stats/category",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "分类下钻"
+      }
+    },
+    {
+      "path": "pages/import/main",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "账单导入"
+      }
+    },
+    {
+      "path": "pages/import/success",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "导入结果"
+      }
+    },
+    {
+      "path": "pages/import/diagnose",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "异常诊断"
+      }
+    },
+    {
+      "path": "pages/settings/categories",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "分类管理"
+      }
+    },
+    {
+      "path": "pages/settings/accounts",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "账户管理"
+      }
+    },
+    {
+      "path": "pages/settings/profile",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "个人资料"
+      }
+    },
+    {
+      "path": "pages/settings/ledger",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "账本信息"
+      }
+    },
+    {
+      "path": "pages/settings/preferences",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "记账偏好"
+      }
+    },
+    {
+      "path": "pages/settings/privacy",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "数据与隐私"
+      }
+    },
+    {
+      "path": "pages/onboarding/coldstart",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "开始使用"
+      }
+    },
+    {
+      "path": "pages/onboarding/help",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "找回密码与帮助"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "明账",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#F8FAFC",
+    "backgroundColorTop": "#F8FAFC",
+    "backgroundColorBottom": "#F8FAFC"
+  },
+  "tabBar": {
+    "color": "#64748B",
+    "selectedColor": "#0F766E",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "fontSize": "10px",
+    "spacing": "3px",
+    "height": "52px",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-on.png"
+      },
+      {
+        "pagePath": "pages/ledger/list",
+        "text": "流水",
+        "iconPath": "static/tabbar/ledger.png",
+        "selectedIconPath": "static/tabbar/ledger-on.png"
+      },
+      {
+        "pagePath": "pages/record/sheet",
+        "text": "记账",
+        "iconPath": "static/tabbar/record.png",
+        "selectedIconPath": "static/tabbar/record-on.png"
+      },
+      {
+        "pagePath": "pages/stats/overview",
+        "text": "洞察",
+        "iconPath": "static/tabbar/stats.png",
+        "selectedIconPath": "static/tabbar/stats-on.png"
+      },
+      {
+        "pagePath": "pages/settings/index",
+        "text": "我的",
+        "iconPath": "static/tabbar/settings.png",
+        "selectedIconPath": "static/tabbar/settings-on.png"
+      }
+    ]
+  }
+}

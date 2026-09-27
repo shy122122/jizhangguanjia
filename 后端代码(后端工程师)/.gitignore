@@ -1,0 +1,22 @@
+# 依赖
+node_modules/
+
+# 环境变量（含数据库密码与 JWT 密钥，绝不入库）
+.env
+.env.local
+.env.*.local
+
+# 日志与运行时产物
+*.log
+npm-debug.log*
+logs/
+pids/
+*.pid
+*.seed
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

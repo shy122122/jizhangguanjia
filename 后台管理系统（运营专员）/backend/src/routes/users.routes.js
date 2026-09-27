@@ -1,0 +1,10 @@
+'use strict';
+const express=require('express');const service=require('../services/user.service');const http=require('../utils/http');const{requireAdmin,clientIp}=require('../middleware/auth');
+const router=express.Router();router.use(requireAdmin);
+router.get('/users',async(req,res)=>{const r=await service.list(req.query);http.ok(res,r.items,r.meta);});
+router.get('/users/:id',async(req,res)=>http.ok(res,await service.detail(req.params.id)));
+router.get('/users/:id/data/:tab',async(req,res)=>{const r=await service.data(req.params.id,req.params.tab,req.query,req.auth,clientIp(req));http.ok(res,r.items,r.meta);});
+router.post('/users/:id/actions/:action',async(req,res)=>http.ok(res,await service.action(Number(req.params.id),req.params.action,req.body||{},req.auth,clientIp(req))));
+router.get('/users/:id/export.json',async(req,res)=>{const data=await service.exportUser(Number(req.params.id),'json',req.query.reason,req.auth,clientIp(req));res.set('Content-Type','application/json; charset=utf-8');res.set('Content-Disposition',`attachment; filename="mingzhang-user-${req.params.id}-${Date.now()}.json"`);res.send(JSON.stringify(data,null,2));});
+router.get('/users/:id/export.csv',async(req,res)=>{const csv=await service.exportUser(Number(req.params.id),'csv',req.query.reason,req.auth,clientIp(req));res.set('Content-Type','text/csv; charset=utf-8');res.set('Content-Disposition',`attachment; filename="mingzhang-user-${req.params.id}-${Date.now()}.csv"`);res.send(csv);});
+module.exports=router;

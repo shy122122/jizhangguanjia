@@ -1,0 +1,17 @@
+'use strict';
+const express=require('express');const service=require('../services/config.service');const http=require('../utils/http');const{requireAdmin,clientIp}=require('../middleware/auth');
+const router=express.Router();router.use(requireAdmin);
+router.get('/config/rules',async(req,res)=>http.ok(res,await service.listRules(req.query)));
+router.get('/config/rule-categories',async(req,res)=>http.ok(res,await service.ruleCategories()));
+router.post('/config/rules/preview',async(req,res)=>http.ok(res,await service.previewRule(req.body?.text)));
+router.post('/config/rules',async(req,res)=>http.created(res,await service.createRule(req.body||{},req.auth,clientIp(req))));
+router.put('/config/rules/:id',async(req,res)=>http.ok(res,await service.updateRule(Number(req.params.id),req.body||{},req.auth,clientIp(req))));
+router.delete('/config/rules/:id',async(req,res)=>http.ok(res,await service.deleteRule(Number(req.params.id),req.body||{},req.auth,clientIp(req))));
+router.get('/config/templates',async(req,res)=>http.ok(res,await service.listTemplates()));
+router.post('/config/templates/categories',async(req,res)=>http.created(res,await service.saveCategoryTemplate(null,req.body||{},req.auth,clientIp(req))));
+router.put('/config/templates/categories/:id',async(req,res)=>http.ok(res,await service.saveCategoryTemplate(Number(req.params.id),req.body||{},req.auth,clientIp(req))));
+router.delete('/config/templates/categories/:id',async(req,res)=>http.ok(res,await service.deleteCategoryTemplate(Number(req.params.id),req.body||{},req.auth,clientIp(req))));
+router.post('/config/templates/accounts',async(req,res)=>http.created(res,await service.saveAccountTemplate(null,req.body||{},req.auth,clientIp(req))));
+router.put('/config/templates/accounts/:id',async(req,res)=>http.ok(res,await service.saveAccountTemplate(Number(req.params.id),req.body||{},req.auth,clientIp(req))));
+router.delete('/config/templates/accounts/:id',async(req,res)=>http.ok(res,await service.deleteAccountTemplate(Number(req.params.id),req.body||{},req.auth,clientIp(req))));
+module.exports=router;

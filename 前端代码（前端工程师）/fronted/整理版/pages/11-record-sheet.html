@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#14B8A6">
+<meta name="description" content="明账 —— 把预算穿透到每一笔记录里的记账工具。">
+<title>明账 · 记账面板</title>
+
+<!-- 字体：Manrope（正文与数字）+ Material Symbols（图标） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="../assets/js/theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+<!-- 设计令牌与基础样式（PRD 第 13 章） -->
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+
+<!-- Tailwind Play CDN：先载入运行时，再注入主题配置 -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="../assets/js/tailwind.config.js"></script>
+
+<!-- 路由表：导航与状态切换的唯一事实来源 -->
+<script src="../assets/js/routes.js"></script>
+
+<!-- 数据层：api.js 只做传输（token / 401 / 信封解析），ui.js 只做展示工具 -->
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/ui.js"></script>
+</head><body data-page="record-sheet" class="bg-background font-body-md text-on-surface min-h-screen"><div data-shell="sidebar"></div>
+<div data-shell="topbar"></div>
+<div class="lg:pl-72"><main class="relative pt-16 min-h-screen bg-background"><div class="flex flex-col w-full">
+<!-- Underlying Dashboard Mockup (Rendered under high-clarity frost scrim) -->
+<!-- 移动端：面板是模态抽屉，背后看板压暗虚化；桌面端：面板是右下角浮出卡片，背后看板保持清晰可读（PRD 5.3） -->
+<div class="w-full px-margin-lg py-margin-md filter blur-[6px] opacity-40 lg:blur-none lg:opacity-100 select-none pointer-events-none transition-all">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-lg">
+<div class="col-span-8 flex flex-col gap-space-lg">
+<div class="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex justify-between items-center">
+<span class="font-headline-sm text-headline-sm text-on-surface">本月支出穿透看板</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">2025年3月周期</span>
+</div>
+<div class="h-44 bg-surface-container-low rounded-lg"></div>
+</div>
+<div class="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col gap-space-md">
+<span class="font-headline-sm text-headline-sm text-on-surface">最近收支流水明细</span>
+<div class="space-y-space-sm">
+<div class="h-12 bg-surface-container-low rounded-lg"></div>
+<div class="h-12 bg-surface-container-low rounded-lg"></div>
+<div class="h-12 bg-surface-container-low rounded-lg"></div>
+</div>
+</div>
+</div>
+<div class="col-span-4 flex flex-col gap-space-lg">
+<div class="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm h-64"></div>
+<div class="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm h-72"></div>
+</div>
+</div>
+</div>
+<!-- Background Scrim：移动端为整屏压暗虚化，桌面端退化成透明的「点击外部关闭」捕捉层 -->
+<div class="fixed inset-0 lg:left-72 bg-on-surface/20 backdrop-blur-md lg:bg-transparent lg:backdrop-blur-none z-40 transition-opacity" data-record-scrim></div>
+<!-- 记账面板：手机/平板 = 右侧整屏抽屉；桌面 = 右下角浮出卡片（PRD 5.3） -->
+<aside aria-labelledby="drawer-heading" aria-modal="true" class="fixed top-0 right-0 h-screen w-full sm:w-[560px] lg:top-auto lg:bottom-6 lg:right-6 lg:h-auto lg:max-h-[calc(100dvh-6rem)] lg:w-[480px] lg:rounded-2xl bg-surface-container-lowest shadow-2xl z-50 flex flex-col justify-between overflow-y-auto pb-20 lg:pb-0" id="quick-entry-drawer" role="dialog">
+<!-- Drawer Header Section -->
+<div class="p-margin-md pb-space-sm flex flex-col gap-space-md bg-surface-container-lowest shrink-0">
+<div class="flex items-center justify-between gap-space-sm">
+<!-- Transaction Type Switcher（移动端横向可滚，避免按钮被压成两行） -->
+<div class="flex items-center overflow-x-auto bg-surface-container-low p-space-xs rounded-xl" id="type-switch">
+<button class="shrink-0 whitespace-nowrap px-space-md py-1.5 rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-sm transition-colors" data-type="expense" type="button">支出</button>
+<button class="shrink-0 whitespace-nowrap px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors" data-type="income" type="button">收入</button>
+<button class="shrink-0 whitespace-nowrap px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors" data-type="transfer" type="button">内部转账</button>
+</div>
+<!-- Continuous Entry Toggle & Close Controls -->
+<div class="flex items-center gap-space-md">
+<label class="flex items-center gap-space-xs cursor-pointer select-none group" id="continuous-toggle">
+<span class="font-label-md text-label-md text-on-surface font-semibold">连续记账</span>
+<div class="relative w-9 h-5 bg-primary rounded-full transition-colors p-0.5" id="continuous-track">
+<div class="w-4 h-4 rounded-full bg-surface-container-lowest shadow-sm translate-x-4 transition-transform" id="continuous-knob"></div>
+</div>
+</label>
+<div class="h-4 w-px bg-outline-variant"></div>
+<button class="flex items-center gap-space-xs text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm px-space-xs py-1 rounded-md hover:bg-surface-container-low transition-colors" onclick="exitRecordSheet()" title="退出连续记账" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">close</span>
+<span class="bg-surface-container-high text-on-surface-variant px-1.5 py-0.5 rounded font-label-sm">ESC</span>
+</button>
+</div>
+</div>
+<!-- Real-time Continuous Progress Notification Banner -->
+<!-- 只在本次真的记过至少一笔后出现：面板刚打开时「已连续记录 0 笔」是句废话 -->
+<div class="bg-surface-container-low rounded-xl p-space-sm px-space-md flex items-center justify-between shadow-sm hidden" id="banner">
+<div class="flex items-center gap-space-xs truncate">
+<span class="material-symbols-outlined text-primary text-[1.25rem] shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-md text-label-md text-on-surface truncate">
+            已连续记录 <strong class="text-primary font-bold" id="banner-count">0</strong> 笔 · 刚刚记录 <span class="text-on-surface-variant font-normal" id="banner-last"></span>
+</span>
+</div>
+<!-- 这一格放的是服务端 penetration 里的「今日可花」，不是分类预算的剩余 ——
+     分类预算的剩余已经由下面那条双色穿透条表达，重复一次反而互相打架 -->
+<div class="shrink-0 pl-space-xs">
+<span class="bg-surface-container-lowest text-primary font-label-sm text-label-sm px-2 py-0.5 rounded-full font-semibold shadow-xs hidden" id="banner-remaining"></span>
+</div>
+</div>
+</div>
+<!-- Scrollable Workspace & Input Engine -->
+<div class="flex-1 overflow-y-auto px-margin-md py-space-xs flex flex-col gap-space-md">
+<!-- 1. Amount & Expression Calculation Terminal -->
+<div class="bg-surface-container-low rounded-2xl p-space-md flex flex-col gap-space-xs relative">
+<div class="flex items-baseline justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider" id="entry-label">记录第 1 笔金额</span>
+<span class="font-label-sm text-label-sm text-primary font-medium flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[1rem]">calculate</span>
+            实时运算生效中
+          </span>
+</div>
+<div class="flex items-baseline gap-space-xs py-1">
+<span class="font-numeric-hero text-numeric-hero text-on-surface-variant">¥</span>
+<div class="flex items-baseline gap-space-sm flex-1">
+<span class="font-display-lg text-display-lg text-on-surface tracking-tight" id="amount-expr"></span>
+<span class="w-0.5 h-8 bg-primary animate-pulse inline-block self-center"></span>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-label-sm text-on-surface-variant">计算结果</span>
+<span class="font-headline-md text-headline-md text-primary" id="amount-res">= 0.00</span>
+</div>
+</div>
+<!-- Budget Penetration Bar (Dual-layer Real-time Projection) -->
+<!-- 预算穿透：基线已用 + 本笔预计占用，随键盘输入实时重算（PRD 核心卖点）。
+     数字全部来自 v_budget_category_progress —— 选了没有分类预算的类目就整块隐藏，
+     不拿「本月总额」冒充「本类目」的额度。 -->
+<div class="pt-space-xs flex flex-col gap-1.5 hidden" id="budget-block">
+<div class="flex justify-between items-center font-label-sm text-label-sm">
+<span class="text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[0.875rem] text-tertiary">warning</span>
+              <span id="penetration-text"></span>
+</span>
+<span class="font-semibold text-tertiary" id="penetration-pct"></span>
+</div>
+<!-- Multi-segmented Progress Gauge -->
+<div class="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden flex relative">
+<!-- 已确认的基线支出（本月该类目已花掉的部分） -->
+<div class="h-full bg-primary rounded-l-full transition-all duration-300" id="penetration-base" style="width: 0%;"></div>
+<!-- 本笔将占用的增量（穿透预览） -->
+<div class="h-full bg-tertiary-container animate-pulse transition-all duration-300" id="penetration-delta" style="width: 0%;"></div>
+<!-- 警戒线：位置由该账本的 alert_yellow_pct 决定，不是写死的 80% -->
+<div class="absolute top-0 bottom-0 w-0.5 bg-surface-container-lowest z-10 opacity-70" id="penetration-mark" style="left: 80%;"></div>
+</div>
+</div>
+</div>
+<!-- 2. Category Selection Matrix —— 由 /meta/bootstrap 的 categories 渲染（10 支出 / 6 收入） -->
+<div class="flex flex-col gap-space-xs" id="cat-block">
+<div class="flex justify-between items-center">
+<span class="font-label-md text-label-md text-on-surface-variant font-semibold" id="cat-title">选择消费类目</span>
+<a class="font-label-sm text-label-sm text-primary hover:underline flex items-center gap-0.5" href="22-settings-categories.html">
+<span>管理类目</span>
+<span class="material-symbols-outlined text-[0.875rem]">chevron_right</span>
+</a>
+</div>
+<div class="grid grid-cols-4 gap-space-xs" id="cat-grid"></div>
+</div>
+<!-- 3. Meta Data Entry Module (Account, Time, Tagging) -->
+<!-- 账户与时间都用「原生控件铺满 + opacity-0」的做法：拿到系统级选择器，
+     省掉一套自绘弹层的可访问性坑，外观仍然是设计稿那一行 -->
+<div class="bg-surface-container-low rounded-xl p-space-sm flex flex-col gap-space-xs">
+<div class="grid grid-cols-2 gap-space-xs">
+<!-- Account selector -->
+<div class="relative flex items-center gap-space-xs bg-surface-container-lowest p-2 rounded-lg cursor-pointer focus-within:ring-2 focus-within:ring-primary/30">
+<select class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="acct-select" aria-label="支出账户"></select>
+<span class="material-symbols-outlined text-primary text-[1.125rem]" id="acct-icon">payments</span>
+<div class="flex flex-col truncate">
+<span class="font-label-sm text-label-sm text-on-surface-variant" id="acct-label">支出账户</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate" id="acct-name">—</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[1rem] ml-auto">expand_more</span>
+</div>
+<!-- Time selector -->
+<div class="relative flex items-center gap-space-xs bg-surface-container-lowest p-2 rounded-lg cursor-pointer focus-within:ring-2 focus-within:ring-primary/30">
+<input class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="happened-at" type="datetime-local" aria-label="发生时间">
+<span class="material-symbols-outlined text-secondary text-[1.125rem]">schedule</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">发生时间</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold" id="time-name">—</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[1rem] ml-auto">expand_more</span>
+</div>
+</div>
+<!-- 转入账户：只有转账才需要，选中转出账户的候选里要排除它自己（ck_txn_transfer） -->
+<div class="relative flex items-center gap-space-xs bg-surface-container-lowest p-2 rounded-lg cursor-pointer hidden focus-within:ring-2 focus-within:ring-primary/30" id="to-acct-row">
+<select class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="to-acct-select" aria-label="转入账户"></select>
+<span class="material-symbols-outlined text-primary text-[1.125rem]">swap_horiz</span>
+<div class="flex flex-col truncate">
+<span class="font-label-sm text-label-sm text-on-surface-variant">转入账户</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate" id="to-acct-name">—</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[1rem] ml-auto">expand_more</span>
+</div>
+<!-- Note & Intelligent Tags -->
+<div class="flex flex-col gap-1.5 pt-1">
+<div class="flex items-center bg-surface-container-lowest px-3 py-2 rounded-lg">
+<span class="material-symbols-outlined text-on-surface-variant text-[1.125rem] mr-2">edit_note</span>
+<input class="w-full bg-transparent font-body-sm text-body-sm text-on-surface outline-none placeholder:text-on-surface-variant" id="note-input" placeholder="添加备注、商家或明细说明..." type="text">
+</div>
+<!-- Quick Prediction Chips：关键词来自 /api/category-rules，点一下就选中对应类目 -->
+<div class="flex items-center gap-1.5 overflow-x-auto py-0.5" id="chip-row"></div>
+</div>
+</div>
+<!-- 4. Permanent Financial Keypad & Batch Execution Triggers -->
+<div class="grid grid-cols-4 gap-space-xs pt-1 select-none" id="keypad">
+<!-- Row 1 -->
+<button class="h-11 bg-surface-container-low hover:bg-surface-container active:scale-95 rounded-lg font-headline-sm text-headline-sm text-on-surface transition-transform flex items-center justify-center" data-key="7" type="button">7</button>
+<button class="h-11 bg-surface-container-low hover:bg-surface-container active:scale-95 rounded-lg font-headline-sm text-headline-sm text-on-surface transition-transform flex items-center justify-center" data-key="8" type="button">8</button>
+<button class="h-11 bg-surface-container-low hover:bg-surface-container active:scale-95 rounded-lg font-headline-sm text-headline-sm text-on-surface transition-transform flex items-center justify-center" data-key="9" type="button">9</button>
+<button class="h-11 bg-surface-container-high hover:bg-surface-container-highest active:scale-95 rounded-lg font-headline-sm text-headline-sm text-secondary transition-transform flex items-center justify-center" data-key="/" type="button">÷</button>
+<!-- Row 2 -->
+<button class="h-11 bg-surface-container-low hover:bg-surface-container active:scale-95 rounded-lg font-headline-sm text-headline-sm text-on-surface transition-transform flex items-center justify-center" data-key="4" type="button">4</button>
+<button class="h-11 bg-surface-container-low hover:bg-surface-container active:scale-95 rounded-lg font-headline-sm text-headline-sm text-on-surface transition-transform flex items-center justify-center" data-key="5" type="button">5</button>
+<button class="h-11 bg-surface-container-low hover:bg-surface-container active:scale-95 rounded-lg font-headline-sm text-headline-sm text-on-surface transition-transform flex items-center justify-center" data-key="6" type="button">6</button>
+<button class="h-11 bg-surface-container-high hover:bg-surface-container-highest active:scale-95 rounded-lg font-headline-sm text-headline-sm text-secondary transition-transform flex items-center justify-center" data-key="*" type="button">×</button>
+<!-- Row 3 -->
+<button class="h-11 bg-surface-container-low hover:bg-surface-container active:scale-95 rounded-lg font-headline-sm text-headline-sm text-on-surface transition-transform flex items-center justify-center" data-key="1" type="button">1</button>
+<button class="h-11 bg-surface-container-low hover:bg-surface-container active:scale-95 rounded-lg font-headline-sm text-headline-sm text-on-surface transition-transform flex items-center justify-center" data-key="2" type="button">2</button>
+<button class="h-11 bg-surface-container-low hover:bg-surface-container active:scale-95 rounded-lg font-headline-sm text-headline-sm text-on-surface transition-transform flex items-center justify-center" data-key="3" type="button">3</button>
+<button class="h-11 bg-surface-container-high hover:bg-surface-container-highest active:scale-95 rounded-lg font-headline-sm text-headline-sm text-secondary transition-transform flex items-center justify-center" data-key="-" type="button">-</button>
+<!-- Row 4 -->
+<button class="h-11 bg-surface-container-low hover:bg-surface-container active:scale-95 rounded-lg font-headline-sm text-headline-sm text-on-surface transition-transform flex items-center justify-center" data-key="0" type="button">0</button>
+<button class="h-11 bg-surface-container-low hover:bg-surface-container active:scale-95 rounded-lg font-headline-sm text-headline-sm text-on-surface transition-transform flex items-center justify-center" data-key="." type="button">.</button>
+<button class="h-11 bg-surface-container-low hover:bg-surface-container active:scale-95 rounded-lg text-on-surface transition-transform flex items-center justify-center" data-key="back" type="button">
+<span class="material-symbols-outlined text-[1.25rem]">backspace</span>
+</button>
+<button class="h-11 bg-surface-container-high hover:bg-surface-container-highest active:scale-95 rounded-lg font-headline-sm text-headline-sm text-secondary transition-transform flex items-center justify-center" data-key="+" type="button">+</button>
+</div>
+<!-- Action Confirmation Buttons -->
+<div class="grid grid-cols-3 gap-space-xs pt-1">
+<button class="col-span-2 py-3 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-primary" id="save-next-btn" type="button">
+<span class="material-symbols-outlined text-[1.25rem]">done_all</span>
+<span id="save-next-label">保存并继续下一笔</span>
+<span class="bg-primary-container text-on-primary text-[0.6875rem] px-1.5 py-0.5 rounded uppercase">Enter</span>
+</button>
+<button class="col-span-1 py-3 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface font-label-lg text-label-lg transition-colors flex items-center justify-center" id="exit-btn" type="button">
+          完成并退出
+        </button>
+</div>
+</div>
+<!-- Drawer Footer: Recent Queue Micro Drawer (Collapsible Session History) -->
+<div class="bg-surface-container-low p-margin-md py-space-sm shrink-0 shadow-lg flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[1rem] text-primary">queue_music</span>
+<span class="font-label-md text-label-md text-on-surface font-bold">本次连续已记清单</span>
+<span class="bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm px-1.5 py-0.2 rounded-full font-semibold" id="queue-count">0 笔</span>
+</div>
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm">
+<span class="text-on-surface-variant">合计支出:</span>
+<span class="font-numeric-data text-numeric-data text-on-surface font-bold" id="queue-total">¥0.00</span>
+<button class="text-on-surface-variant hover:text-on-surface ml-1" type="button">
+<span class="material-symbols-outlined text-[1.125rem]">expand_less</span>
+</button>
+</div>
+</div>
+<!-- Queue Card Items：只列「本次连续记账」真的写进库的那几笔，每笔带真实 id，撤回就是软删它 -->
+<div class="flex flex-col gap-1.5 max-h-32 overflow-y-auto pr-1" id="queue-list">
+<div class="text-center text-on-surface-variant font-label-sm text-label-sm py-3">本次还没有记账</div>
+</div>
+</div>
+</aside>
+<!-- Interactive Script for Keyboard Escape & Keypad feedback -->
+<script>
+    /* 记账面板是浮层：结束后应当离开面板、回到首页（面板背后就是首页看板）。
+     * 不能只把抽屉隐藏 —— 那会留下一个模糊的假看板加蒙层，看着像页面坏了。 */
+    var RECORD_SHEET_EXIT = '04-home-calm.html';
+
+    function exitRecordSheet(event) {
+      if (event) {
+        // 阻止 shell.js 的 Esc 处理器再执行一次「回导航台」，
+        // 否则一次 Esc 会同时关面板并跳走，两个意图互相打架。
+        event.preventDefault();
+      }
+      location.href = RECORD_SHEET_EXIT;
+    }
+
+    /* =========================================================================
+     * 面板接线
+     *
+     * 三条原则（和后端 README「五、动手前必须知道的约定」是同一条）：
+     *
+     *   1. **预算数字一律来自接口，不在前端重算。**
+     *      「本月餐饮已用多少 / 还剩多少」是 v_budget_category_progress 的口径，
+     *      前端自己拿流水加总迟早会和首页对不上。这里只做两件事：
+     *      把已用部分画成基线段，把「这一笔会占到哪」画成增量段 —— 增量是
+     *      纯预览（还没入库），所以由前端按同一条百分比公式推，不违背上面那条。
+     *
+     *   2. **不拿「本月总额」冒充「本类目额度」。**
+     *      选中的类目没有分类预算就整块隐藏穿透条，而不是退回去显示月度总预算 ——
+     *      那会给出一个看着很像、其实无关的数字。
+     *
+     *   3. **「本次连续已记清单」只列这次真的写进库的那几笔。**
+     *      初始为空，不预置示例数据。每一笔带着真实 id，撤回就是软删它 ——
+     *      不是从数组里 pop 掉、假装没记过。
+     * ======================================================================= */
+
+    (function () {
+      'use strict';
+
+      var API = window.MZ_API;
+      var UI = window.MZ_UI;
+      var FMT = window.MZ_FMT;
+
+      var TYPE_TITLE = { expense: '金额', income: '收入', transfer: '转账' };
+      var TYPE_LABEL = { expense: '支出', income: '收入', transfer: '转账' };
+
+      /* 状态。ctx / catBudget 都来自接口，session 只装「本次」的新增。 */
+      var ctx = null;             // /meta/bootstrap：账户 + 分类 + 关键词规则
+      var catBudget = [];         // v_budget_category_progress 本月各行
+      var session = [];           // 本次连续记账真的写进库的那几笔（含真实 id）
+      var lastTxn = null;         // 最近一笔，给顶部横幅用
+      var lastPen = null;         // 最近一笔的 penetration，给「今日可花」用
+      var yellowPct = 80;         // 警戒线位置：来自 /api/budget 的 alertYellowPct
+
+      var currentType = 'expense';
+      var selectedCatId = null;
+      var catTouched = false;     // 用户手动点过类目后，关键词就不再自动改他的选择
+      var accountId = null;
+      var toAccountId = null;
+      var continuous = true;
+      var expr = '';
+
+      /* ---------------------------------------------------------------------
+       * 小工具
+       * ------------------------------------------------------------------- */
+
+      /** 取值统一走 `$('#id')` 而不是 `$('id')`：这样 check:page 的静态扫描
+       *  （它按 `$('#x')` / `querySelector('#x')` 收集字面量）能顺带覆盖到，
+       *  少一半「id 拼错了但脚本不报错」的机会。 */
+      function $(sel) { return document.getElementById(String(sel).replace(/^#/, '')); }
+      function $$(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+
+      function text(sel, value) {
+        var el = $(sel);
+        if (el) el.textContent = value === null || value === undefined ? '' : String(value);
+      }
+
+      /** 只切换 hidden：这些容器的 display 由静态 class 里的 flex / grid 决定 */
+      function show(sel, on) {
+        var el = $(sel);
+        if (el) el.classList.toggle('hidden', !on);
+      }
+
+      function pad2(n) { return n < 10 ? '0' + n : String(n); }
+
+      /** 本机「现在」，格式与 <input type="datetime-local"> 的 value 完全一致 */
+      function localNow() {
+        var d = new Date();
+        return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) +
+          'T' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+      }
+
+      function happenedAt() {
+        var input = $('#happened-at');
+        return (input && input.value) || localNow();
+      }
+
+      function periodOf() { return String(happenedAt()).slice(0, 7); }
+
+      function accountById(id) {
+        var list = (ctx && ctx.accounts) || [];
+        for (var i = 0; i < list.length; i += 1) if (list[i].id === id) return list[i];
+        return null;
+      }
+
+      function catsOf(type) {
+        return ((ctx && ctx.categories) || []).filter(function (c) { return c.type === type; });
+      }
+
+      /* ---------------------------------------------------------------------
+       * 数字键盘与实时运算
+       *
+       * 面板主打「3 秒记一笔」：输入的是表达式而不是单一数字，
+       * 所以「35+12」要能直接算出 47。这里用一个两遍扫描的小求值器
+       * （先乘除后加减），不碰 eval。
+       * ------------------------------------------------------------------- */
+
+      function pretty(s) { return String(s).replace(/\*/g, '×').replace(/\//g, '÷'); }
+
+      /* 求值：把表达式切成 [数字, 运算符, 数字, ...] 后两遍扫描。
+       * 末尾悬空的运算符先丢弃，于是「35+」也能给出 35 的实时结果。 */
+      function evaluate(src) {
+        var m = String(src).match(/(\d+\.?\d*|\.\d+|[+\-*/])/g);
+        if (!m) return null;
+        while (m.length && /^[+\-*/]$/.test(m[m.length - 1])) m.pop();
+        if (!m.length) return null;
+        for (var i = 0; i < m.length; i += 1) {
+          var isOp = /^[+\-*/]$/.test(m[i]);
+          if ((i % 2 === 0) === isOp) return null;   // 必须严格交替，否则表达式不合法
+        }
+        if (m.length === 1) return parseFloat(m[0]);
+
+        var flat = [m[0]];
+        for (var j = 1; j < m.length; j += 2) {
+          var op = m[j];
+          var v = parseFloat(m[j + 1]);
+          if (op === '*') flat[flat.length - 1] = parseFloat(flat[flat.length - 1]) * v;
+          else if (op === '/') flat[flat.length - 1] = parseFloat(flat[flat.length - 1]) / v;
+          else { flat.push(op); flat.push(v); }
+        }
+        var total = parseFloat(flat[0]);
+        for (var k = 1; k < flat.length; k += 2) {
+          total = flat[k] === '+' ? total + parseFloat(flat[k + 1]) : total - parseFloat(flat[k + 1]);
+        }
+        return isFinite(total) ? total : null;
+      }
+
+      function press(key) {
+        if (key === 'back') {
+          expr = expr.slice(0, -1);
+        } else if (key === '.') {
+          var seg = expr.split(/[+\-*/]/).pop();
+          if (seg.indexOf('.') >= 0) { refresh(); return; }
+          expr += seg === '' ? '0.' : '.';
+        } else if (/^[+\-*/]$/.test(key)) {
+          if (!expr) { refresh(); return; }
+          // 连按运算符视为改主意，替换掉上一个而不是叠加
+          expr = /[+\-*/]$/.test(expr) ? expr.slice(0, -1) + key : expr + key;
+        } else {
+          var tail = expr.split(/[+\-*/]/).pop();
+          if (tail.indexOf('.') < 0 && tail.length >= 7) { refresh(); return; }
+          expr += key;
+        }
+        refresh();
+      }
+
+      /* ---------------------------------------------------------------------
+       * 渲染
+       * ------------------------------------------------------------------- */
+
+      function update(amt) {
+        var budgetRow = findBudgetRow();
+        var live = currentType === 'expense' && !!budgetRow;
+        show('#budget-block', live);
+        if (!live) return;
+
+        var total = budgetRow.budgetAmount;
+        var basePct = FMT.clampPercent(budgetRow.spent / total * 100);
+        var deltaPct = Math.max(0, Math.min(amt / total * 100, 100 - basePct));
+        var afterPct = (budgetRow.spent + amt) / total * 100;
+        var remain = total - budgetRow.spent - amt;
+
+        var base = $('#penetration-base');
+        var delta = $('#penetration-delta');
+        var mark = $('#penetration-mark');
+        if (base) base.style.width = basePct.toFixed(2) + '%';
+        if (delta) delta.style.width = deltaPct.toFixed(2) + '%';
+        // 警戒线位置由账本的 alert_yellow_pct 决定，不是写死的 80%
+        if (mark) mark.style.left = FMT.clampPercent(yellowPct) + '%';
+
+        var name = UI.esc(budgetRow.categoryName);
+        var label = $('#penetration-text');
+        if (label) {
+          label.innerHTML = amt > 0
+            ? '若记录此笔 <strong class="text-on-surface">' + FMT.money(amt) + '</strong>，本月' + name + '将' +
+              (remain < 0
+                ? '超出 <strong class="text-error">' + FMT.money(-remain) + '</strong>'
+                : '仅剩 <strong class="text-on-surface">' + FMT.money(remain) + '</strong>')
+            : '本月' + name + '已用 <strong class="text-on-surface">' + FMT.money(budgetRow.spent) +
+              '</strong>，剩余 <strong class="text-on-surface">' + FMT.money(budgetRow.remaining) + '</strong>';
+        }
+
+        var pct = $('#penetration-pct');
+        if (pct) {
+          pct.textContent = '已用 ' + FMT.percent(afterPct) +
+            (afterPct >= 100 ? '（已超支）' : afterPct >= yellowPct ? '（临界警戒）' : '');
+          pct.className = 'font-semibold ' +
+            (afterPct >= 100 ? 'text-error' : afterPct >= yellowPct ? 'text-tertiary' : 'text-on-surface-variant');
+        }
+      }
+
+      /** 当前选中的类目在本月的预算行；没有分类预算就返回 null（整块隐藏） */
+      function findBudgetRow() {
+        if (selectedCatId === null) return null;
+        for (var i = 0; i < catBudget.length; i += 1) {
+          if (catBudget[i].categoryId === selectedCatId) return catBudget[i];
+        }
+        return null;
+      }
+
+      function renderAmount() {
+        var value = evaluate(expr);
+        var valid = value !== null && value > 0;
+        var shown = value === null ? 0 : value;
+
+        text('#amount-expr', expr ? pretty(expr) : '0');
+
+        var res = $('#amount-res');
+        if (res) {
+          res.textContent = '= ' + FMT.amount(shown);
+          // 空表达式不算错，别让面板一打开就是一片红；负数和非法表达式才是。
+          res.className = 'font-headline-md text-headline-md ' +
+            (valid || !expr ? 'text-primary' : 'text-error');
+        }
+
+        var btn = $('#save-next-btn');
+        if (btn) btn.disabled = !valid;
+
+        text('#entry-label', '记录第 ' + (session.length + 1) + ' 笔' + TYPE_TITLE[currentType]);
+        return valid ? shown : 0;
+      }
+
+      function renderCategories() {
+        var grid = $('#cat-grid');
+        var list = catsOf(currentType);
+        var live = currentType !== 'transfer' && list.length > 0;
+        show('#cat-block', live);
+        if (!grid) return;
+
+        if (!live) { grid.innerHTML = ''; return; }
+
+        var known = false;
+        for (var i = 0; i < list.length; i += 1) if (list[i].id === selectedCatId) known = true;
+        if (!known) selectedCatId = list[0].id;
+
+        text('#cat-title', currentType === 'expense' ? '选择消费类目' : '选择收入类目');
+
+        grid.innerHTML = UI.each(list, function (c) {
+          var on = c.id === selectedCatId;
+          return '<button type="button" data-cat-id="' + c.id + '" class="flex flex-col items-center gap-1 py-space-xs rounded-xl transition-colors ' +
+            (on ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container-low text-on-surface hover:bg-surface-container') + '">' +
+            UI.icon(c.icon || 'sell', 'text-[1.5rem]') +
+            '<span class="font-label-sm text-label-sm truncate w-full text-center' + (on ? ' font-semibold' : '') + '">' +
+              UI.esc(c.name) + '</span>' +
+            '</button>';
+        });
+      }
+
+      function selectCategory(id, touched) {
+        selectedCatId = id;
+        if (touched) catTouched = true;
+        renderCategories();
+        renderChips();
+        refresh();
+      }
+
+      function accountLabel(a) {
+        // 信用卡的余额是净资产口径（负数），展示要换成「可用额度」
+        if (a.type === 'credit') {
+          return a.name + '（可用 ' + FMT.money(a.creditAvailable === null ? 0 : a.creditAvailable) + '）';
+        }
+        return a.name + '（余 ' + FMT.money(a.balance) + '）';
+      }
+
+      function renderAccounts() {
+        var accounts = (ctx && ctx.accounts) || [];
+        if (!accounts.length) return;
+
+        if (!accountById(accountId)) {
+          var def = null;
+          for (var i = 0; i < accounts.length; i += 1) if (accounts[i].isDefault) def = accounts[i];
+          accountId = (def || accounts[0]).id;
+        }
+
+        var sel = $('#acct-select');
+        if (sel) {
+          sel.innerHTML = UI.each(accounts, function (a) {
+            return '<option value="' + a.id + '">' + UI.esc(accountLabel(a)) + '</option>';
+          });
+          sel.value = String(accountId);
+        }
+
+        var a = accountById(accountId);
+        text('#acct-name', a ? a.name : '—');
+        text('#acct-label', currentType === 'income' ? '收款账户'
+          : currentType === 'transfer' ? '转出账户' : '支出账户');
+        var icon = $('#acct-icon');
+        if (icon) icon.textContent = (a && a.icon) || 'payments';
+
+        // 转入账户只在转账时露出；候选里排除转出账户自己（ck_txn_transfer 不允许两边相同）
+        var others = accounts.filter(function (x) { return x.id !== accountId; });
+        var canTransfer = currentType === 'transfer' && others.length > 0;
+        show('#to-acct-row', canTransfer);
+
+        if (!canTransfer) { toAccountId = null; return; }
+
+        var pick = null;
+        for (var j = 0; j < others.length; j += 1) if (others[j].id === toAccountId) pick = others[j];
+        toAccountId = (pick || others[0]).id;
+
+        var toSel = $('#to-acct-select');
+        if (toSel) {
+          toSel.innerHTML = UI.each(others, function (x) {
+            return '<option value="' + x.id + '">' + UI.esc(accountLabel(x)) + '</option>';
+          });
+          toSel.value = String(toAccountId);
+        }
+        var t = accountById(toAccountId);
+        text('#to-acct-name', t ? t.name : '—');
+      }
+
+      function renderTime() {
+        var input = $('#happened-at');
+        if (input && !input.value) input.value = localNow();
+        var v = happenedAt();
+        text('#time-name', FMT.relDay(v) + ' ' + String(v).slice(11, 16));
+      }
+
+      /** 快捷关键词：点一下就选中它预判的类目，并把它填进备注 */
+      function chipRules() {
+        return ((ctx && ctx.categoryRules) || [])
+          .filter(function (r) { return r.categoryType === currentType; })
+          .sort(function (a, b) { return b.priority - a.priority || a.id - b.id; })
+          .slice(0, 8);
+      }
+
+      function renderChips() {
+        var row = $('#chip-row');
+        if (!row) return;
+        row.innerHTML = UI.each(chipRules(), function (r) {
+          return '<button type="button" data-chip="' + UI.esc(r.keyword) + '" data-chip-cat="' + r.categoryId + '" ' +
+            'class="shrink-0 px-2.5 py-1 rounded-full bg-surface-container-lowest text-on-surface-variant font-label-sm text-label-sm hover:text-primary hover:bg-primary-container/30 transition-colors">' +
+            UI.esc(r.keyword) + '</button>';
+        });
+      }
+
+      /** 备注里出现关键词就预判类目（最高的 priority 赢）。用户手动选过就不再改。 */
+      function matchRule(value) {
+        var s = String(value || '').trim();
+        if (!s) return null;
+        var hits = ((ctx && ctx.categoryRules) || []).filter(function (r) {
+          return r.categoryType === currentType && s.indexOf(r.keyword) !== -1;
+        });
+        if (!hits.length) return null;
+        hits.sort(function (a, b) { return b.priority - a.priority || a.id - b.id; });
+        return hits[0];
+      }
+
+      function queueCard(t) {
+        var cat = t.category;
+        var title = t.note || (t.type === 'transfer' ? '内部转账' : (cat ? cat.name : TYPE_LABEL[t.type] + '未备注'));
+        var sub = t.type === 'transfer'
+          ? (t.account.name + ' → ' + (t.toAccount ? t.toAccount.name : '?'))
+          : ((cat ? cat.name : '未分类') + ' · ' + t.account.name);
+
+        return '<div class="bg-surface-container-lowest p-2 rounded-lg flex items-center justify-between group shadow-xs">' +
+          '<div class="flex items-center gap-space-xs truncate">' +
+            '<div class="w-6 h-6 rounded-md bg-primary-container/30 text-primary flex items-center justify-center shrink-0">' +
+              UI.icon(cat ? cat.icon : (t.type === 'transfer' ? 'swap_horiz' : 'sell'), 'text-[0.875rem]') +
+            '</div>' +
+            '<div class="flex flex-col truncate">' +
+              '<span class="font-label-sm text-label-sm text-on-surface font-semibold truncate">' + UI.esc(title) + '</span>' +
+              '<span class="text-[0.625rem] text-on-surface-variant truncate">' + UI.esc(sub) +
+                ' · ' + UI.esc(FMT.time(t.happenedAt)) + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="flex items-center gap-space-sm shrink-0">' +
+            '<span class="font-numeric-data text-numeric-data font-bold ' +
+              (t.type === 'income' ? 'text-primary' : 'text-on-surface') + '">' +
+              (t.type === 'transfer' ? FMT.money(t.amount) : UI.signedMoney(t.type, t.amount)) +
+            '</span>' +
+            '<button class="text-on-surface-variant hover:text-error transition-colors" data-undo="' + t.id +
+              '" title="撤回此笔（软删）" type="button">' + UI.icon('undo', 'text-[1rem]') + '</button>' +
+          '</div>' +
+        '</div>';
+      }
+
+      function renderQueue() {
+        var list = $('#queue-list');
+        var cents = 0;
+        session.forEach(function (t) {
+          if (t.type === 'expense') cents += Math.round(t.amount * 100);
+        });
+
+        if (list) {
+          // 空态由脚本写而不是留在 HTML 里：否则「记过一笔又全部撤回」时
+          // 会剩下一个空容器，看着像清单坏了
+          list.innerHTML = session.length
+            ? UI.each(session, queueCard)
+            : '<div class="text-center text-on-surface-variant font-label-sm text-label-sm py-3">本次还没有记账</div>';
+        }
+        text('#queue-count', session.length + ' 笔');
+        text('#queue-total', FMT.money(cents / 100));
+      }
+
+      function renderBanner() {
+        var on = session.length > 0;
+        show('#banner', on);
+        if (!on) return;
+
+        text('#banner-count', session.length);
+        if (lastTxn) {
+          var name = lastTxn.note || (lastTxn.category ? lastTxn.category.name : TYPE_LABEL[lastTxn.type]);
+          text('#banner-last', '「' + name + ' ' + FMT.money(lastTxn.amount) + '」');
+        }
+
+        // 这一格放服务端 penetration 的「今日可花」；没预算/非当月就没有这个值，
+        // 与其显示一个 0，不如整格收起来
+        var box = $('#banner-remaining');
+        if (box) {
+          var usable = lastPen && lastPen.hasBudget && lastPen.todayQuotaAfter !== null &&
+            lastPen.todayQuotaAfter !== undefined;
+          box.textContent = usable ? '今日可花 ' + FMT.money(lastPen.todayQuotaAfter) : '';
+          box.classList.toggle('hidden', !usable);
+        }
+      }
+
+      function renderContinuous() {
+        var track = $('#continuous-track');
+        if (track) {
+          track.className = 'relative w-9 h-5 rounded-full transition-colors p-0.5 ' +
+            (continuous ? 'bg-primary' : 'bg-surface-container-highest');
+        }
+        var knob = $('#continuous-knob');
+        if (knob) {
+          knob.className = 'w-4 h-4 rounded-full bg-surface-container-lowest shadow-sm transition-transform ' +
+            (continuous ? 'translate-x-4' : 'translate-x-0');
+        }
+        text('#save-next-label', continuous ? '保存并继续下一笔' : '保存');
+      }
+
+      /** 重新算一遍所有随金额变化的部分 */
+      function refresh() {
+        var amt = renderAmount();
+        update(amt);
+      }
+
+      /* ---------------------------------------------------------------------
+       * 交互
+       * ------------------------------------------------------------------- */
+
+      function setType(type) {
+        if (type === currentType) return;
+        currentType = type;
+
+        $$('#type-switch [data-type]').forEach(function (b) {
+          var on = b.dataset.type === type;
+          b.className = 'shrink-0 whitespace-nowrap px-space-md py-1.5 rounded-lg font-label-md text-label-md transition-colors ' +
+            (on ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface');
+        });
+
+        // 换个类型就是换了一套类目（支出 10 个 / 收入 6 个 / 转账 0 个），
+        // 之前手动选中的那个已经不适用了
+        catTouched = false;
+        selectedCatId = null;
+        renderCategories();
+        renderAccounts();
+        renderChips();
+        refresh();
+      }
+
+      function save() {
+        if (!ctx) return;
+
+        var value = evaluate(expr);
+        if (!(value > 0)) return;
+        if (!accountId) { UI.toast('请先选择一个账户', 'error'); return; }
+
+        var body = {
+          type: currentType,
+          amount: Number(value.toFixed(2)),
+          accountId: accountId,
+        };
+        var input = $('#happened-at');
+        if (input && input.value) body.happenedAt = input.value;
+
+        var note = $('#note-input');
+        if (note && note.value.trim()) body.note = note.value.trim();
+
+        if (currentType === 'transfer') {
+          if (!toAccountId) { UI.toast('请选择转入账户', 'error'); return; }
+          body.toAccountId = toAccountId;
+        } else {
+          if (!selectedCatId) { UI.toast('请先选择一个类目', 'error'); return; }
+          body.categoryId = selectedCatId;
+        }
+
+        var btn = $('#save-next-btn');
+        if (btn) btn.disabled = true;
+
+        API.post('/transactions', body).then(function (result) {
+          session.unshift(result.transaction);
+          lastTxn = result.transaction;
+          lastPen = result.penetration || null;
+
+          expr = '';
+          catTouched = false;
+          if (note) note.value = '';
+
+          renderQueue();
+          refresh();
+          UI.toast('已记录 ' + FMT.money(result.transaction.amount), 'success');
+          reloadBudget();
+
+          // 「保存」是一次性动作：给成功提示留半秒再离开，否则用户看不清存了什么
+          if (!continuous) setTimeout(function () { exitRecordSheet(); }, 380);
+        }).catch(function () {
+          if (btn) btn.disabled = false;
+        });
+      }
+
+      /** 撤回 = 软删那一笔（不是从列表里抹掉假装没输过） */
+      function undo(id) {
+        API.del('/transactions/' + id).then(function () {
+          session = session.filter(function (t) { return t.id !== id; });
+          renderQueue();
+          renderBanner();
+          reloadBudget();
+          UI.toast('已撤回这一笔', 'success');
+        });
+      }
+
+      /** 记账/撤回后分类预算的已用部分变了，重拉一次视图再重画穿透条 */
+      function reloadBudget() {
+        return API.get('/budget/categories', { period: periodOf() }, { silent: true })
+          .then(function (data) {
+            catBudget = (data && data.items) || [];
+            refresh();
+          })
+          .catch(function () {});   // 拉不到就维持上一次的数字，不打断记账流程
+      }
+
+      function onKeydown(event) {
+        if (event.key === 'Escape') { exitRecordSheet(event); return; }
+        var t = event.target;
+        if (t && t.matches && t.matches('input, textarea, select')) return;   // 备注框里正常打字
+        if (event.key === 'Enter') { event.preventDefault(); save(); return; }
+        if (event.key === 'Backspace') { event.preventDefault(); press('back'); return; }
+        if (/^[0-9.]$/.test(event.key)) { press(event.key); return; }
+        if (/^[+\-*/]$/.test(event.key)) press(event.key);
+      }
+
+      function bindChrome() {
+        $$('#keypad [data-key]').forEach(function (btn) {
+          btn.addEventListener('click', function () { press(btn.dataset.key); });
+        });
+
+        var saveBtn = $('#save-next-btn');
+        if (saveBtn) saveBtn.addEventListener('click', save);
+
+        var exitBtn = $('#exit-btn');
+        if (exitBtn) exitBtn.addEventListener('click', function () { exitRecordSheet(); });
+
+        $$('#type-switch [data-type]').forEach(function (btn) {
+          btn.addEventListener('click', function () { setType(btn.dataset.type); });
+        });
+
+        var toggle = $('#continuous-toggle');
+        if (toggle) toggle.addEventListener('click', function (e) {
+          // 它是 label 包着 div，不是 checkbox —— 不拦默认行为点下去没有反应
+          e.preventDefault();
+          continuous = !continuous;
+          renderContinuous();
+        });
+
+        var acctSel = $('#acct-select');
+        if (acctSel) acctSel.addEventListener('change', function () {
+          accountId = Number(acctSel.value);
+          renderAccounts();
+          refresh();
+        });
+
+        var toSel = $('#to-acct-select');
+        if (toSel) toSel.addEventListener('change', function () {
+          toAccountId = Number(toSel.value);
+          renderAccounts();
+          refresh();
+        });
+
+        var timeInput = $('#happened-at');
+        if (timeInput) timeInput.addEventListener('change', function () {
+          renderTime();
+          reloadBudget();
+          refresh();
+        });
+
+        var grid = $('#cat-grid');
+        if (grid) grid.addEventListener('click', function (e) {
+          var btn = e.target.closest && e.target.closest('[data-cat-id]');
+          if (!btn || !grid.contains(btn)) return;
+          selectCategory(Number(btn.dataset.catId), true);
+        });
+
+        var chips = $('#chip-row');
+        if (chips) chips.addEventListener('click', function (e) {
+          var btn = e.target.closest && e.target.closest('[data-chip]');
+          if (!btn || !chips.contains(btn)) return;
+          var note = $('#note-input');
+          if (note) note.value = btn.dataset.chip;
+          selectCategory(Number(btn.dataset.chipCat), true);
+        });
+
+        var noteInput = $('#note-input');
+        if (noteInput) noteInput.addEventListener('input', function () {
+          if (catTouched) return;
+          var hit = matchRule(noteInput.value);
+          if (hit && hit.categoryId !== selectedCatId) selectCategory(hit.categoryId, false);
+        });
+
+        var queue = $('#queue-list');
+        if (queue) queue.addEventListener('click', function (e) {
+          var btn = e.target.closest && e.target.closest('[data-undo]');
+          if (!btn || !queue.contains(btn)) return;
+          btn.disabled = true;   // 双击会发两次 DELETE，第二次 404 —— 先关掉
+          undo(Number(btn.dataset.undo));
+        });
+
+        var scrim = document.querySelector('[data-record-scrim]');
+        if (scrim) scrim.addEventListener('click', function () { exitRecordSheet(); });
+
+        document.addEventListener('keydown', onKeydown);
+      }
+
+      /* ---------------------------------------------------------------------
+       * 启动
+       *
+       * UI.boot 已经把「没登录就踢走 / 拉 bootstrap / 回填侧边栏 / 绑退出登录」
+       * 做完了，这里只负责用 ctx 画面板。
+       * ------------------------------------------------------------------- */
+      UI.boot(function (context) {
+        ctx = context;
+        bindChrome();
+
+        renderCategories();
+        renderAccounts();
+        renderTime();
+        renderChips();
+        renderContinuous();
+        renderQueue();
+        renderBanner();
+        refresh();
+
+        // 警戒线位置和分类预算都要额外两条请求。用 allSettled 而不是 all：
+        // 其中一条失败不该让另一条的成果也丢掉 —— 面板本来就能在缺数据时工作。
+        return Promise.all([
+          API.get('/budget', { period: periodOf() }, { silent: true }).then(function (b) {
+            if (b && b.hasBudget && b.alertYellowPct) yellowPct = b.alertYellowPct;
+          }).catch(function () {}),
+          API.get('/budget/categories', { period: periodOf() }, { silent: true }).then(function (d) {
+            catBudget = (d && d.items) || [];
+          }).catch(function () {}),
+        ]).then(function () { refresh(); });
+      });
+    })();
+  </script>
+</div></main></div>
+<div data-shell="bottomnav"></div>
+<div data-shell="switcher"></div>
+<script src="../assets/js/shell.js"></script>
+
+</body></html>

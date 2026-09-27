@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>明账 · 运营控制台</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <div id="login-view" class="login-view" hidden>
+    <div class="login-atmosphere" aria-hidden="true"><span></span><span></span><span></span></div>
+    <main class="login-panel">
+      <section class="login-brand">
+        <div class="brand-lockup"><div class="brand-mark">明</div><div><strong>明账</strong><small>OPERATIONS CONSOLE</small></div></div>
+        <div class="login-statement"><p>账本之外，<br><em>每一次操作都有来处。</em></p><span>跨账本排查 · 账号处置 · 配置维护 · 全量审计</span></div>
+        <div class="security-strip"><b>01</b><span>独立鉴权</span><b>02</b><span>只读财务事实</span><b>03</b><span>强制留痕</span></div>
+      </section>
+      <section class="login-form-card">
+        <div class="eyebrow">INTERNAL ACCESS</div>
+        <h1>运营专员登录</h1>
+        <p>仅限获授权的内部人员使用。所有操作都会被记录。</p>
+        <form id="login-form" class="stack-lg">
+          <label><span>后台用户名</span><input name="username" autocomplete="username" required maxlength="50" placeholder="请输入用户名"></label>
+          <label><span>密码</span><input name="password" type="password" autocomplete="current-password" required placeholder="请输入密码"></label>
+          <button class="btn primary wide" type="submit"><span>进入运营控制台</span><i>→</i></button>
+        </form>
+        <div class="login-foot"><span class="pulse-dot"></span>独立后台会话 · 8 小时后失效</div>
+      </section>
+    </main>
+  </div>
+
+  <div id="app-view" class="app-shell" hidden>
+    <aside class="sidebar">
+      <div class="brand-lockup sidebar-brand"><div class="brand-mark">明</div><div><strong>明账</strong><small>运营控制台</small></div></div>
+      <nav id="main-nav" aria-label="主导航">
+        <a href="#/dashboard" data-route="dashboard"><span>⌁</span><b>数据看板</b><small>OVERVIEW</small></a>
+        <a href="#/users" data-route="users"><span>◎</span><b>用户管理</b><small>USERS</small></a>
+        <a href="#/config" data-route="config"><span>⌘</span><b>运营配置</b><small>CONFIG</small></a>
+        <a href="#/audit" data-route="audit"><span>≣</span><b>审计日志</b><small>AUDIT</small></a>
+      </nav>
+      <div class="sidebar-notice"><strong>数据红线</strong><p>运营端不能修改或删除任何用户流水、预算、账户与分类。</p></div>
+      <button id="logout-btn" class="admin-chip"><span class="avatar" id="admin-avatar">运</span><span><b id="admin-name">运营专员</b><small>安全退出</small></span><i>↗</i></button>
+    </aside>
+    <div class="workspace">
+      <header class="topbar">
+        <button id="mobile-nav" class="icon-btn mobile-only" aria-label="打开导航">☰</button>
+        <div><span id="breadcrumb" class="eyebrow">OPERATIONS / OVERVIEW</span><h1 id="page-title">数据看板</h1></div>
+        <div class="top-actions"><span class="live-badge"><i></i>服务在线</span><span id="clock" class="clock"></span></div>
+      </header>
+      <main id="page" class="page" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+  <div id="toast-root" class="toast-root" aria-live="polite"></div>
+  <script src="/assets/api.js"></script>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+# 依赖
+node_modules/
+
+# 环境变量（含数据库密码与 JWT 密钥，绝不入库）
+.env
+.env.local
+.env.*.local
+
+# 构建产物
+unpackage/
+dist/
+.hbuilderx/
+
+# 临时文件与日志
+.tmp/
+*.log
+logs/
+npm-debug.log*
+pids/
+*.pid
+
+# Python
+__pycache__/
+*.pyc
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+.claude/settings.local.json
+
+# 本次不归档：误放的工程备份 与 HBuilderX 模板测试工程
+跨端app误放工程备份_2026-09-27/
+跨端app应用（移动端开发工程师）/KAIFA/

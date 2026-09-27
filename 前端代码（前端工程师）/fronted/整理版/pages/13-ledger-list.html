@@ -1,0 +1,927 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#14B8A6">
+<meta name="description" content="明账 —— 把预算穿透到每一笔记录里的记账工具。">
+<title>明账 · 列表与筛选</title>
+
+<!-- 字体：Manrope（正文与数字）+ Material Symbols（图标） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="../assets/js/theme.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+<!-- 设计令牌与基础样式（PRD 第 13 章） -->
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+
+<!-- Tailwind Play CDN：先载入运行时，再注入主题配置 -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="../assets/js/tailwind.config.js"></script>
+
+<!-- 路由表：导航与状态切换的唯一事实来源 -->
+<script src="../assets/js/routes.js"></script>
+
+<!-- 数据层与 UI 运行时（api.js 必须先于 ui.js） -->
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/ui.js"></script>
+</head><body data-page="ledger-list" class="bg-background font-body-md text-on-surface min-h-screen"><div data-shell="sidebar"></div>
+<div data-shell="topbar"></div>
+<div class="lg:pl-72"><main class="relative pt-16 min-h-screen bg-background"><div class="max-w-[1200px] mx-auto p-margin-lg"><div class="flex flex-col w-full">
+<!-- Top Summary & Main Action Bar -->
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md mb-space-lg">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">收支流水</h1>
+<span class="px-space-sm py-space-xs rounded-full bg-surface-container text-primary font-label-sm text-label-sm">实时同步</span>
+</div>
+<div class="flex flex-wrap items-center gap-x-space-sm gap-y-space-xs mt-space-xs text-on-surface-variant font-body-md text-body-md">
+<span class="">本月累计支出 <strong class="font-numeric-data text-on-surface" id="sum-expense">—</strong></span>
+<span class="text-outline-variant">·</span>
+<span class="">收入 <strong class="font-numeric-data text-primary" id="sum-income">—</strong></span>
+<span class="text-outline-variant">·</span>
+<span class="">结余 <strong class="font-numeric-data text-primary" id="sum-net">—</strong></span>
+</div>
+</div>
+<!-- Right Operations Bar -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="relative flex items-center bg-surface-container-lowest rounded-xl shadow-sm px-space-md py-space-xs w-64">
+<span class="material-symbols-outlined text-on-surface-variant text-[1.25rem] mr-space-xs">search</span>
+<input class="w-full bg-transparent border-none outline-none font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant" id="quickSearchInput" placeholder="搜索备注、商户或标签..." type="text">
+<kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono rounded bg-surface-container text-on-surface-variant font-semibold shadow-inner">快捷键 ⌘ /</kbd>
+</div>
+<button class="flex items-center gap-space-xs h-10 px-space-md bg-surface-container-lowest hover:bg-surface-container rounded-xl shadow-sm text-on-surface font-label-lg text-label-lg transition-all" id="toggleFilterPanelBtn" type="button">
+<span class="material-symbols-outlined text-[1.25rem] text-secondary">tune</span>
+<span class="">筛选</span>
+<span class="w-2 h-2 rounded-full bg-primary inline-block ml-0.5"></span>
+</button>
+<button class="flex items-center gap-space-xs h-10 px-space-md bg-surface-container-lowest hover:bg-surface-container rounded-xl shadow-sm text-on-surface font-label-lg text-label-lg transition-all" id="exportCsvBtn" type="button">
+<span class="material-symbols-outlined text-[1.25rem] text-on-surface-variant">download</span>
+<span class="">导出表格</span>
+</button>
+<button class="flex items-center gap-space-xs h-10 px-space-md bg-primary hover:bg-primary-container text-on-primary font-label-lg text-label-lg rounded-xl shadow-sm hover:shadow-md transition-all" id="importBillBtn" type="button">
+<span class="material-symbols-outlined text-[1.25rem]">upload_file</span>
+<span class="">导入账单</span>
+</button>
+</div>
+</div>
+<!-- Advanced Filter Bar Panel -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md mb-space-lg flex flex-col gap-space-md" id="filterPanel">
+<!-- Top Filter Controls Row -->
+<div class="flex flex-wrap items-center justify-between gap-space-md">
+<!-- Time Range Selectors：窄屏整条横向滚动，不让「上月 / 近 3 个月 / 自定义」折成竖排 */
+<div class="flex items-center overflow-x-auto bg-surface-container-low p-1 rounded-xl">
+<button class="time-btn shrink-0 whitespace-nowrap px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-primary font-label-md text-label-md shadow-xs transition-all" data-range="month" id="rangeMonthBtn" type="button">本月</button>
+<button class="time-btn shrink-0 whitespace-nowrap px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-range="last" type="button">上月</button>
+<button class="time-btn shrink-0 whitespace-nowrap px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-range="quarter" type="button">近 3 个月</button>
+<button class="time-btn shrink-0 whitespace-nowrap px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md flex items-center gap-1 transition-all" data-range="custom" type="button">
+<span class="">自定义</span>
+<span class="material-symbols-outlined text-[1rem]">calendar_today</span>
+</button>
+</div>
+<!-- Transaction Type Segmented Switch -->
+<div class="flex items-center bg-surface-container-low p-1 rounded-xl">
+<button class="type-filter-btn px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-on-surface font-label-md text-label-md shadow-xs transition-all" data-type="all" type="button">全部</button>
+<button class="type-filter-btn px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-type="expense" type="button">仅支出</button>
+<button class="type-filter-btn px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-type="income" type="button">仅收入</button>
+<button class="type-filter-btn px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-all" data-type="transfer" type="button">转账</button>
+</div>
+</div>
+<!-- Dropdown / Parametric Filters Row -->
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-space-sm pt-space-xs">
+<!-- Category Multi-select dropdown trigger -->
+<div class="relative">
+<button class="w-full flex items-center justify-between px-space-md py-2 bg-surface-container-low hover:bg-surface-container rounded-xl text-left font-body-sm text-body-sm text-on-surface transition-colors" id="categoryDropdownTrigger" type="button">
+<div class="flex items-center gap-space-xs truncate"><span class="material-symbols-outlined text-secondary text-[1.125rem]">category</span><span class="" id="categoryLabel">分类：全部分类</span></div>
+<span class="material-symbols-outlined text-on-surface-variant text-[1.125rem]">expand_more</span>
+</button>
+</div>
+<!-- Account Selector -->
+<div class="relative">
+<button class="w-full flex items-center justify-between px-space-md py-2 bg-surface-container-low hover:bg-surface-container rounded-xl text-left font-body-sm text-body-sm text-on-surface transition-colors" id="accountDropdownTrigger" type="button">
+<div class="flex items-center gap-space-xs truncate"><span class="material-symbols-outlined text-secondary text-[1.125rem]">account_balance_wallet</span><span class="" id="accountLabel">账户：全部账户</span></div>
+<span class="material-symbols-outlined text-on-surface-variant text-[1.125rem]">expand_more</span>
+</button>
+</div>
+<!-- Amount Range Filter -->
+<div class="flex items-center gap-space-xs bg-surface-container-low px-space-md py-1.5 rounded-xl">
+<span class="font-label-sm text-label-sm text-on-surface-variant">金额</span>
+<input class="w-20 bg-transparent border-none outline-none font-numeric-data text-[0.875rem] text-on-surface placeholder:text-on-surface-variant" id="amountMin" placeholder="¥ 最小" type="number">
+<span class="text-outline-variant font-label-sm">-</span>
+<input class="w-20 bg-transparent border-none outline-none font-numeric-data text-[0.875rem] text-on-surface placeholder:text-on-surface-variant" id="amountMax" placeholder="¥ 最大" type="number">
+</div>
+<!-- Quick Reset & Active Filter Chips -->
+<div class="flex flex-wrap items-center justify-end gap-space-xs" id="activeChips">
+<span class="flex flex-wrap items-center gap-space-xs" id="chipRow"></span>
+<button class="px-space-md py-1.5 text-on-surface-variant hover:text-primary font-label-md text-label-md transition-colors" id="resetFiltersBtn" type="button">重置过滤</button>
+</div>
+</div>
+</div>
+<!-- Data Table Container：12 栏表格在窄屏改成横向滚动（表头与行一起滚），不做挤压变形 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-x-auto flex flex-col">
+<!-- Table Header Definition -->
+<div class="grid grid-cols-12 min-w-[760px] px-space-lg py-space-sm bg-surface-container-low text-on-surface-variant font-label-md text-label-md uppercase tracking-wider">
+<div class="col-span-2 flex items-center gap-space-xs">
+<span class="">交易日期与时间</span>
+</div>
+<div class="col-span-2 flex items-center gap-space-xs">
+<span class="">分类</span>
+</div>
+<div class="col-span-3">
+<span class="">交易商户与说明</span>
+</div>
+<div class="col-span-2">
+<span class="">支付账户</span>
+</div>
+<div class="col-span-2">
+<span class="">预算渗透状态</span>
+</div>
+<div class="col-span-1 text-right">
+<span class="">金额</span>
+</div>
+</div>
+<!-- 流水列表：按日期分组渲染（内容由脚本从 /api/transactions 填充） -->
+<div class="flex flex-col" id="txn-groups"></div>
+<!-- 筛选无结果时的就地空态（不跳页，保留筛选条件供用户改） -->
+<div class="hidden" id="noResultState">
+<div class="flex flex-col items-center justify-center gap-space-sm py-space-xl text-center">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[1.5rem]">search_off</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface">没有符合条件的记录</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">换个关键词，或放宽分类、账户与金额区间试试</span>
+<button class="mt-space-xs px-space-md py-2 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors" id="clearFiltersBtn" type="button">清空筛选条件</button>
+</div>
+</div>
+<!-- Modern Lightweight Pagination Bar -->
+<div class="flex flex-wrap items-center justify-between px-space-lg py-space-md bg-surface-container-lowest" id="paginationBar">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span class="">共 <strong class="font-numeric-data text-on-surface" id="resultCount">0</strong> 笔记录</span>
+<span class="text-outline-variant" id="countDivider">·</span>
+<span class="" id="pageInfo">当前显示第 <strong class="font-numeric-data text-on-surface">1 / 1</strong> 页</span>
+<div class="ml-space-sm flex items-center gap-1">
+<span class="">每页</span>
+<select class="bg-surface-container-low rounded-lg px-2 py-1 outline-none text-on-surface font-label-sm text-label-sm cursor-pointer" id="pageSizeSelect">
+<option value="10">10 条</option>
+<option value="20">20 条</option>
+<option value="50" selected="">50 条</option>
+</select>
+</div>
+</div>
+<!-- Page Controls（页码由脚本按真实 total 渲染） -->
+<div class="flex items-center gap-1" id="pageBtns"></div>
+</div>
+</div>
+<!-- 5-Second Undo Toast Notification Bar -->
+<div class="fixed bottom-8 right-12 z-50 transform translate-y-24 opacity-0 pointer-events-none transition-all duration-300 ease-out" id="undoToast">
+<div class="flex items-center gap-space-md bg-inverse-surface text-inverse-on-surface px-space-lg py-space-sm rounded-xl shadow-xl">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-fixed text-[1.25rem]">check_circle</span>
+<span class="font-body-md text-body-md" id="toastMessage">已删除 1 笔记录</span>
+</div>
+<div class="h-4 w-[1px] bg-outline"></div>
+<button class="flex items-center gap-1 font-label-lg text-label-lg text-primary-fixed hover:text-on-primary-fixed transition-colors" id="undoActionBtn" type="button">
+<span class="">撤销</span>
+<span class="font-numeric-data text-[0.8125rem] bg-surface-container-highest/20 px-1 rounded" id="undoCountdown">(5s)</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  /* ---------------------------------------------------------------------
+   * 收支流水 —— 接真实数据
+   *
+   * 原型里这一页是「一张静态表 + 一整套客户端 filter」，接上真实数据后必须变的
+   * 只有一件事：**筛选和分页改由后端做**。
+   *
+   * 为什么不能继续在客户端筛：客户端筛选只在「全部数据都在当前页里」时才成立。
+   * 一旦分页，筛出来的就只是这一页里命中的那几行 —— 用户会看到「共 3 笔」，
+   * 而库里其实有 30 笔。所以每个筛选条件都直接映射成一个查询参数。
+   *
+   * 数据来源：
+   *   列表 / 分页      GET /api/transactions          （raw 模式取 meta.total）
+   *   顶部月度汇总     GET /api/transactions/summary  （[视图] v_monthly_summary）
+   *   预算渗透列       GET /api/budget/categories     （[视图] v_budget_category_progress）
+   *   分类 / 账户选项  /api/meta/bootstrap            （由 MZ_UI.boot 统一拉取）
+   *
+   * 仍在本地算的只有**分组头的当日小计**：它是分组标题上的装饰，按当前返回的
+   * 行就地汇总即可，不值得为它加一个「按日聚合」的后端接口。
+   * ------------------------------------------------------------------- */
+  (function () {
+    'use strict';
+
+    var API = window.MZ_API;
+    var UI = window.MZ_UI;
+    var FMT = window.MZ_FMT;
+
+    var esc = UI.esc;
+    var each = UI.each;
+    var icon = UI.icon;
+
+    /** 只取 id 的快捷方式。写成 $('#x') 是为了能被 page-check 的静态检查看见。 */
+    function $(sel) { return document.getElementById(String(sel).replace(/^#/, '')); }
+    function setText(sel, value) { var el = $(sel); if (el) el.textContent = value; }
+
+    var TYPE_LABEL = { all: '全部', expense: '仅支出', income: '仅收入', transfer: '转账' };
+    var RANGE_LABEL = { month: '本月', last: '上月', quarter: '近 3 个月', custom: '全部时间' };
+    var WEEK = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+
+    var state = {
+      period: UI.currentPeriod(),   // 「本月」的锚点，?period=YYYY-MM 可覆盖
+      range: 'month',               // month | last | quarter | custom
+      type: 'all',
+      categoryId: null,
+      accountId: null,
+      keyword: '',
+      minAmount: null,
+      maxAmount: null,
+      page: 1,
+      pageSize: 50,
+      items: [],
+      total: 0,
+      totalPages: 1,
+    };
+
+    var ctx = null;
+    var catById = {};
+    var acctById = {};
+    var budgetByCat = {};                       // categoryId → v_budget_category_progress 的一行
+    var summary = null;
+    var alert = { yellowPct: 80, redPct: 100 }; // 由 /api/budget 覆盖
+    var lastDeleted = null;                     // { id, index, item, name }
+    var undoTimer = null;
+    var countdownTimer = null;
+
+    /* ---------------------------------------------------------------
+     * 小工具
+     * ------------------------------------------------------------- */
+
+    function pad2(n) { return n < 10 ? '0' + n : String(n); }
+    function dayOf(ts) { return String(ts).slice(0, 10); }
+
+    /** '2026-09-24' → '9月24日' */
+    function monthLabel(dateOnly) {
+      var p = dateOnly.split('-');
+      return Number(p[1]) + '月' + Number(p[2]) + '日';
+    }
+
+    function weekdayLabel(dateOnly) {
+      var p = dateOnly.split('-');
+      return WEEK[new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2])).getDay()];
+    }
+
+    function lastDayOf(periodValue) {
+      var p = periodValue.split('-');
+      var y = Number(p[0]);
+      var m = Number(p[1]);
+      return y + '-' + pad2(m) + '-' + pad2(new Date(y, m, 0).getDate());
+    }
+
+    /** 颜色来自数据库，进不了 style 属性的字符一律剔掉，避免拼接出坏 CSS。 */
+    function cssColor(c) {
+      var s = String(c == null ? '' : c).replace(/[^#0-9A-Fa-f]/g, '');
+      return /^#[0-9A-Fa-f]{6}$/.test(s) ? s : '';
+    }
+
+    function colorStyle(c) {
+      var hex = cssColor(c);
+      return hex ? ' style="color:' + hex + '"' : '';
+    }
+
+    function setLabel(el, text) { if (el) el.textContent = text; }
+
+    function debounce(fn, ms) {
+      var timer = null;
+      return function () {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(fn, ms);
+      };
+    }
+
+    /* ---------------------------------------------------------------
+     * 请求：一个查询条件集合 → 一次 /api/transactions
+     * ------------------------------------------------------------- */
+
+    /** 时间范围 → period 或 from/to。自定义区间缺日期选择器，等同于「不限时间」。 */
+    function rangeParams() {
+      if (state.range === 'month') return { period: state.period };
+      if (state.range === 'last') return { period: FMT.prevPeriod(state.period) };
+      if (state.range === 'quarter') {
+        return { from: FMT.prevPeriod(FMT.prevPeriod(state.period)) + '-01', to: lastDayOf(state.period) };
+      }
+      return {};
+    }
+
+    function listQuery() {
+      var q = rangeParams();
+      q.page = state.page;
+      q.pageSize = state.pageSize;
+      if (state.type !== 'all') q.type = state.type;
+      if (state.categoryId) q.categoryId = state.categoryId;
+      if (state.accountId) q.accountId = state.accountId;
+      if (state.keyword) q.keyword = state.keyword;
+      if (state.minAmount !== null) q.minAmount = state.minAmount;
+      if (state.maxAmount !== null) q.maxAmount = state.maxAmount;
+      return q;
+    }
+
+    function load() {
+      return API.get('/transactions', listQuery(), { raw: true }).then(function (page) {
+        state.items = page.data || [];
+        state.total = (page.meta && page.meta.total) || 0;
+        state.totalPages = (page.meta && page.meta.totalPages) || 1;
+
+        // 删到当前页空了、或筛选后页数变少，页码会越界 —— 退回最后一页重来。
+        if (state.page > state.totalPages) {
+          state.page = state.totalPages;
+          return load();
+        }
+        render();
+      });
+    }
+
+    /** 删除 / 撤销之后，月度汇总与分类预算都变了，静默重取一遍。 */
+    function refreshDerived() {
+      return Promise.all([reloadSummary(), reloadBudget()]);
+    }
+
+    function reloadSummary() {
+      return API.get('/transactions/summary', { period: state.period }, { silent: true })
+        .then(function (s) { summary = s; paintSummary(); })
+        .catch(function () {});
+    }
+
+    function reloadBudget() {
+      return API.get('/budget/categories', { period: state.period }, { silent: true })
+        .then(function (d) {
+          budgetByCat = {};
+          ((d && d.items) || []).forEach(function (b) { budgetByCat[b.categoryId] = b; });
+          renderGroups();
+        })
+        .catch(function () {});
+    }
+
+    function paintSummary() {
+      if (!summary) return;
+      setText('#sum-expense', FMT.money(summary.expenseTotal));
+      setText('#sum-income', FMT.money(summary.incomeTotal));
+      setText('#sum-net', summary.net < 0 ? '-' + FMT.money(-summary.net) : '+' + FMT.money(summary.net));
+    }
+
+    /* ---------------------------------------------------------------
+     * 渲染
+     * ------------------------------------------------------------- */
+
+    function render() {
+      renderGroups();
+      renderPager();
+    }
+
+    function cellPenetration(t) {
+      if (t.type !== 'expense') {
+        return '<span class="px-2.5 py-0.5 rounded-md bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">不计入预算</span>';
+      }
+      var b = t.category ? budgetByCat[t.category.id] : null;
+      if (!b) {
+        return '<span class="px-2.5 py-0.5 rounded-md bg-surface-container text-on-surface-variant font-label-sm text-label-sm">未设预算</span>';
+      }
+      var used = FMT.clampPercent(b.usedPct);
+      var tone = UI.alertClass(used > alert.redPct ? 'red' : used > alert.yellowPct ? 'yellow' : 'normal');
+      return '<div class="flex items-center justify-between font-label-sm text-label-sm mb-1">' +
+          '<span class="text-on-surface-variant truncate">' + esc(b.categoryName) + '剩余</span>' +
+          '<span class="font-bold ' + tone.text + '">' + FMT.percent(Math.max(0, 100 - used)) + '</span>' +
+        '</div>' +
+        '<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden flex">' +
+          '<div class="h-full ' + tone.bar + ' rounded-full transition-all duration-500" style="width: ' + used + '%"></div>' +
+        '</div>';
+    }
+
+    function rowHtml(t) {
+      var isTransfer = t.type === 'transfer';
+      var cat = t.category;
+      var catName = isTransfer ? '账户转账' : (cat ? cat.name : '未分类');
+      var catIcon = isTransfer ? 'swap_horiz' : (cat ? cat.icon : 'help');
+      var typeWord = isTransfer ? '账户流转' : (t.type === 'income' ? '收入' : '支出');
+
+      var title = t.merchant ||
+        (isTransfer ? t.account.name + ' → ' + (t.toAccount ? t.toAccount.name : '') : catName);
+
+      var amountText = isTransfer ? FMT.money(t.amount) : UI.signedMoney(t.type, t.amount);
+      var amountClass = isTransfer ? 'text-on-surface-variant'
+        : (t.type === 'income' ? 'text-primary' : 'text-on-surface');
+
+      return '' +
+        '<div class="transaction-row grid grid-cols-12 min-w-[760px] items-center px-space-lg py-space-md hover:bg-surface-container-low/70 transition-colors group relative" data-id="' + t.id + '">' +
+          '<div class="col-span-2 flex flex-col">' +
+            '<span class="font-numeric-data text-[0.875rem] text-on-surface">' + esc(FMT.time(t.happenedAt)) + '</span>' +
+            '<span class="font-body-sm text-body-sm text-on-surface-variant">' + esc(t.source === 'import' ? '导入账单' : '') + '</span>' +
+          '</div>' +
+          '<div class="col-span-2 flex items-center gap-space-xs">' +
+            '<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center"' + colorStyle(cat && cat.color) + '>' +
+              icon(catIcon, 'text-[1.25rem]') +
+            '</div>' +
+            '<div class="flex flex-col min-w-0">' +
+              '<span class="font-label-lg text-label-lg text-on-surface truncate">' + esc(catName) + '</span>' +
+              '<span class="font-body-sm text-body-sm text-on-surface-variant truncate">' + esc(typeWord) + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="col-span-3 flex flex-col pr-space-md">' +
+            '<span class="font-label-lg text-label-lg text-on-surface truncate">' + esc(title) + '</span>' +
+            '<span class="font-body-sm text-body-sm text-on-surface-variant truncate">' + esc(t.note || '') + '</span>' +
+          '</div>' +
+          '<div class="col-span-2 flex items-center gap-space-xs">' +
+            '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-surface-container-high text-on-surface font-label-sm text-label-sm">' +
+              icon(t.account.icon || 'account_balance_wallet', 'text-[0.875rem]') +
+              '<span class="truncate">' + esc(t.account.name) + '</span>' +
+            '</span>' +
+          '</div>' +
+          '<div class="col-span-2 flex flex-col justify-center pr-space-md">' + cellPenetration(t) + '</div>' +
+          '<div class="col-span-1 text-right flex flex-col justify-center">' +
+            '<span class="font-numeric-data text-numeric-data ' + amountClass + '">' + esc(amountText) + '</span>' +
+          '</div>' +
+          '<div class="absolute right-4 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center gap-1 bg-surface-container-lowest shadow-md px-2 py-1 rounded-lg">' +
+            '<button class="p-1 hover:bg-surface-container text-on-surface-variant hover:text-primary rounded transition-colors" data-edit="' + t.id + '" title="快速编辑" type="button">' +
+              icon('edit', 'text-[1.125rem]') + '</button>' +
+            '<button class="p-1 hover:bg-error-container text-on-surface-variant hover:text-error rounded transition-colors" data-del="' + t.id + '" data-name="' + esc(title) + '" title="删除记录" type="button">' +
+              icon('delete', 'text-[1.125rem]') + '</button>' +
+          '</div>' +
+        '</div>';
+    }
+
+    /** 分组头。金额用整数分累加，避免 0.1 + 0.2 那类浮点尾巴。 */
+    function groupHtml(day, items) {
+      var cents = { expense: 0, income: 0, transfer: 0 };
+      items.forEach(function (t) { cents[t.type] += Math.round(t.amount * 100); });
+
+      var rel = FMT.relDay(day + ' 00:00:00');
+      var head = (rel === '今天' || rel === '昨天') ? rel + ' · ' + monthLabel(day) : monthLabel(day);
+
+      var bits = [];
+      if (cents.expense) {
+        bits.push('<span>当日支出 <span class="font-numeric-data text-on-surface">' + FMT.money(cents.expense / 100) + '</span></span>');
+      }
+      if (cents.income) {
+        bits.push('<span class="text-outline-variant">·</span><span>收入 <span class="font-numeric-data text-primary">' + FMT.money(cents.income / 100) + '</span></span>');
+      }
+      if (cents.transfer) {
+        bits.push('<span class="text-outline-variant">·</span><span>内部转账 <span class="font-numeric-data text-on-surface-variant">' + FMT.money(cents.transfer / 100) + '</span></span>');
+      }
+
+      return '<div class="day-group">' +
+          '<div class="flex items-center justify-between px-space-lg py-space-xs bg-surface-container-low/50">' +
+            '<div class="flex items-center gap-space-sm">' +
+              '<span class="font-headline-sm text-headline-sm text-on-surface">' + esc(head) + '</span>' +
+              '<span class="font-label-sm text-label-sm text-on-surface-variant">' + esc(weekdayLabel(day)) + '</span>' +
+            '</div>' +
+            '<div class="flex items-center gap-space-md font-body-sm text-body-sm text-on-surface-variant">' + bits.join('') + '</div>' +
+          '</div>' +
+          each(items, rowHtml) +
+        '</div>';
+    }
+
+    function renderGroups() {
+      var host = $('#txn-groups');
+      if (!host) return;
+      if (!state.items.length) { host.innerHTML = ''; return; }
+
+      var order = [];
+      var byDay = {};
+      state.items.forEach(function (t) {
+        var d = dayOf(t.happenedAt);
+        if (!byDay[d]) { byDay[d] = []; order.push(d); }
+        byDay[d].push(t);
+      });
+      host.innerHTML = each(order, function (d) { return groupHtml(d, byDay[d]); });
+    }
+
+    function pageBtn(label, page, disabled, isIcon) {
+      var cls = disabled
+        ? 'w-8 h-8 flex items-center justify-center rounded-lg text-outline-variant cursor-not-allowed bg-surface-container-low/40'
+        : (page === state.page
+          ? 'w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-on-primary font-label-md text-label-md shadow-xs'
+          : 'w-8 h-8 flex items-center justify-center rounded-lg text-on-surface hover:bg-surface-container font-label-md text-label-md transition-colors');
+      var body = isIcon ? icon(label, 'text-[1.125rem]') : esc(label);
+      return '<button class="' + cls + '"' + (disabled ? ' disabled' : '') +
+        ' data-page="' + (disabled ? '' : page) + '" type="button">' + body + '</button>';
+    }
+
+    function renderPager() {
+      setText('#resultCount', String(state.total));
+      var info = $('#pageInfo');
+      if (info) {
+        info.innerHTML = '当前显示第 <strong class="font-numeric-data text-on-surface">' +
+          state.page + ' / ' + state.totalPages + '</strong> 页';
+      }
+
+      var empty = state.total === 0;
+      var noResult = $('#noResultState');
+      var bar = $('#paginationBar');
+      if (noResult) noResult.classList.toggle('hidden', !empty);
+      if (bar) bar.classList.toggle('hidden', empty);
+
+      var host = $('#pageBtns');
+      if (!host) return;
+      var total = state.totalPages;
+      var start = Math.max(1, Math.min(state.page - 2, total - 4));
+      var end = Math.min(total, start + 4);
+      var out = pageBtn('chevron_left', state.page - 1, state.page <= 1, true);
+      for (var i = start; i <= end; i += 1) out += pageBtn(String(i), i, false, false);
+      out += pageBtn('chevron_right', state.page + 1, state.page >= total, true);
+      host.innerHTML = out;
+    }
+
+    /* ---------------------------------------------------------------
+     * 筛选面板
+     * ------------------------------------------------------------- */
+
+    function chip(label, key) {
+      return '<span data-chip data-clear="' + key + '" class="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1 cursor-pointer">' +
+        esc(label) +
+        '<span class="material-symbols-outlined text-[0.875rem] hover:text-on-surface">close</span></span>';
+    }
+
+    function renderChips() {
+      var host = $('#chipRow');
+      if (!host) return;
+      var out = chip(RANGE_LABEL[state.range] || '本月', 'range');
+      if (state.type !== 'all') out += chip(TYPE_LABEL[state.type], 'type');
+      if (state.categoryId) out += chip('分类：' + labelOf(catById, state.categoryId), 'cat');
+      if (state.accountId) out += chip('账户：' + labelOf(acctById, state.accountId), 'acct');
+      if (state.minAmount !== null || state.maxAmount !== null) {
+        out += chip('金额 ' + (state.minAmount === null ? '' : state.minAmount) +
+          '–' + (state.maxAmount === null ? '' : state.maxAmount), 'amount');
+      }
+      if (state.keyword) out += chip('“' + state.keyword + '”', 'q');
+      host.innerHTML = out;
+    }
+
+    function labelOf(map, id) {
+      var item = map[id];
+      return item ? item.name : String(id);
+    }
+
+    function paintRangeButtons() {
+      Array.prototype.forEach.call(document.querySelectorAll('.time-btn'), function (btn) {
+        var on = btn.getAttribute('data-range') === state.range;
+        btn.classList.toggle('bg-surface-container-lowest', on);
+        btn.classList.toggle('text-primary', on);
+        btn.classList.toggle('shadow-xs', on);
+        btn.classList.toggle('text-on-surface-variant', !on);
+      });
+    }
+
+    function paintTypeButtons() {
+      Array.prototype.forEach.call(document.querySelectorAll('.type-filter-btn'), function (btn) {
+        var on = btn.getAttribute('data-type') === state.type;
+        btn.classList.toggle('bg-surface-container-lowest', on);
+        btn.classList.toggle('text-on-surface', on);
+        btn.classList.toggle('shadow-xs', on);
+        btn.classList.toggle('text-on-surface-variant', !on);
+      });
+    }
+
+    function paintFilterUI() {
+      paintRangeButtons();
+      paintTypeButtons();
+      setLabel($('#categoryLabel'), state.categoryId ? '分类：' + labelOf(catById, state.categoryId) : '分类：全部分类');
+      setLabel($('#accountLabel'), state.accountId ? '账户：' + labelOf(acctById, state.accountId) : '账户：全部账户');
+      renderChips();
+    }
+
+    /** 任何筛选条件变动都回到第 1 页，否则会停在一个不存在的页码上。 */
+    function refilter() {
+      state.page = 1;
+      paintFilterUI();
+      return load();
+    }
+
+    /* 分类 / 账户下拉：选项来自 bootstrap，不另维护一份清单。
+     * 懒建 —— 点开才造 DOM，省掉一屏用不到的节点。 */
+    function bindMenu(triggerId, options, onPick) {
+      var trigger = $(triggerId);
+      if (!trigger) return;
+      var pop = null;
+
+      trigger.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (!pop) {
+          var host = trigger.parentElement;
+          if (!host) return;
+          pop = document.createElement('div');
+          pop.className = 'hidden absolute left-0 top-full mt-1 z-30 w-full bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant py-1 max-h-64 overflow-y-auto';
+          options().forEach(function (opt) {
+            var item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'w-full text-left px-3 py-2 font-body-sm text-body-sm text-on-surface hover:bg-surface-container transition-colors';
+            item.textContent = opt.name;
+            item.addEventListener('click', function () { pop.classList.add('hidden'); onPick(opt.id); });
+            pop.appendChild(item);
+          });
+          host.appendChild(pop);
+          document.addEventListener('click', function () { if (pop) pop.classList.add('hidden'); });
+        }
+        pop.classList.toggle('hidden');
+      });
+    }
+
+    function clearFilter(key) {
+      if (key === 'range') state.range = 'month';
+      if (key === 'type') state.type = 'all';
+      if (key === 'cat') state.categoryId = null;
+      if (key === 'acct') state.accountId = null;
+      if (key === 'amount') {
+        state.minAmount = state.maxAmount = null;
+        var lo = $('#amountMin'); if (lo) lo.value = '';
+        var hi = $('#amountMax'); if (hi) hi.value = '';
+      }
+      if (key === 'q') {
+        state.keyword = '';
+        var search = $('#quickSearchInput'); if (search) search.value = '';
+      }
+      refilter();
+    }
+
+    function resetFilters() {
+      state.range = 'month';
+      state.type = 'all';
+      state.categoryId = null;
+      state.accountId = null;
+      state.keyword = '';
+      state.minAmount = state.maxAmount = null;
+      var search = $('#quickSearchInput'); if (search) search.value = '';
+      var lo = $('#amountMin'); if (lo) lo.value = '';
+      var hi = $('#amountMax'); if (hi) hi.value = '';
+      refilter();
+    }
+
+    function readAmount(input) {
+      var raw = input && input.value != null ? String(input.value).trim() : '';
+      return raw === '' ? null : raw;
+    }
+
+    /* ---------------------------------------------------------------
+     * 删除 / 撤销
+     *
+     * 后端是软删，所以「撤销」= 调 restore 接口，而不是把 DOM 节点塞回去 ——
+     * 只塞节点的话，月度汇总和分类预算会停留在删除后的状态，刷新一下又变回来。
+     * ------------------------------------------------------------- */
+
+    function removeRecord(id, name) {
+      var index = -1;
+      for (var i = 0; i < state.items.length; i += 1) {
+        if (state.items[i].id === id) { index = i; break; }
+      }
+      if (index < 0) return;
+
+      var item = state.items[index];
+      var rowEl = document.querySelector('[data-id="' + id + '"]');
+      if (rowEl) {
+        rowEl.style.transition = 'all 0.25s ease-out';
+        rowEl.style.opacity = '0';
+        rowEl.style.transform = 'translateX(20px)';
+      }
+
+      API.del('/transactions/' + id).then(function () {
+        state.items.splice(index, 1);
+        state.total = Math.max(0, state.total - 1);
+        state.totalPages = Math.max(1, Math.ceil(state.total / state.pageSize));
+        lastDeleted = { id: id, index: index, item: item, name: name };
+
+        if (!state.items.length && state.page > 1) {
+          state.page -= 1;
+          load();
+        } else {
+          render();
+        }
+        showUndoToast('已删除「' + name + '」记录');
+        refreshDerived();
+      }).catch(function () {
+        if (rowEl) { rowEl.style.opacity = ''; rowEl.style.transform = ''; }
+      });
+    }
+
+    function undoDelete() {
+      if (!lastDeleted) return;
+      var d = lastDeleted;
+
+      API.post('/transactions/' + d.id + '/restore').then(function () {
+        var at = Math.min(d.index, state.items.length);
+        state.items.splice(at, 0, d.item);
+        state.total += 1;
+        state.totalPages = Math.max(1, Math.ceil(state.total / state.pageSize));
+        lastDeleted = null;
+        hideUndoToast();
+        render();
+        refreshDerived();
+        UI.toast('已撤销删除', 'success');
+      }).catch(function () {});
+    }
+
+    function showUndoToast(message) {
+      var toast = $('#undoToast');
+      var countdownEl = $('#undoCountdown');
+      if (!toast) return;
+
+      setText('#toastMessage', message);
+      toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      var secondsLeft = 5;
+      if (countdownEl) countdownEl.textContent = '(' + secondsLeft + 's)';
+      if (countdownTimer) clearInterval(countdownTimer);
+      if (undoTimer) clearTimeout(undoTimer);
+
+      countdownTimer = setInterval(function () {
+        secondsLeft -= 1;
+        if (secondsLeft > 0) {
+          if (countdownEl) countdownEl.textContent = '(' + secondsLeft + 's)';
+        } else {
+          clearInterval(countdownTimer);
+        }
+      }, 1000);
+
+      // 5 秒后这条记录就真的留在回收站里了，撤回入口一并收掉。
+      undoTimer = setTimeout(function () {
+        hideUndoToast();
+        lastDeleted = null;
+      }, 5000);
+    }
+
+    function hideUndoToast() {
+      var toast = $('#undoToast');
+      if (!toast) return;
+      toast.classList.remove('translate-y-0', 'opacity-100');
+      toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+    }
+
+    /* ---------------------------------------------------------------
+     * 事件绑定
+     * ------------------------------------------------------------- */
+
+    function bindChrome() {
+      Array.prototype.forEach.call(document.querySelectorAll('.time-btn'), function (btn) {
+        btn.addEventListener('click', function () {
+          // 「自定义」在原型里就没有日期选择器，这里等同于「不限时间」。
+          state.range = btn.getAttribute('data-range') || 'month';
+          refilter();
+        });
+      });
+
+      Array.prototype.forEach.call(document.querySelectorAll('.type-filter-btn'), function (btn) {
+        btn.addEventListener('click', function () {
+          state.type = btn.getAttribute('data-type') || 'all';
+          refilter();
+        });
+      });
+
+      var search = $('#quickSearchInput');
+      if (search) {
+        search.addEventListener('input', debounce(function () {
+          state.keyword = search.value.trim();
+          refilter();
+        }, 280));
+        search.addEventListener('keydown', function (e) { if (e.key === 'Enter') e.preventDefault(); });
+      }
+
+      var amountHandler = debounce(function () {
+        state.minAmount = readAmount($('#amountMin'));
+        state.maxAmount = readAmount($('#amountMax'));
+        refilter();
+      }, 320);
+      var lo = $('#amountMin'); if (lo) lo.addEventListener('input', amountHandler);
+      var hi = $('#amountMax'); if (hi) hi.addEventListener('input', amountHandler);
+
+      var chips = $('#chipRow');
+      if (chips) {
+        chips.addEventListener('click', function (e) {
+          var target = e.target && e.target.closest ? e.target.closest('[data-clear]') : null;
+          if (target) clearFilter(target.getAttribute('data-clear'));
+        });
+      }
+
+      var groups = $('#txn-groups');
+      if (groups) {
+        groups.addEventListener('click', function (e) {
+          if (!e.target || !e.target.closest) return;
+          var del = e.target.closest('[data-del]');
+          if (del) {
+            removeRecord(Number(del.getAttribute('data-del')), del.getAttribute('data-name') || '这笔');
+            return;
+          }
+          var edit = e.target.closest('[data-edit]');
+          if (edit) {
+            // 编辑流还没有对应的界面（原型里这个按钮也是空的），
+            // 与其假装能编辑，不如把用户送到记账面板重新记一笔。
+            UI.toast('暂不支持直接编辑，请在记账面板重新记录', 'info');
+          }
+        });
+      }
+
+      var pager = $('#pageBtns');
+      if (pager) {
+        pager.addEventListener('click', function (e) {
+          var btn = e.target && e.target.closest ? e.target.closest('[data-page]') : null;
+          if (!btn || btn.disabled) return;
+          var target = Number(btn.getAttribute('data-page'));
+          if (!target || target === state.page) return;
+          state.page = target;
+          load();
+        });
+      }
+
+      var pageSize = $('#pageSizeSelect');
+      if (pageSize) {
+        pageSize.addEventListener('change', function () {
+          state.pageSize = Number(pageSize.value) || 50;
+          state.page = 1;
+          load();
+        });
+      }
+
+      var reset = $('#resetFiltersBtn'); if (reset) reset.addEventListener('click', resetFilters);
+      var clear = $('#clearFiltersBtn'); if (clear) clear.addEventListener('click', resetFilters);
+
+      var toggle = $('#toggleFilterPanelBtn');
+      if (toggle) {
+        toggle.addEventListener('click', function () {
+          var panel = $('#filterPanel');
+          if (!panel) return;
+          panel.classList.toggle('hidden');
+          toggle.classList.toggle('bg-surface-container', !panel.classList.contains('hidden'));
+        });
+      }
+
+      var undoBtn = $('#undoActionBtn'); if (undoBtn) undoBtn.addEventListener('click', undoDelete);
+
+      var importBtn = $('#importBillBtn');
+      if (importBtn) importBtn.addEventListener('click', function () { UI.go('/pages/18-import-main.html'); });
+
+      var exportBtn = $('#exportCsvBtn');
+      if (exportBtn) exportBtn.addEventListener('click', function () {
+        exportBtn.disabled = true;
+        API.download('/settings/export.csv', '明账-全部流水-' + state.period + '.csv')
+          .then(function () { UI.toast('流水已导出', 'success'); })
+          .catch(function () {})
+          .finally(function () { exportBtn.disabled = false; });
+      });
+
+      // 顶栏搜索带着 ?q= 跳进来时，把关键词预置进筛选。
+      var incoming = null;
+      try { incoming = new URLSearchParams(window.location.search).get('q'); } catch (err) {}
+      if (incoming) {
+        state.keyword = incoming.trim();
+        if (search) search.value = incoming;
+      }
+    }
+
+    /** 时间范围按钮上标出具体月份 —— 「本月」不写月份，过了月就说不清了。 */
+    function paintRangeLabels() {
+      var monthBtn = $('#rangeMonthBtn');
+      if (monthBtn) monthBtn.textContent = '本月 (' + state.period.replace('-', '/') + ')';
+    }
+
+    /* ---------------------------------------------------------------
+     * 启动
+     * ------------------------------------------------------------- */
+
+    UI.boot(function (context) {
+      ctx = context;
+      catById = UI.indexBy(context.categories, 'id');
+      acctById = UI.indexBy(context.accounts, 'id');
+
+      bindMenu('#categoryDropdownTrigger', function () {
+        return [{ id: null, name: '全部分类' }].concat(context.categories.map(function (c) {
+          return { id: c.id, name: c.name };
+        }));
+      }, function (id) { state.categoryId = id; refilter(); });
+
+      bindMenu('#accountDropdownTrigger', function () {
+        return [{ id: null, name: '全部账户' }].concat(context.accounts.map(function (a) {
+          return { id: a.id, name: a.name };
+        }));
+      }, function (id) { state.accountId = id; refilter(); });
+
+      bindChrome();
+      paintRangeLabels();
+      paintFilterUI();
+
+      return Promise.all([
+        reloadSummary(),
+        reloadBudget(),
+        API.get('/budget', { period: state.period }, { silent: true }).then(function (b) {
+          if (b && b.hasBudget) {
+            if (b.alertYellowPct) alert.yellowPct = b.alertYellowPct;
+            if (b.alertRedPct) alert.redPct = b.alertRedPct;
+          }
+        }).catch(function () {}),
+      ]).then(load);
+    });
+  })();
+</script></div></main></div>
+<div data-shell="bottomnav"></div>
+<div data-shell="switcher"></div>
+<script src="../assets/js/shell.js"></script>
+
+
+</body></html>
